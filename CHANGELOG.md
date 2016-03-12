@@ -5,6 +5,7 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 ### Improvement
 - Detect the CN or SAN from certificates file when using named certificates.
 - Fix some typos
+- Move origin_deploy.sh in scripts folder
 
 ## v1.0.3
 ### Improvement
