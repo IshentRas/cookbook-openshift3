@@ -23,6 +23,11 @@ assetConfig:
 controllerLeaseTTL: <%= node['cookbook-openshift3']['openshift_master_controller_lease_ttl'] %>
 <% end -%>
 controllers: '*'
+controllerConfig:
+  serviceServingCert:
+    signer:
+      certFile: service-signer.crt
+      keyFile: service-signer.key
 corsAllowedOrigins:
 <%- @erb_corsAllowedOrigins.each do |origin| -%>
   - <%= origin %>
