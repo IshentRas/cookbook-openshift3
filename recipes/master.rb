@@ -5,6 +5,7 @@
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
 master_servers = node['cookbook-openshift3']['use_params_roles'] && !Chef::Config[:solo] ? search(:node, %(role:"#{node['cookbook-openshift3']['master_servers']}")).sort! : node['cookbook-openshift3']['master_servers']
+etcd_servers = node['cookbook-openshift3']['use_params_roles'] && !Chef::Config[:solo] ? search(:node, %(role:"#{node['cookbook-openshift3']['etcd_servers']}")).sort! : node['cookbook-openshift3']['etcd_servers']
 
 if node['cookbook-openshift3']['openshift_HA']
   case node['cookbook-openshift3']['openshift_HA_method']
@@ -61,7 +62,6 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
   end
 
   if node['cookbook-openshift3']['openshift_HA']
-    include_recipe 'cookbook-openshift3::etcd_cluster'
     include_recipe 'cookbook-openshift3::master_cluster'
   else
     include_recipe 'cookbook-openshift3::master_standalone'
@@ -83,4 +83,8 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
     include_recipe 'cookbook-openshift3::nodes_certificates'
     include_recipe 'cookbook-openshift3::master_config_post'
   end
+end
+
+if etcd_servers.find { |server_etcd| server_etcd['fqdn'] == node['fqdn'] }
+    include_recipe 'cookbook-openshift3::etcd_cluster'
 end
