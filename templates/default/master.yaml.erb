@@ -19,10 +19,8 @@ assetConfig:
     keyFile: master.server.key
     maxRequestsInFlight: 0
     requestTimeoutSeconds: 0
-<% if node['cookbook-openshift3']['audit_config_enabled'] %>
 auditConfig:
-   enabled: true
-<% end -%>
+  enabled: <%= node['cookbook-openshift3']['openshift_master_auditconfig'] %>
 <% if node['cookbook-openshift3']['openshift_HA'] %>
 controllerLeaseTTL: <%= node['cookbook-openshift3']['openshift_master_controller_lease_ttl'] %>
 <% end -%>

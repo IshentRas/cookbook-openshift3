@@ -84,6 +84,7 @@ default['cookbook-openshift3']['openshift_docker_node_image'] = node['cookbook-o
 default['cookbook-openshift3']['openshift_docker_ovs_image'] = node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/openvswitch' : 'openshift/openvswitch'
 default['cookbook-openshift3']['openshift_master_config_dir'] = "#{node['cookbook-openshift3']['openshift_common_master_dir']}/master"
 default['cookbook-openshift3']['openshift_master_bind_addr'] = '0.0.0.0'
+default['cookbook-openshift3']['openshift_master_auditconfig'] = false
 default['cookbook-openshift3']['openshift_master_api_port'] = '8443'
 default['cookbook-openshift3']['openshift_master_console_port'] = '8443'
 default['cookbook-openshift3']['openshift_master_controllers_port'] = '8444'
