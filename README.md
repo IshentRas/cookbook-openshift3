@@ -75,7 +75,13 @@ Override Attributes
 }
 ```
 
+* `node['cookbook-openshift3']['docker_log_driver'`
+
+Set to `'json-file'` (default), `'journald'` or any other supported [docker log driver](https://docs.docker.com/engine/admin/logging/overview/).
+
 * `node['cookbook-openshift3']['docker_log_options']`
+
+Assuming `node['cookbook-openshift3']['docker_log_driver']` is `'json-file'` (the default):
 
 ```json
 {
@@ -83,6 +89,9 @@ Override Attributes
  "max-file": "3"
 }
 ```
+
+Any option can be set, as long as they are supported by the current [docker log driver](https://docs.docker.com/engine/admin/logging/overview/).
+
 
 * `node['cookbook-openshift3']['openshift_master_named_certificates']`
 

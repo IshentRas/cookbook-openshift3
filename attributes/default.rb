@@ -40,7 +40,8 @@ default['cookbook-openshift3']['deploy_example_xpaas-streams'] = false
 default['cookbook-openshift3']['deploy_example_xpaas-templates'] = false
 
 default['cookbook-openshift3']['docker_version'] = nil
-default['cookbook-openshift3']['docker_log_options'] = nil
+default['cookbook-openshift3']['docker_log_driver'] = 'json-file'
+default['cookbook-openshift3']['docker_log_options'] = {}
 default['cookbook-openshift3']['install_method'] = 'yum'
 default['cookbook-openshift3']['httpd_xfer_port'] = '9999'
 default['cookbook-openshift3']['core_packages'] = %w(libselinux-python wget vim-enhanced net-tools bind-utils git bash-completion bash-completion dnsmasq)

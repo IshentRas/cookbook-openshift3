@@ -1,8 +1,8 @@
 # /etc/sysconfig/docker
 
 # Modify these options if you want to change the way the docker daemon runs
-<% if node['cookbook-openshift3']['docker_log_options'] %>
-OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled --log-driver=json-file --log-opt max-size=<%= node['cookbook-openshift3']['docker_log_options']['max-size'] %> --log-opt max-file=<%= node['cookbook-openshift3']['docker_log_options']['max-file'] %>'
+<% unless node['cookbook-openshift3']['docker_log_driver'] == 'json-file' && node['cookbook-openshift3']['docker_log_options'].empty? %>
+OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled --log-driver=<%= node['cookbook-openshift3']['docker_log_driver'] %><%= node['cookbook-openshift3']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %>'
 <% else -%>
 OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled'
 <% end -%>
