@@ -183,8 +183,8 @@ default['cookbook-openshift3']['etcd_default_days'] = '365'
 default['cookbook-openshift3']['etcd_client_port'] = '2379'
 default['cookbook-openshift3']['etcd_peer_port'] = '2380'
 
-default['cookbook-openshift3']['etcd_initial_advertise_peer_urls'] = "https://#{node['ipaddress']}:#{node['cookbook-openshift3']['etcd_peer_port']}"
-default['cookbook-openshift3']['etcd_listen_peer_urls'] = "https://#{node['ipaddress']}:#{node['cookbook-openshift3']['etcd_peer_port']}"
-default['cookbook-openshift3']['etcd_listen_client_urls'] = "https://#{node['ipaddress']}:#{node['cookbook-openshift3']['etcd_client_port']}"
-default['cookbook-openshift3']['etcd_advertise_client_urls'] = "https://#{node['ipaddress']}:#{node['cookbook-openshift3']['etcd_client_port']}"
-default['cookbook-openshift3']['etcd_listen_client_urls'] = "https://#{node['ipaddress']}:#{node['cookbook-openshift3']['etcd_client_port']}"
+default['cookbook-openshift3']['etcd_initial_advertise_peer_urls'] = "https://#{node['cookbook-openshift3']['openshift_common_ip']}:#{node['cookbook-openshift3']['etcd_peer_port']}"
+default['cookbook-openshift3']['etcd_listen_peer_urls'] = "https://#{node['cookbook-openshift3']['openshift_common_ip']}:#{node['cookbook-openshift3']['etcd_peer_port']}"
+default['cookbook-openshift3']['etcd_listen_client_urls'] = "https://#{node['cookbook-openshift3']['openshift_common_ip']}:#{node['cookbook-openshift3']['etcd_client_port']}"
+default['cookbook-openshift3']['etcd_advertise_client_urls'] = "https://#{node['cookbook-openshift3']['openshift_common_ip']}:#{node['cookbook-openshift3']['etcd_client_port']}"
+default['cookbook-openshift3']['etcd_listen_client_urls'] = "https://#{node['cookbook-openshift3']['openshift_common_ip']}:#{node['cookbook-openshift3']['etcd_client_port']}"
