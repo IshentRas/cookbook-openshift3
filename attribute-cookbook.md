@@ -154,6 +154,8 @@ Installs/Configures Openshift 3.x (>= 3.2)
 * `node['cookbook-openshift3']['openshift_hosted_metrics_parameters']` -  Defaults to `{ ... }`.
 * `node['cookbook-openshift3']['erb_corsAllowedOrigins']` -  Defaults to `[ ... ]`.
 * `node['cookbook-openshift3']['master_generated_certs_dir']` -  Defaults to `/var/www/html/master/generated_certs`.
+* `node['cookbook-openshift3']['etcd_add_additional_nodes']` -  Defaults to `false`.
+* `node['cookbook-openshift3']['etcd_removal_servers']` -  Defaults to `[...]`.
 * `node['cookbook-openshift3']['etcd_conf_dir']` -  Defaults to `/etc/etcd`.
 * `node['cookbook-openshift3']['etcd_ca_dir']` -  Defaults to `#{node['cookbook-openshift3']['etcd_conf_dir']}/ca`.
 * `node['cookbook-openshift3']['etcd_generated_certs_dir']` -  Defaults to `/var/www/html/etcd/generated_certs`.

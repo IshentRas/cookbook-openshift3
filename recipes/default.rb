@@ -12,7 +12,10 @@ service "#{node['cookbook-openshift3']['openshift_service_type']}-master-api" do
   retry_delay 5
 end
 
-service "#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
+service "#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers" do
+  retries 5
+  retry_delay 5
+end
 
 execute 'daemon-reload' do
   command 'systemctl daemon-reload'

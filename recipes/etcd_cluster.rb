@@ -92,6 +92,18 @@ if etcd_servers.find { |server_etcd| server_etcd['fqdn'] == node['fqdn'] }
         creates "#{node['cookbook-openshift3']['etcd_generated_certs_dir']}/etcd-#{etcd_master['fqdn']}.tgz"
       end
     end
+
+    openshift_add_etcd 'Add additional etcd nodes to cluster' do
+      etcd_servers etcd_servers
+      only_if { node['cookbook-openshift3']['etcd_add_additional_nodes'] }
+    end
+
+    openshift_add_etcd 'Remove additional etcd nodes to cluster' do
+      etcd_servers etcd_servers
+      etcd_servers_to_remove node['cookbook-openshift3']['etcd_removal_servers']
+      not_if { node['cookbook-openshift3']['etcd_removal_servers'].empty? }
+      action :remove_node
+    end
   end
 
   node['cookbook-openshift3']['enabled_firewall_rules_etcd'].each do |rule|
@@ -145,7 +157,12 @@ if etcd_servers.find { |server_etcd| server_etcd['fqdn'] == node['fqdn'] }
   template "#{node['cookbook-openshift3']['etcd_conf_dir']}/etcd.conf" do
     source 'etcd.conf.erb'
     notifies :restart, 'service[etcd]', :immediately
-    variables etcd_servers: etcd_servers
+    variables lazy {
+      {
+        etcd_servers: etcd_servers,
+        initial_cluster_state: etcd_servers.find { |etcd_node| etcd_node['fqdn'] == node['fqdn'] }.key?('new_node') ? 'existing' : node['cookbook-openshift3']['etcd_initial_cluster_state']
+      }
+    }
   end
 
   service 'etcd' do

@@ -346,7 +346,59 @@ In general, override attributes in the environment should be used when changing 
   }
 }
 ```
+* ADD NEW ETCD SERVERS TO CLUSTER ("etcd_add_additional_nodes" must be set to true and a key called "new_node" should be added to the server(s)". If the server was previously part of the cluster, remember to clear its data directory before starting CHEF)
 
+```json
+...
+      "etcd_add_additional_nodes": true,
+      "etcd_servers": [
+        {
+          "fqdn": "ose1-server.domain.local",
+          "ipaddress": "1.1.1.1"
+        },
+        {
+          "fqdn": "ose2-server.domain.local",
+          "ipaddress": "1.1.1.2"
+         
+        },
+        {
+          "fqdn": "ose3-server.domain.local",
+          "ipaddress": "1.1.1.3"
+        },
+        {
+          "fqdn": "ose4-server.domain.local",
+          "ipaddress": "1.1.1.4",
+          "new_node": true
+        }
+      ]
+...
+```
+* REMOVE ETCD SERVERS FROM CLUSTER ("etcd_removal_servers" must be define and list all servers you want to remove. etcd_servers should be your desire state"
+
+```json
+...
+      "etcd_removal_servers": [
+        {
+          "fqdn": "ose4-server.domain.local",
+        }
+      ]
+      "etcd_servers": [
+        {
+          "fqdn": "ose1-server.domain.local",
+          "ipaddress": "1.1.1.1"
+        },
+        {
+          "fqdn": "ose2-server.domain.local",
+          "ipaddress": "1.1.1.2"
+
+        },
+        {
+          "fqdn": "ose3-server.domain.local",
+          "ipaddress": "1.1.1.3"
+        }
+      ]
+...
+```
 ###Once it is done you should assign the node to the relevant environment.###
 ```
 knife node environment set NODE_NAME ENVIRONMENT_NAME

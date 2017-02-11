@@ -22,3 +22,9 @@ if node['cookbook-openshift3']['openshift_hosted_cluster_metrics']
     Chef::Application.fatal!('Key HAWKULAR_METRICS_HOSTNAME must be defined when deploying cluster metrics ("openshift_hosted_metrics_parameters")')
   end
 end
+
+if node['cookbook-openshift3']['etcd_add_additional_nodes']
+  unless node['cookbook-openshift3']['etcd_add_additional_nodes'] && node['cookbook-openshift3']['etcd_servers'].any? { |key| key['new_node'] }
+    Chef::Application.fatal!('A key named "new_node" must be defined when adding new members to ETCD cluster')
+  end
+end

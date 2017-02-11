@@ -12,7 +12,7 @@ ETCD_LISTEN_CLIENT_URLS=https://<%= @etcd_servers.find{ |etcd| etcd['fqdn'] == n
 #[cluster]
 ETCD_INITIAL_ADVERTISE_PEER_URLS=https://<%= @etcd_servers.find{ |etcd| etcd['fqdn'] == node['fqdn']}['ipaddress'] %>:<%= node['cookbook-openshift3']['etcd_peer_port'] %>
 ETCD_INITIAL_CLUSTER=<%= @etcd_servers.map{ |srv| "#{srv['fqdn']}=https://#{srv['ipaddress']}:2380" }.join(',') %>
-ETCD_INITIAL_CLUSTER_STATE=<%= node['cookbook-openshift3']['etcd_initial_cluster_state'] %>
+ETCD_INITIAL_CLUSTER_STATE=<%= @initial_cluster_state %>
 ETCD_INITIAL_CLUSTER_TOKEN=<%= node['cookbook-openshift3']['etcd_initial_cluster_token'] %>
 #ETCD_DISCOVERY=""
 #ETCD_DISCOVERY_SRV=""
