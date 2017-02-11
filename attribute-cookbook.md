@@ -32,7 +32,7 @@ Installs/Configures Openshift 3.x (>= 3.2)
 * `node['cookbook-openshift3']['ose_version']` -  Defaults to `nil`.
 * `node['cookbook-openshift3']['persistent_storage']` -  Defaults to `[ ... ]`.
 * `node['cookbook-openshift3']['openshift_deployment_type']` -  Defaults to `enterprise`.
-* `node['cookbook-openshift3']['ose_major_version']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? '3.3' : '1.3`.
+* `node['cookbook-openshift3']['ose_major_version']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? '3.4' : '1.4`.
 * `node['cookbook-openshift3']['deploy_containerized']` -  Defaults to `false`.
 * `node['cookbook-openshift3']['deploy_example']` -  Defaults to `false`.
 * `node['cookbook-openshift3']['deploy_dnsmasq']` -  Defaults to `false`.

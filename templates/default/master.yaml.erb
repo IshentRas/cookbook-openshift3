@@ -25,7 +25,7 @@ auditConfig:
 controllerLeaseTTL: <%= node['cookbook-openshift3']['openshift_master_controller_lease_ttl'] %>
 <% end -%>
 controllers: '*'
-<% if [1.3, 3.3, 1.4, 3.4].include? node['cookbook-openshift3']['ose_major_version'].to_f %>
+<% if node['cookbook-openshift3']['ose_major_version'].split('.').last.to_i.between?(3,4) %>
 controllerConfig:
   serviceServingCert:
     signer:
@@ -95,7 +95,7 @@ kubeletClientInfo:
 kubernetesMasterConfig:
   apiLevels:
   - v1
-<% if [1.3, 3.3, 1.4, 3.4].include? node['cookbook-openshift3']['ose_major_version'].to_f %>
+<% if node['cookbook-openshift3']['ose_major_version'].split('.').last.to_i.between?(3,4) %>
   apiServerArguments:
     deserialization-cache-size:
     - "<%= node['cookbook-openshift3']['openshift_master_deserialization_cache_size'] %>"
@@ -117,7 +117,7 @@ kubernetesMasterConfig:
   staticNodeNames: []
 <%- end -%>
 masterClients:
-<% if [1.3, 3.3, 1.4, 3.4].include? node['cookbook-openshift3']['ose_major_version'].to_f %>
+<% if node['cookbook-openshift3']['ose_major_version'].split('.').last.to_i.between?(3,4) %>
   externalKubernetesClientConnectionOverrides:
     acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
     contentType: application/vnd.kubernetes.protobuf
@@ -125,7 +125,7 @@ masterClients:
     qps: 200
 <%- end -%>
   externalKubernetesKubeConfig: ""
-<% if [1.3, 3.3, 1.4, 3.4].include? node['cookbook-openshift3']['ose_major_version'].to_f %>
+<% if node['cookbook-openshift3']['ose_major_version'].split('.').last.to_i.between?(3,4) %>
   openshiftLoopbackClientConnectionOverrides:
     acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
     contentType: application/vnd.kubernetes.protobuf

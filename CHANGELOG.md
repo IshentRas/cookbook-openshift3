@@ -4,6 +4,7 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 ## v1.10.33
 ### Bug
 - Revert e168f9b, use stable repository URLs again
+- Adjust predicates and priorities based on ose_major_version
 
 ### Improvement
 - Use stable CentOS PaaS repository during tests
