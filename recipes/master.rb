@@ -6,6 +6,7 @@
 
 master_servers = node['cookbook-openshift3']['master_servers']
 version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'][1..-1].sub(/^3/, '1').to_f.round(1) : node['cookbook-openshift3']['ose_major_version'].sub(/^3/, '1').to_f.round(1)
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.first : node['cookbook-openshift3']['certificate_server']
 
 include_recipe 'cookbook-openshift3::etcd_cluster'
 
@@ -51,12 +52,21 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
     version node['cookbook-openshift3'] ['ose_version'] unless node['cookbook-openshift3']['ose_version'].nil?
     not_if { node['cookbook-openshift3']['deploy_containerized'] }
   end
+end
 
+if certificate_server['fqdn'] == node['fqdn']
   package 'httpd' do
     notifies :run, 'ruby_block[Change HTTPD port xfer]', :immediately
     notifies :enable, 'service[httpd]', :immediately
   end
+  node['cookbook-openshift3']['enabled_firewall_rules_master'].each do |rule|
+    iptables_rule rule do
+      action :enable
+    end
+  end
+end
 
+if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] } || certificate_server['fqdn'] == node['fqdn']
   node['cookbook-openshift3']['enabled_firewall_rules_master'].each do |rule|
     iptables_rule rule do
       action :enable
@@ -112,8 +122,8 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
     command "cp #{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig /root/.kube/config && chmod 700 /root/.kube/config"
     creates '/root/.kube/config'
   end
+end
 
-  if master_servers.first['fqdn'] == node['fqdn']
-    include_recipe 'cookbook-openshift3::nodes_certificates'
-  end
+if certificate_server['fqdn'] == node['fqdn']
+  include_recipe 'cookbook-openshift3::nodes_certificates'
 end

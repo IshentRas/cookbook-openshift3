@@ -6,8 +6,9 @@
 
 master_servers = node['cookbook-openshift3']['master_servers']
 etcd_servers = node['cookbook-openshift3']['etcd_servers']
-master_peers = master_servers.reject { |h| h['fqdn'] == master_servers[0]['fqdn'] }
 ose_major_version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+master_peers = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.reject { |h| h['fqdn'] == master_servers[0]['fqdn'] } : master_servers
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.first : node['cookbook-openshift3']['certificate_server']
 
 node['cookbook-openshift3']['enabled_firewall_rules_master_cluster'].each do |rule|
   iptables_rule rule do
@@ -15,7 +16,7 @@ node['cookbook-openshift3']['enabled_firewall_rules_master_cluster'].each do |ru
   end
 end
 
-if master_servers.first['fqdn'] == node['fqdn']
+if certificate_server['fqdn'] == node['fqdn']
   %W(/var/www/html/master #{node['cookbook-openshift3']['master_generated_certs_dir']}).each do |path|
     directory path do
       mode '0755'
@@ -56,30 +57,33 @@ if master_servers.first['fqdn'] == node['fqdn']
   end
 end
 
-remote_file "Retrieve client certificate from Master[#{master_servers.first['fqdn']}]" do
-  path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz"
-  source "http://#{master_servers.first['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz"
-  action :create_if_missing
-  notifies :run, 'execute[Extract certificate to Master folder]', :immediately
-  retries 12
-  retry_delay 5
-end
+# Download the certs if there is no separate cert server set, or this is not the cert server.
+if node['cookbook-openshift3']['certificate_server'] == {} || node['fqdn'] != certificate_server['fqdn']
+  remote_file "Retrieve client certificate from Master[#{certificate_server['fqdn']}]" do
+    path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz"
+    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz"
+    action :create_if_missing
+    notifies :run, 'execute[Extract certificate to Master folder]', :immediately
+    retries 12
+    retry_delay 5
+  end
 
-execute 'Extract certificate to Master folder' do
-  command "tar xzf openshift-master-#{node['fqdn']}.tgz"
-  cwd node['cookbook-openshift3']['openshift_master_config_dir']
-  action :nothing
-end
+  execute 'Extract certificate to Master folder' do
+    command "tar xzf openshift-master-#{node['fqdn']}.tgz"
+    cwd node['cookbook-openshift3']['openshift_master_config_dir']
+    action :nothing
+  end
 
-%w(client.crt client.key ca.crt).each do |certificate_type|
-  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{certificate_type}" do
-    owner 'root'
-    group 'root'
-    mode '0600'
+  %w(client.crt client.key ca.crt).each do |certificate_type|
+    file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{certificate_type}" do
+      owner 'root'
+      group 'root'
+      mode '0600'
+    end
   end
 end
 
-if master_servers.first['fqdn'] == node['fqdn']
+if certificate_server['fqdn'] == node['fqdn']
   if node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'] && node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name']
     secret_file = node['cookbook-openshift3']['openshift_master_ca_certificate']['secret_file'] || nil
     ca_vars = Chef::EncryptedDataBagItem.load(node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'], node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name'], secret_file)
@@ -174,10 +178,10 @@ if master_servers.first['fqdn'] == node['fqdn']
   end
 end
 
-if master_servers.first['fqdn'] != node['fqdn']
-  remote_file "Retrieve peer certificate from Master[#{master_servers.first['fqdn']}]" do
+if certificate_server['fqdn'] != node['fqdn']
+  remote_file "Retrieve peer certificate from Master[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-#{node['fqdn']}.tgz"
-    source "http://#{master_servers.first['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz"
+    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz"
     action :create_if_missing
     notifies :run, 'execute[Extract peer certificate to Master folder]', :immediately
     retries 12
@@ -270,56 +274,58 @@ openshift_create_master 'Create master configuration file' do
   cluster true
 end
 
-execute 'Activate services for Master API on first master' do
-  command 'echo nothing to do specific'
-  notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
-  notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
-  only_if { master_servers.first['fqdn'] == node['fqdn'] }
-end
+if node['cookbook-openshift3']['certificate_server'] == {} || node['cookbook-openshift3']['certificate_server']['fqdn'] != node['fqdn']
+  execute 'Activate services for Master API on first master' do
+    command 'echo nothing to do specific'
+    notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
+    notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
+    only_if { master_servers.first['fqdn'] == node['fqdn'] }
+  end
 
-execute 'Wait for master api service to start on first master' do
-  command 'sleep 15'
-  action :run
-  not_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-api"
-end
+  execute 'Wait for master api service to start on first master' do
+    command 'sleep 15'
+    action :run
+    not_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-api"
+  end
 
-execute 'Activate services for Master API on all masters' do
-  command 'echo nothing to do specific'
-  notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
-  notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
-  only_if { master_servers.first['fqdn'] != node['fqdn'] }
-end
+  execute 'Activate services for Master API on all masters' do
+    command 'echo nothing to do specific'
+    notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
+    notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately
+    only_if { master_servers.first['fqdn'] != node['fqdn'] }
+  end
 
-execute 'Wait for API to become available' do
-  command "[[ $(curl --silent #{node['cookbook-openshift3']['openshift_master_api_url']}/healthz/ready --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
-  retries 120
-  retry_delay 1
-end
+  execute 'Wait for API to become available' do
+    command "[[ $(curl --silent #{node['cookbook-openshift3']['openshift_master_api_url']}/healthz/ready --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+    retries 120
+    retry_delay 1
+  end
 
-execute 'Activate services for Master CONTROLLERS on first master' do
-  command 'echo nothing to do specific'
-  notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
-  notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
-  only_if { master_servers.first['fqdn'] == node['fqdn'] }
-end
+  execute 'Activate services for Master CONTROLLERS on first master' do
+    command 'echo nothing to do specific'
+    notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
+    notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
+    only_if { master_servers.first['fqdn'] == node['fqdn'] }
+  end
 
-execute 'Wait for master controller service to start on first master' do
-  command 'sleep 15'
-  action :run
-  not_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
-end
+  execute 'Wait for master controller service to start on first master' do
+    command 'sleep 15'
+    action :run
+    not_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
+  end
 
-execute 'Activate services for Master CONTROLLERS on all masters' do
-  command 'echo nothing to do specific'
-  notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
-  notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
-  only_if { master_servers.first['fqdn'] != node['fqdn'] }
-end
+  execute 'Activate services for Master CONTROLLERS on all masters' do
+    command 'echo nothing to do specific'
+    notifies :start, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
+    notifies :enable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately
+    only_if { master_servers.first['fqdn'] != node['fqdn'] }
+  end
 
-execute 'Disable Master service on masters' do
-  command 'echo nothing to do specific'
-  notifies :disable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master]", :immediately
-  notifies :run, "ruby_block[Mask #{node['cookbook-openshift3']['openshift_service_type']}-master]", :immediately
+  execute 'Disable Master service on masters' do
+    command 'echo nothing to do specific'
+    notifies :disable, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master]", :immediately
+    notifies :run, "ruby_block[Mask #{node['cookbook-openshift3']['openshift_service_type']}-master]", :immediately
+  end
 end
 
 # Use ruby_block as systemd service provider does not support 'mask' action
