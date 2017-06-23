@@ -11,6 +11,7 @@ default['cookbook-openshift3']['openshift_HA'] = false
 default['cookbook-openshift3']['master_servers'] = []
 default['cookbook-openshift3']['etcd_servers'] = []
 default['cookbook-openshift3']['node_servers'] = []
+default['cookbook-openshift3']['certificate_server'] = {}
 
 if node['cookbook-openshift3']['openshift_HA']
   default['cookbook-openshift3']['openshift_common_api_hostname'] = node['cookbook-openshift3']['openshift_cluster_name']

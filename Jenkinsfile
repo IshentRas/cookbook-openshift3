@@ -60,7 +60,9 @@ RELEASE
 - document diff to last tag
 - up the metadata value
 - tag the cookbook app, commit push
-- knife cookbook site share cookbook-openshift3
+- commit
+- git push --tag
+- knife cookbook site share cookbook-openshift3 # on rothko
 
 ''', cc: '', from: 'cookbook-openshift3@jenkins.meirionconsulting.tk', replyTo: '', subject: 'Build OK', to: 'ian.miell@gmail.com, william17.burton@gmail.com'
   stage('cleanup') {

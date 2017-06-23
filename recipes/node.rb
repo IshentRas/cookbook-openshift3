@@ -7,6 +7,7 @@
 master_servers = node['cookbook-openshift3']['master_servers']
 node_servers = node['cookbook-openshift3']['node_servers']
 path_certificate = node['cookbook-openshift3']['use_wildcard_nodes'] ? 'wildcard_nodes.tgz' : "#{node['fqdn']}.tgz"
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.first : node['cookbook-openshift3']['certificate_server']
 
 # Use ruby_block for copying OpenShift CA to system CA trust
 ruby_block 'Update ca trust' do
@@ -97,9 +98,9 @@ if node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }
     not_if { node['cookbook-openshift3']['deploy_containerized'] }
   end
 
-  remote_file "Retrieve certificate from Master[#{master_servers.first['fqdn']}]" do
+  remote_file "Retrieve certificate from Master[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_node_config_dir']}/#{node['fqdn']}.tgz"
-    source "http://#{master_servers.first['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/node/generated-configs/#{path_certificate}"
+    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/node/generated-configs/#{path_certificate}"
     action :create_if_missing
     notifies :run, 'execute[Extract certificate to Node folder]', :immediately
     retries 12

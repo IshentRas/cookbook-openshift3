@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? node['cookbook-openshift3']['master_servers'].first : node['cookbook-openshift3']['certificate_server']
+
 include_recipe 'iptables::default'
 include_recipe 'selinux_policy::default'
 
@@ -126,7 +128,7 @@ ruby_block 'Change HTTPD port xfer' do
       attr_reader :contents, :original_pathname
     end
 
-    http_addresses = [node['cookbook-openshift3']['etcd_servers'], node['cookbook-openshift3']['master_servers']].each_with_object([]) do |candidate_servers, memo|
+    http_addresses = [node['cookbook-openshift3']['etcd_servers'], node['cookbook-openshift3']['master_servers'], [certificate_server]].each_with_object([]) do |candidate_servers, memo|
       this_server = candidate_servers.find { |server_candidate| server_candidate['fqdn'] == node['fqdn'] }
       memo << this_server['ipaddress'] if this_server
     end.sort.uniq
@@ -142,4 +144,5 @@ ruby_block 'Change HTTPD port xfer' do
   notifies :restart, 'service[httpd]', :immediately
 end
 
+include_recipe 'cookbook-openshift3::certificate_server'
 include_recipe 'cookbook-openshift3::cloud_provider'
