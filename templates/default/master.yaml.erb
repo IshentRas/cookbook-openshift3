@@ -96,6 +96,13 @@ kubernetesMasterConfig:
   apiLevels:
   - v1
 <% if @ose_major_version.split('.')[1].to_i.between?(3,5) %>
+  admissionConfig:
+    pluginConfig:
+      BuildOverrides:
+        configuration:
+          apiVersion: v1
+          kind: BuildOverridesConfig
+          forcePull: <% node['cookbook-openshift3']['force_pull'] %>
   apiServerArguments:
     deserialization-cache-size:
     - "<%= node['cookbook-openshift3']['openshift_master_deserialization_cache_size'] %>"

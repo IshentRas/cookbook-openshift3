@@ -188,6 +188,7 @@ Installs/Configures Openshift 3.x (>= 3.2)
 * `node['cookbook-openshift3']['openshift_master_identity_provider']['RequestHeaderIdentityProvider']` -  Defaults to `{ ... }`.
 * `node['cookbook-openshift3']['openshift_master_htpasswd']` -  Defaults to `#{node['cookbook-openshift3']['openshift_common_master_dir']}/openshift-passwd`.
 * `node['cookbook-openshift3']['openshift_master_htpasswd_users']` -  Defaults to `[ ... ]`.
+* `node['cookbook-openshift3']['force_pull']` -  Defaults to `false`.
 
 # Recipes
 
