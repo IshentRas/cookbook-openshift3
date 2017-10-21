@@ -51,3 +51,14 @@ describe command('curl --fail --cacert /etc/origin/node/ca.crt https://10.0.2.15
   its('exit_status') { should eq 0 }
   its('stdout') { should include('/api/v1') }
 end
+
+# non-regression test for https://github.com/IshentRas/cookbook-openshift3/issues/170#issuecomment-338193509
+describe command('host kubernetes.default.svc.cluster.local') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should include('172.30.0.1') }
+end
+
+describe command('host 172.30.0.1') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should include('kubernetes.default.svc.cluster.local') }
+end

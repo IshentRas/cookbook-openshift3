@@ -10,6 +10,9 @@ path_certificate = node['cookbook-openshift3']['use_wildcard_nodes'] ? 'wildcard
 certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.first : node['cookbook-openshift3']['certificate_server']
 default_interface = `/sbin/ip route get to 8.8.8.8`[/src.*/][/\d+\.\d+\.\d+\.\d+/]
 
+ose_major_version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+origin_dns_upstream_ip = ose_major_version.split('.')[1].to_i >= 6 ? '127.0.0.1' : node['cookbook-openshift3']['openshift_common_first_svc_ip']
+
 if node['cookbook-openshift3']['encrypted_file_password']['data_bag_name'] && node['cookbook-openshift3']['encrypted_file_password']['data_bag_item_name']
   secret_file = node['cookbook-openshift3']['encrypted_file_password']['secret_file'] || nil
   encrypted_file_password = Chef::EncryptedDataBagItem.load(node['cookbook-openshift3']['encrypted_file_password']['data_bag_name'], node['cookbook-openshift3']['encrypted_file_password']['data_bag_item_name'], secret_file)
@@ -52,6 +55,9 @@ if node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }
 
     template "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-node.service" do
       source 'service_node-containerized.service.erb'
+      variables(
+        origin_dns_upstream_ip: origin_dns_upstream_ip
+      )
       notifies :run, 'execute[daemon-reload]', :immediately
     end
 
@@ -67,6 +73,9 @@ if node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }
   else
     template "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-node.service" do
       source 'service_node.service.erb'
+      variables(
+        origin_dns_upstream_ip: origin_dns_upstream_ip
+      )
       notifies :run, 'execute[daemon-reload]', :immediately
     end
   end
@@ -168,6 +177,9 @@ if node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }
 
     template '/etc/origin/node/node-dnsmasq.conf' do
       source 'node-dnsmasq.conf.erb'
+      variables(
+        origin_dns_upstream_ip: origin_dns_upstream_ip
+      )
     end
 
     template '/etc/dnsmasq.d/origin-dns.conf' do
@@ -206,7 +218,7 @@ if node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }
     source 'node.yaml.erb'
     variables(
       node_labels: node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }['labels'].to_s.split(' '),
-      ose_major_version: node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version'],
+      ose_major_version: ose_major_version,
       kubelet_args: node['cookbook-openshift3']['openshift_node_kubelet_args_default'].merge(node['cookbook-openshift3']['openshift_node_kubelet_args_custom'])
     )
     notifies :run, 'execute[daemon-reload]', :immediately
