@@ -31,8 +31,7 @@ assetConfig:
 <%- end -%>
 <% end -%>
 auditConfig:
-   enabled: true
-<% end -%>
+  enabled: <%= node['cookbook-openshift3']['openshift_master_auditconfig'] %>
 <% if node['cookbook-openshift3']['openshift_HA'] %>
 controllerLeaseTTL: <%= node['cookbook-openshift3']['openshift_master_controller_lease_ttl'] %>
 <% end -%>
