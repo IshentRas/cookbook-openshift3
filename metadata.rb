@@ -1,15 +1,17 @@
 name 'cookbook-openshift3'
-maintainer 'The Authors'
+maintainer 'ENC4U Ltd'
 maintainer_email 'wburton@redhat.com'
-license 'all_rights'
+license 'MIT'
 source_url 'https://github.com/IshentRas/cookbook-openshift3'
 issues_url 'https://github.com/IshentRas/cookbook-openshift3/issues'
 description 'Installs/Configures Openshift 3.x (>= 3.2)'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '1.10.28'
+chef_version '>= 12.4' if respond_to?(:chef_version)
+version '1.10.64'
 supports 'redhat', '>= 7.1'
 supports 'centos', '>= 7.1'
 
+depends 'yum', '>= 3.6.1'
 depends 'iptables', '>= 1.0.0'
 depends 'selinux_policy'
 

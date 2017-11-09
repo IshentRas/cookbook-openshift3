@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <%= @pvc['name'] %>
+<% if @pvc.has_key?('labels') %>
+  labels:
+  <% @pvc['labels'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>
+<%- end -%>
+<% if @pvc.has_key?('annotations') %>
+  annotations:
+  <% @pvc['annotations'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>
+<%- end -%>
+spec:
+  accessModes:
+<% @pvc['access_modes'].each do |mode| %>
+  -
+    <%= mode %>
+<%- end -%>
+  resources:
+    requests:
+      storage: <%= node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_size'] %>

@@ -6,7 +6,7 @@ Before=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node.service
 
 
 [Service]
-ExecStart=/bin/bash -c "if [[ -f /usr/bin/docker-current ]]; then echo \"DOCKER_ADDTL_BIND_MOUNTS=--volume=/usr/bin/docker-current:/usr/bin/docker-current:ro\" > /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; else echo \"#DOCKER_ADDTL_BIND_MOUNTS=\" > /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; fi"
+ExecStart=/bin/bash -c "if [[ -f /usr/bin/docker-current ]]; then echo \"DOCKER_ADDTL_BIND_MOUNTS=--volume=/usr/bin/docker-current:/usr/bin/docker-current:ro --volume=/etc/sysconfig/docker:/etc/sysconfig/docker:ro\" > /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; else echo \"#DOCKER_ADDTL_BIND_MOUNTS=\" > /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; fi"
 ExecStop=
 SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep
 

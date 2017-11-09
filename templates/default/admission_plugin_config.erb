@@ -1,0 +1,102 @@
+admissionConfig:
+  pluginConfig:
+    BuildDefaults:
+      configuration:
+        apiVersion: v1
+        kind: BuildDefaultsConfig
+<% unless node['cookbook-openshift3']['openshift_builddefaults_git_http_proxy'].empty? -%>
+        gitHTTPProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_http_proxy'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_git_https_proxy'].empty? -%>
+        gitHTTPSProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_https_proxy'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_git_no_proxy'].empty? -%>
+        gitNoProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_no_proxy'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_env'].empty? -%>
+        env:
+<% node['cookbook-openshift3']['openshift_builddefaults_env'].each do |env| %>
+<% env.each_pair do |k,v| %>
+        - name: <%= k.upcase %>
+          value: <%= v %>
+<%- end -%>
+<%- end -%>
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_image_labels'].empty? -%>
+        imageLabels:
+<% node['cookbook-openshift3']['openshift_builddefaults_image_labels'].each do |image| %>
+<% image.each_pair do |k,v| %>
+        - name: <%= k %>
+          value: <%= v %>
+<%- end -%>
+<%- end -%>
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_nodeselectors'].empty? -%>
+        nodeSelector:
+<% node['cookbook-openshift3']['openshift_builddefaults_nodeselectors'].each_pair do |k,v| %>
+          <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_annotations'].empty? -%>
+        annotations:
+<% node['cookbook-openshift3']['openshift_builddefaults_annotations'].each_pair do |k,v| %>
+          <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>
+        resources:
+          requests:
+<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_requests_cpu'].empty? %>
+            cpu: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_requests_cpu'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_requests_memory'].empty? %>
+            memory: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_requests_memory'] %>"
+<%- end -%>
+          limits:
+<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_limits_cpu'].empty? %>
+            cpu: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_limits_cpu'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_limits_memory'].empty? %>
+            memory: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_limits_memory'] %>"
+<%- end -%>
+    BuildOverrides:
+      configuration:
+        apiVersion: v1
+        kind: BuildOverridesConfig
+<% unless node['cookbook-openshift3']['openshift_buildoverrides_force_pull'].empty? %>
+        forcePull: "<%= node['cookbook-openshift3']['openshift_buildoverrides_force_pull'] %>"
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_buildoverrides_image_labels'].empty? -%>
+        imageLabels:
+<% node['cookbook-openshift3']['openshift_buildoverrides_image_labels'].each do |image| %>
+<% image.each_pair do |k,v| %>
+        - name: <%= k %>
+          value: <%= v %>
+<%- end -%>
+<%- end -%>
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_buildoverrides_nodeselectors'].empty? -%>
+        nodeSelector:
+<% node['cookbook-openshift3']['openshift_buildoverrides_nodeselectors'].each_pair do |k,v| %>
+          <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>
+<% unless node['cookbook-openshift3']['openshift_buildoverrides_annotations'].empty? -%>
+        annotations:
+<% node['cookbook-openshift3']['openshift_buildoverrides_annotations'].each_pair do |k,v| %>
+          <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>
+    openshift.io/ImagePolicy:
+      configuration:
+        apiVersion: v1
+        executionRules:
+        - matchImageAnnotations:
+          - key: images.openshift.io/deny-execution
+            value: 'true'
+          name: execution-denied
+          onResources:
+          - resource: pods
+          - resource: builds
+          reject: true
+          skipOnResolutionFailure: true
+        kind: ImagePolicyConfig

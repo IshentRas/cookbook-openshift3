@@ -1,5 +1,16 @@
 OPTIONS=--loglevel=<%= node['cookbook-openshift3']['openshift_master_debug_level'] %> --listen=https://<%= node['cookbook-openshift3']['openshift_master_bind_addr'] %>:<%= node['cookbook-openshift3']['openshift_master_api_port'] %> --master=<%= node['cookbook-openshift3']['openshift_master_loopback_api_url'] %>
 CONFIG_FILE=<%= node['cookbook-openshift3']['openshift_master_config_file'] %>
+<% if node['cookbook-openshift3']['openshift_push_via_dns'] %>
+OPENSHIFT_DEFAULT_REGISTRY=docker-registry.default.svc:5000
+<% end -%>
+<% if node['cookbook-openshift3']['deploy_containerized'] %>
+IMAGE_VERSION=<%= node['cookbook-openshift3']['openshift_docker_image_version'] %>
+<% end -%>
+<% if defined?(@aws_access_key_id) && defined?(@aws_secret_access_key) %>
+
+AWS_ACCESS_KEY_ID=<%= @aws_access_key_id %>
+AWS_SECRET_ACCESS_KEY=<%= @aws_secret_access_key %>
+<% end -%>
 
 # Proxy configuration
 # Origin uses standard HTTP_PROXY environment variables. Be sure to set

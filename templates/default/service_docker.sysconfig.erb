@@ -1,11 +1,7 @@
 # /etc/sysconfig/docker
 
 # Modify these options if you want to change the way the docker daemon runs
-<% unless node['cookbook-openshift3']['docker_log_driver'].empty? %>
-OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled --log-driver=<%= node['cookbook-openshift3']['docker_log_driver'] %><%= node['cookbook-openshift3']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %>'
-<% else -%>
-OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled'
-<% end -%>
+OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled <% unless node['cookbook-openshift3']['docker_dns_search_option'].empty? %><% for dnssearchentry in node['cookbook-openshift3']['docker_dns_search_option'] %> --dns-search=<%= dnssearchentry %><% end -%><% end -%><% unless node['cookbook-openshift3']['docker_log_driver'].empty? %> --log-driver=<%= node['cookbook-openshift3']['docker_log_driver'] %><%= node['cookbook-openshift3']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %><% end -%>'
 
 DOCKER_CERT_PATH=/etc/docker
 

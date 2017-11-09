@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Route
+metadata:
+  name: <%= @route['name'] %>
+<% if @route.has_key?('labels') %>
+  labels:
+  <% @route['labels'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>
+<%- end -%>
+<% unless @annotations.empty? %>
+  annotations:
+<%- @annotations.each do |annotation| %>
+    <%= annotation %>
+<%- end -%>
+<%- end -%>
+spec:
+  host: <% @route['host'] %>
+  to:
+<% @route['to'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+<%- end -%>
+<% if @route.has_key?('tls') %>
+  tls:
+    termination: <%= @route['tls_termination'] %>
+<% unless @tls_ca_certificate.empty? %>
+    caCertificate: |
+<%- @tls_ca_certificate.split("\n").each do |ca| %>
+      <%= ca %>
+<%- end -%>
+<%- end -%>
+<% unless @tls_key.empty? %>
+    key: |
+<%- @tls_key.split("\n").each do |key| %>
+      <%= key %>
+<%- end -%>
+<%- end -%>
+<% unless @tls_certificate.empty? %>
+    certificate: |
+<%- @tls_certificate.split("\n").each do |cert| %>
+      <%= cert %>
+<%- end -%>
+<%- end -%>
+<% if @route['tls_termination'] == 'reencrypt' %>
+    destinationCACertificate: |
+<%- @tls_destination_ca_certificate.split("\n").each do |destCA| %>
+      <%= destCA %>
+<%- end -%>
+<%- end -%>
+<%- end -%>

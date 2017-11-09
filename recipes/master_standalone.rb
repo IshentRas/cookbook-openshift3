@@ -4,33 +4,32 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-if node['cookbook-openshift3']['deploy_containerized']
-  execute 'Pull CLI docker image' do
-    command "docker pull #{node['cookbook-openshift3']['openshift_docker_cli_image']}:#{node['cookbook-openshift3']['openshift_docker_image_version']}"
-    not_if "docker images  | grep #{node['cookbook-openshift3']['openshift_docker_cli_image']}.*#{node['cookbook-openshift3']['openshift_docker_image_version']}"
+if node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'] && node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name']
+  secret_file = node['cookbook-openshift3']['openshift_master_ca_certificate']['secret_file'] || nil
+  ca_vars = Chef::EncryptedDataBagItem.load(node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'], node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name'], secret_file)
+
+  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.key" do
+    content Base64.decode64(ca_vars['key_base64'])
+    mode '0600'
+    action :create_if_missing
   end
 
-  template '/usr/local/bin/openshift' do
-    source 'openshift_cli.erb'
-    mode '0755'
+  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt" do
+    content Base64.decode64(ca_vars['cert_base64'])
+    mode '0644'
+    action :create_if_missing
   end
 
-  %w(oadm oc kubectl).each do |client_symlink|
-    link "/usr/local/bin/#{client_symlink}" do
-      to '/usr/local/bin/openshift'
-      link_type :hard
-    end
-  end
-
-  execute 'Pull MASTER docker image' do
-    command "docker pull #{node['cookbook-openshift3']['openshift_docker_master_image']}:#{node['cookbook-openshift3']['openshift_docker_image_version']}"
-    not_if "docker images  | grep #{node['cookbook-openshift3']['openshift_docker_master_image']}.*#{node['cookbook-openshift3']['openshift_docker_image_version']}"
+  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.serial.txt" do
+    content '00'
+    mode '0644'
+    action :create_if_missing
   end
 end
 
 execute 'Create the master certificates' do
   command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} ca create-master-certs \
-          --hostnames=#{node['cookbook-openshift3']['erb_corsAllowedOrigins'].join(',')} \
+          --hostnames=#{(node['cookbook-openshift3']['erb_corsAllowedOrigins'] + [node['cookbook-openshift3']['openshift_common_ip'], node['cookbook-openshift3']['openshift_common_api_hostname']]).uniq.join(',')} \
           --master=#{node['cookbook-openshift3']['openshift_master_api_url']} \
           --public-master=#{node['cookbook-openshift3']['openshift_master_public_api_url']} \
           --cert-dir=#{node['cookbook-openshift3']['openshift_master_config_dir']} --overwrite=false"
@@ -50,25 +49,39 @@ template "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_t
   only_if { node['cookbook-openshift3']['deploy_containerized'] }
 end
 
+sysconfig_vars = {}
+
+if node['cookbook-openshift3']['openshift_cloud_provider'] == 'aws'
+  if node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_name'] && node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_item_name']
+    secret_file = node['cookbook-openshift3']['openshift_cloud_providers']['aws']['secret_file'] || nil
+    aws_vars = Chef::EncryptedDataBagItem.load(node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_name'], node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_item_name'], secret_file)
+    sysconfig_vars['aws_access_key_id'] = aws_vars['access_key_id']
+    sysconfig_vars['aws_secret_access_key'] = aws_vars['secret_access_key']
+  end
+end
+
 template "/etc/sysconfig/#{node['cookbook-openshift3']['openshift_service_type']}-master" do
   source 'service_master.sysconfig.erb'
+  variables(sysconfig_vars)
+  notifies :run, 'ruby_block[Restart Master]', :immediately
 end
 
 execute 'Create the policy file' do
   command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} create-bootstrap-policy-file --filename=#{node['cookbook-openshift3']['openshift_master_policy']}"
   creates node['cookbook-openshift3']['openshift_master_policy']
-  notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master]", :delayed
+  notifies :run, 'ruby_block[Restart Master]', :immediately
 end
 
 template node['cookbook-openshift3']['openshift_master_scheduler_conf'] do
   source 'scheduler.json.erb'
-  notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master]", :delayed
+  variables ose_major_version: node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+  notifies :run, 'ruby_block[Restart Master]', :immediately
 end
 
-if node['cookbook-openshift3']['oauth_Identity'] == 'HTPasswdPasswordIdentityProvider'
+if node['cookbook-openshift3']['oauth_Identities'].include? 'HTPasswdPasswordIdentityProvider'
   package 'httpd-tools'
 
-  template node['cookbook-openshift3']['openshift_master_identity_provider'][node['cookbook-openshift3']['oauth_Identity']]['filename'] do
+  template node['cookbook-openshift3']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider']['filename'] do
     source 'htpasswd.erb'
     mode '600'
   end

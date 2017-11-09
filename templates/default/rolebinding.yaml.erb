@@ -1,0 +1,25 @@
+apiVersion: v1
+<% if @role.has_key?('cluster') %>
+kind: ClusterRoleBinding
+<%- else -%>
+kind: RoleBinding
+<%- end -%>
+metadata:
+  name: <%= @role['name'] %>
+<% if @role.has_key?('labels') %>
+  labels:
+  <% @role['labels'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>
+<%- end -%>
+roleRef:
+<% @role['rolerefs'].each_pair do |k, v| %>
+  <%= k %>: <%= v %>
+<%- end -%>
+subjects:
+<% @role['subjects'].each do |sub| %>
+  -
+<% sub.each_pair do |k,v| %>
+    <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>

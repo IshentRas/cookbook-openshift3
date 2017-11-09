@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: <%= @svc['name'] %>
+<% if @svc.has_key?('labels') %>
+  labels:
+  <% @svc['labels'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>
+<%- end -%>
+<% if @svc.has_key?('annotations') %>
+  annotations:
+<%- @svc['annotations'].each do |annotation| %>
+    <%= annotation %>
+<%- end -%>
+<%- end -%>
+spec:
+<% if @svc.has_key?('headless') %>
+  portalIP: None
+  clusterIP: None
+<%- end -%>
+  ports:
+<% @svc['ports'].each do |port| %>
+  -
+<% port.each_pair do |k,v| %>
+    <%= k %>: <%= v %>
+<%- end -%>
+<%- end -%>
+  selector:
+  <% @svc['selector'].each_pair do |k, v| %>
+    <%= k %>: <%= v %>
+  <%- end -%>

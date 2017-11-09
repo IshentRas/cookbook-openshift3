@@ -4,11 +4,47 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? node['cookbook-openshift3']['master_servers'].first : node['cookbook-openshift3']['certificate_server']
+
 include_recipe 'iptables::default'
 include_recipe 'selinux_policy::default'
 
 iptables_rule 'firewall_jump_rule' do
-  lines '-A INPUT -j OS_FIREWALL_ALLOW'
+  action :enable
+end
+
+lb_servers = node['cookbook-openshift3']['lb_servers']
+
+if !lb_servers.nil? && lb_servers.find { |lb| lb['fqdn'] == node['fqdn'] }
+  package 'haproxy'
+
+  node['cookbook-openshift3']['enabled_firewall_rules_lb'].each do |rule|
+    iptables_rule rule do
+      action :enable
+    end
+  end
+
+  directory '/etc/systemd/system/haproxy.service.d' do
+    recursive true
+  end
+
+  template '/etc/haproxy/haproxy.cfg' do
+    source 'haproxy.conf.erb'
+    variables lazy {
+      {
+        master_servers: node['cookbook-openshift3']['master_servers'],
+        maxconn: node['cookbook-openshift3']['lb_default_maxconn'].nil? ? '20000' : node['cookbook-openshift3']['lb_default_maxconn'],
+      }
+    }
+    notifies :restart, 'service[haproxy]', :immediately
+  end
+
+  template '/etc/systemd/system/haproxy.service.d/limits.conf' do
+    source 'haproxy.service.erb'
+    variables nofile: node['cookbook-openshift3']['lb_limit_nofile'].nil? ? '100000' : node['cookbook-openshift3']['lb_limit_nofile']
+    notifies :run, 'execute[daemon-reload]', :immediately
+    notifies :restart, 'service[haproxy]', :immediately
+  end
 end
 
 if node['cookbook-openshift3']['install_method'].eql? 'yum'
@@ -60,10 +96,53 @@ end
 
 ruby_block 'Change HTTPD port xfer' do
   block do
-    openshift_settings = Chef::Util::FileEdit.new('/etc/httpd/conf/httpd.conf')
-    openshift_settings.search_file_replace_line(/^Listen/, "Listen #{node['cookbook-openshift3']['httpd_xfer_port']}")
+    # Minimal implementation of Chef::FileEdit, which can idempotently replace
+    # a single `Listen` line with multiple `Listen` lines (one per http_address)
+    # if #search_file_replace_line is invoked with a multiline Regexp.
+    class MyFileEdit
+      def initialize(filepath)
+        raise ArgumentError, "File '#{filepath}' does not exist" unless File.exist?(filepath)
+        @contents = File.open(filepath, &:read)
+        @original_pathname = filepath
+        @changes = false
+      end
+
+      def search_file_replace_line(regex, newline)
+        @changes ||= contents.gsub!(regex, newline)
+      end
+
+      def write_file
+        if @changes
+          backup_pathname = original_pathname + '.old'
+          FileUtils.cp(original_pathname, backup_pathname, preserve: true)
+          File.open(original_pathname, 'w') do |newfile|
+            newfile.write(contents)
+            newfile.flush
+          end
+        end
+        @changes = false
+      end
+
+      private
+
+      attr_reader :contents, :original_pathname
+    end
+
+    http_addresses = [node['cookbook-openshift3']['etcd_servers'], node['cookbook-openshift3']['master_servers'], [certificate_server]].each_with_object([]) do |candidate_servers, memo|
+      this_server = candidate_servers.find { |server_candidate| server_candidate['fqdn'] == node['fqdn'] }
+      memo << this_server['ipaddress'] if this_server
+    end.sort.uniq
+
+    openshift_settings = MyFileEdit.new('/etc/httpd/conf/httpd.conf')
+    openshift_settings.search_file_replace_line(
+      /(^Listen.*?\n)+/m,
+      http_addresses.map { |addr| "Listen #{addr}:#{node['cookbook-openshift3']['httpd_xfer_port']}\n" }.join
+    )
     openshift_settings.write_file
   end
   action :nothing
   notifies :restart, 'service[httpd]', :immediately
 end
+
+include_recipe 'cookbook-openshift3::certificate_server'
+include_recipe 'cookbook-openshift3::cloud_provider'

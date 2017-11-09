@@ -1,20 +1,50 @@
 allowDisabledDocker: false
 apiVersion: v1
+<% if @ose_major_version.split('.')[1].to_i >= 6 %>
+dnsBindAddress: 127.0.0.1:53
+dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
+<%- end -%>
 dnsDomain: <%=node['cookbook-openshift3']['osn_cluster_dns_domain'] %>
+dnsIP: <%=node['cookbook-openshift3']['osn_cluster_dns_ip'] %>
 dockerConfig:
   execHandlerName: ""
 iptablesSyncPeriod: "<%= node['cookbook-openshift3']['openshift_node_iptables_sync_period'] %>"
 imageConfig:
   format: <%= node['cookbook-openshift3']['openshift_common_registry_url'] %>
   latest: false
-<% if [1.3 , 3.3].include? node['cookbook-openshift3']['ose_major_version'].to_f %>
+kind: NodeConfig
+kubeletArguments:
+<% unless @node_labels.empty? -%>
+  node-labels:
+<% @node_labels.each do |label| %>
+    - <%= label %>
+<%- end -%>
+<%- end -%>
+<% @kubelet_args.each_pair do |k, v| %>
+  <%= k %>:
+    - "<%= v %>"
+<%- end -%>
+<% if node['cookbook-openshift3']['openshift_node_cadvisor_port'] %>
+  cadvisor-port:
+    - "<%= node['cookbook-openshift3']['openshift_node_cadvisor_port'] %>"
+<%- end -%>
+<% if node['cookbook-openshift3']['openshift_node_read_only_port'] %>
+  read-only-port:
+    - "<%= node['cookbook-openshift3']['openshift_node_read_only_port'] %>"
+<%- end -%>
+<% if node['cookbook-openshift3']['openshift_cloud_provider'] %>
+  cloud-provider:
+  - <%= node['cookbook-openshift3']['openshift_cloud_provider'] %>
+  cloud-config:
+  - <%= node['cookbook-openshift3']['openshift_cloud_provider_config_dir']%>/<%= node['cookbook-openshift3']['openshift_cloud_provider'] %>.conf
+<%- end -%>
+<% if @ose_major_version.split('.')[1].to_i >=3 %>
 masterClientConnectionOverrides:
   acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
   contentType: application/vnd.kubernetes.protobuf
   burst: 200
   qps: 100
 <%- end -%>
-kind: NodeConfig
 <% if node['cookbook-openshift3']['use_wildcard_nodes'] %>
 masterKubeConfig: system:node:wildcard_nodes.kubeconfig
 <%- else -%>
@@ -34,21 +64,19 @@ servingInfo:
   certFile: server.crt
   clientCA: ca.crt
   keyFile: server.key
+<% if (defined?(node['cookbook-openshift3']['openshift_node_min_tls_version'])).nil? %>
+  minTLSVersion: <%= node['cookbook-openshift3']['openshift_node_min_tls_version'] %>
+<% end -%>
+<% if (defined?(node['cookbook-openshift3']['openshift_node_cipher_suites'])).nil? %>
+  cipherSuites:
+<% node['cookbook-openshift3']['openshift_node_cipher_suites'].each do |cipher_suite| %>
+  - <%= cipher_suite %>
+<%- end -%>
+<% end -%>
 volumeDirectory: <%= node['cookbook-openshift3']['openshift_data_dir'] %>/openshift.local.volumes
-kubeletArguments:
-  max-pods:
-    - "<%= node['cookbook-openshift3']['openshift_node_max_pod'] %>"
-  minimum-container-ttl-duration:
-    - "<%= node['cookbook-openshift3']['openshift_node_minimum_container_ttl_duration'] %>"
-  maximum-dead-containers-per-container:
-    - "<%= node['cookbook-openshift3']['openshift_node_maximum_dead_containers_per_container'] %>"
-  maximum-dead-containers:
-    - "<%= node['cookbook-openshift3']['openshift_node_maximum_dead_containers'] %>"
-  image-gc-high-threshold:
-    - "<%= node['cookbook-openshift3']['openshift_node_image_gc_high_threshold'] %>"
-  image-gc-low-threshold:
-    - "<%= node['cookbook-openshift3']['openshift_node_image_gc_low_threshold'] %>"
 proxyArguments:
   proxy-mode:
     - iptables
-
+volumeConfig:
+  localQuota:
+    perFSGroup:

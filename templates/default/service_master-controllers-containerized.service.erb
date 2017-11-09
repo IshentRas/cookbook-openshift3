@@ -1,0 +1,26 @@
+[Unit]
+Description=Atomic OpenShift Master Controllers
+Documentation=https://github.com/openshift/origin
+Wants=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api.service
+After=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api.service
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+Environment=GOTRACEBACK=crash
+ExecStartPre=-/usr/bin/docker rm -f <%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+ExecStart=/usr/bin/docker run --rm --privileged --net=host --name <%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers --env-file=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers -v <%= node['cookbook-openshift3']['openshift_data_dir'] %>:<%= node['cookbook-openshift3']['openshift_data_dir'] %> -v /var/run/docker.sock:/var/run/docker.sock -v <%= node['cookbook-openshift3']['openshift_common_base_dir'] %>:<%= node['cookbook-openshift3']['openshift_common_base_dir'] %> -v /etc/pki:/etc/pki:ro <%= node['cookbook-openshift3']['openshift_docker_master_image'] %>:${IMAGE_VERSION} start master controllers --config=${CONFIG_FILE} $OPTIONS
+ExecStartPost=/usr/bin/sleep 10
+ExecStop=/usr/bin/docker stop <%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+LimitNOFILE=131072
+LimitCORE=infinity
+WorkingDirectory=<%= node['cookbook-openshift3']['openshift_data_dir'] %>
+SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=docker.service
+

@@ -1,5 +1,11 @@
-strict-order
 no-resolv
 domain-needed
+no-negcache
+max-cache-ttl=1
+<% if @ose_major_version.split('.')[1].to_i >= 6 %>
+enable-dbus
+bind-interfaces
+listen-address=<%= @default_interface %>
+<%- else -%>
 server=/cluster.local/<%=node['cookbook-openshift3']['openshift_common_first_svc_ip'] %>
-
+<%- end %>

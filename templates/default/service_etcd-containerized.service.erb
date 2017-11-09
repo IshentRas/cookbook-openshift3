@@ -1,0 +1,18 @@
+[Unit]
+Description=The Etcd Server container
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+EnvironmentFile=<%= node['cookbook-openshift3']['etcd_conf_dir'] %>/etcd.conf
+ExecStartPre=-/usr/bin/docker rm -f <%= node['cookbook-openshift3']['etcd_service_name'] %>
+ExecStart=/usr/bin/docker run --name <%= node['cookbook-openshift3']['etcd_service_name'] %> --rm -v /var/lib/etcd:/var/lib/etcd:z -v <%= node['cookbook-openshift3']['etcd_conf_dir'] %>:<%= node['cookbook-openshift3']['etcd_conf_dir'] %>:ro --env-file=<%= node['cookbook-openshift3']['etcd_conf_dir'] %>/etcd.conf --net=host --entrypoint=/usr/bin/etcd <%= node['cookbook-openshift3']['openshift_docker_etcd_image'] %>
+ExecStop=/usr/bin/docker stop <%= node['cookbook-openshift3']['etcd_service_name'] %>
+SyslogIdentifier=<%= node['cookbook-openshift3']['etcd_service_name'] %>
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=docker.service
+

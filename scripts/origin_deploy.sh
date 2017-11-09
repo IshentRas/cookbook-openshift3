@@ -13,11 +13,6 @@ IP_DETECT=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 DF=""
 read -p "Please enter the FQDN of the server: " FQDN
 read -p "Please enter the IP of the server (Auto Detect): $IP_DETECT" IP
-while [ -z $DF ];
-do
-  read -p "Please enter the deployment type ([r]pm or [c]ontainer):" DF
-  echo
-done
 
 if [ -z $IP ] 
 then IP=$IP_DETECT
@@ -27,8 +22,6 @@ fi
 # Remove existing entries
 sed -i "/$IP/d" /etc/hosts
 echo -e "$IP\t$FQDN" >> /etc/hosts
-#hostnamectl set-hostname $FQDN
-#systemctl restart systemd-hostnamed.service
 ### Update the server
 echo "Updating system, please wait..."
 yum -y update -q -e 0
@@ -37,7 +30,8 @@ mkdir -p ~/chef-solo-example/{backup,cache,roles,cookbooks,environments}
 cd ~/chef-solo-example/cookbooks
 ### Installing dependencies
 echo "Installing prerequisite packages, please wait..."
-yum -y install -q https://packages.chef.io/files/stable/chef/12.17.44/el/7/chef-12.17.44-1.el7.x86_64.rpm git
+curl -s -L https://omnitruck.chef.io/install.sh | bash
+yum install -y git
 ### Installing cookbooks
 [ -d ~/chef-solo-example/cookbooks/cookbook-openshift3 ] || git clone -q https://github.com/IshentRas/cookbook-openshift3.git
 [ -d ~/chef-solo-example/cookbooks/iptables ] || git clone -q https://github.com/chef-cookbooks/iptables.git
@@ -46,42 +40,6 @@ yum -y install -q https://packages.chef.io/files/stable/chef/12.17.44/el/7/chef-
 [ -d ~/chef-solo-example/cookbooks/compat_resource ] || git clone -q https://github.com/chef-cookbooks/compat_resource.git
 cd ~/chef-solo-example
 ### Create the dedicated environment for Origin deployment
-if [[ $DF =~ ^c ]]
-then
-cat << EOF > environments/origin.json
-{
-  "name": "origin",
-  "description": "",
-  "cookbook_versions": {
-
-  },
-  "json_class": "Chef::Environment",
-  "chef_type": "environment",
-  "default_attributes": {
-
-  },
-  "override_attributes": {
-    "cookbook-openshift3": {
-      "openshift_common_public_hostname": "console.${IP}.nip.io",
-      "openshift_deployment_type": "origin",
-      "deploy_containerized": true,
-      "master_servers": [
-        {
-          "fqdn": "${FQDN}",
-          "ipaddress": "$IP"
-        }
-      ],
-      "node_servers": [
-        {
-          "fqdn": "${FQDN}",
-          "ipaddress": "$IP"
-        }
-      ]
-    }
-  }
-}
-EOF
-else
 cat << EOF > environments/origin.json
 {
   "name": "origin",
@@ -99,6 +57,9 @@ cat << EOF > environments/origin.json
       "openshift_common_public_hostname": "console.${IP}.nip.io",
       "openshift_deployment_type": "origin",
       "openshift_common_default_nodeSelector": "region=infra",
+      "deploy_containerized": true,
+      "deploy_example": true,
+      "openshift_master_router_subdomain": "cloudapps.${IP}.nip.io",
       "master_servers": [
         {
           "fqdn": "${FQDN}",
@@ -117,7 +78,6 @@ cat << EOF > environments/origin.json
   }
 }
 EOF
-fi
 ### Specify the configuration details for chef-solo
 cat << EOF > ~/chef-solo-example/solo.rb
 cookbook_path [
@@ -135,13 +95,10 @@ chef-solo --environment origin -o recipe[cookbook-openshift3] -c ~/chef-solo-exa
 if ! $(oc get project test --config=/etc/origin/master/admin.kubeconfig &> /dev/null)
 then 
   # Create a demo project
-  oadm new-project demo --display-name="Origin Demo Project" --admin=demo
-  # Set password for user demo
+  oc adm new-project demo --display-name="Origin Demo Project" --admin=demo
 fi
 # Reset password for demo user
 htpasswd -b /etc/origin/openshift-passwd demo 1234
-# Label the node as infra
-oc label node $FQDN region=infra --config=/etc/origin/master/admin.kubeconfig &> /dev/null
 cat << EOF
 
 ##### Installation DONE ######
@@ -161,4 +118,6 @@ Next steps for you :
 
 You should disconnect and reconnect so as to get the benefit of bash-completion on commands
 
+##############################
+########## DONE ##############
 EOF

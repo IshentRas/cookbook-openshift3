@@ -5,20 +5,24 @@
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
 master_servers = node['cookbook-openshift3']['master_servers']
+version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'][1..-1].sub(/^3/, '1').to_f.round(1) : node['cookbook-openshift3']['ose_major_version'].sub(/^3/, '1').to_f.round(1)
+certificate_server = node['cookbook-openshift3']['certificate_server'] == {} ? master_servers.first : node['cookbook-openshift3']['certificate_server']
 
-include_recipe 'cookbook-openshift3::etcd_cluster'
+include_recipe 'cookbook-openshift3::etcd_cluster' if node['cookbook-openshift3']['etcd_servers'].any?
 
-if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
-  package node['cookbook-openshift3']['openshift_service_type'] do
-    version node['cookbook-openshift3'] ['ose_version'] unless node['cookbook-openshift3']['ose_version'].nil?
-    not_if { node['cookbook-openshift3']['deploy_containerized'] }
-  end
-
+if certificate_server['fqdn'] == node['fqdn']
   package 'httpd' do
     notifies :run, 'ruby_block[Change HTTPD port xfer]', :immediately
     notifies :enable, 'service[httpd]', :immediately
   end
+  node['cookbook-openshift3']['enabled_firewall_rules_master'].each do |rule|
+    iptables_rule rule do
+      action :enable
+    end
+  end
+end
 
+if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] } || certificate_server['fqdn'] == node['fqdn']
   node['cookbook-openshift3']['enabled_firewall_rules_master'].each do |rule|
     iptables_rule rule do
       action :enable
@@ -34,14 +38,14 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
     variables lazy {
       {
         secret_authentication: Mixlib::ShellOut.new('/usr/bin/openssl rand -base64 24').run_command.stdout.strip,
-        secret_encryption: Mixlib::ShellOut.new('/usr/bin/openssl rand -base64 24').run_command.stdout.strip
+        secret_encryption: Mixlib::ShellOut.new('/usr/bin/openssl rand -base64 24').run_command.stdout.strip,
       }
     }
     action :create_if_missing
   end
 
   remote_directory node['cookbook-openshift3']['openshift_common_examples_base'] do
-    source 'openshift_examples'
+    source "openshift_examples/v#{version}"
     owner 'root'
     group 'root'
     action :create
@@ -50,7 +54,7 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
   end
 
   remote_directory node['cookbook-openshift3']['openshift_common_hosted_base'] do
-    source "openshift_hosted_templates/#{node['cookbook-openshift3']['openshift_hosted_type']}"
+    source "openshift_hosted_templates/v#{version}/#{node['cookbook-openshift3']['openshift_hosted_type']}"
     owner 'root'
     group 'root'
     action :create
@@ -74,8 +78,8 @@ if master_servers.find { |server_master| server_master['fqdn'] == node['fqdn'] }
     command "cp #{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig /root/.kube/config && chmod 700 /root/.kube/config"
     creates '/root/.kube/config'
   end
+end
 
-  if master_servers.first['fqdn'] == node['fqdn']
-    include_recipe 'cookbook-openshift3::nodes_certificates'
-  end
+if certificate_server['fqdn'] == node['fqdn']
+  include_recipe 'cookbook-openshift3::nodes_certificates'
 end

@@ -3,7 +3,7 @@ driver:
   name: vagrant
   customize:
     cpus: 2
-    memory: 1024
+    memory: 1536
 
 provisioner:
   name: chef_zero
@@ -19,44 +19,152 @@ verifier:
   name: inspec
 
 platforms:
-  - name: centos-7.2
+  - name: centos-7.4
     driver:
-      vm_hostname: origin-centos-72
-    attributes:
-      cookbook-openshift3:
-        # we override these because 10.0.2.15 is whitelisted in $no_proxy
-        openshift_common_public_hostname: 10.0.2.15
-        openshift_master_router_subdomain: cloudapps.10.0.2.15.nip.io
-        ose_major_version: 1.3
-        docker_log_driver: journald
-        master_servers: &SERVERS
-         - ipaddress: 10.0.2.15
-           fqdn: origin-centos-72
-           labels: region=infra custom=label
-           schedulable: false
-        node_servers: *SERVERS
+      vm_hostname: origin-centos-74
+
+openshift3-shared-attributes: &SHARED
+  # uncomment to use experimental CentOS PaaS repository for integration tests
+  #yum_repositories:
+  #  - name: "centos-openshift-origin"
+  #    baseurl: "http://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/"
+  #    gpgcheck: false
+  # attention: if using http proxies, make sure that '10.0.2.15.nip.io' is whitelisted in $no_proxy!
+  openshift_common_api_hostname: 10.0.2.15.nip.io
+  openshift_master_router_subdomain: cloudapps.10.0.2.15.nip.io
+  openshift_master_metrics_public_url: metrics.10.0.2.15.nip.io
+  openshift_common_default_nodeSelector: region=infra
+  docker_log_driver: journald
+  persistent_storage:
+  - name: testpv
+    capacity: 100Mi
+    access_modes: ReadOnlyMany
+    path: /srv/testpv
+    server: 10.0.2.15
+    claim:
+      namespace: default
+  - name: registry-storage
+    capacity: 100Mi
+    access_modes: ReadWriteMany
+    path: /srv/registry-storage
+    server: 10.0.2.15
+    claim:
+      namespace: default
+  registry_persistent_volume: registry-storage
+  openshift_hosted_router_options: '--expose-metrics --metrics-image=prom/haproxy-exporter:v0.7.1'
+  openshift_hosted_metrics_parameters:
+    HAWKULAR_METRICS_HOSTNAME: metrics.10.0.2.15.nip.io
+    METRIC_DURATION: "30"
+    IMAGE_VERSION: "latest" # broken, override in role with explicit version.
+    USE_PERSISTENT_STORAGE: "false"
+  master_servers: &SERVERS
+   - ipaddress: 10.0.2.15
+     fqdn: origin-centos-74
+     labels: region=infra custom=label
+     schedulable: false
+  node_servers: *SERVERS
 
 suites:
-  - name: standalone
+  - name: standalone-ose36
     run_list:
-      - role[openshift3-base]
+      - role[openshift3-base-ose36]
     verifier:
       inspec_tests:
         - test/inspec/standalone
         - test/inspec/shared
     attributes:
       cookbook-openshift3:
+        << : *SHARED
         openshift_HA: false
 
-  - name: cluster-native
+  - name: cluster-native-ose36
     run_list:
-      - role[openshift3-base]
+      - role[openshift3-base-ose36]
     verifier:
       inspec_tests:
         - test/inspec/cluster-native
         - test/inspec/shared
     attributes:
       cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: true
+        openshift_cluster_name: test-cluster.domain.local
+        etcd_servers: *SERVERS
+
+  - name: standalone-ose15
+    run_list:
+      - role[openshift3-base-ose15]
+    verifier:
+      inspec_tests:
+        - test/inspec/standalone
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: false
+
+  - name: cluster-native-ose15
+    run_list:
+      - role[openshift3-base-ose15]
+    verifier:
+      inspec_tests:
+        - test/inspec/cluster-native
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: true
+        openshift_cluster_name: test-cluster.domain.local
+        etcd_servers: *SERVERS
+
+  - name: standalone-ose14
+    run_list:
+      - role[openshift3-base-ose14]
+    verifier:
+      inspec_tests:
+        - test/inspec/standalone
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: false
+
+  - name: cluster-native-ose14
+    run_list:
+      - role[openshift3-base-ose14]
+    verifier:
+      inspec_tests:
+        - test/inspec/cluster-native
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: true
+        openshift_cluster_name: test-cluster.domain.local
+        etcd_servers: *SERVERS
+
+  - name: standalone-ose13
+    run_list:
+      - role[openshift3-base-ose13]
+    verifier:
+      inspec_tests:
+        - test/inspec/standalone
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: false
+
+  - name: cluster-native-ose13
+    run_list:
+      - role[openshift3-base-ose13]
+    verifier:
+      inspec_tests:
+        - test/inspec/cluster-native
+        - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
         openshift_HA: true
         openshift_cluster_name: test-cluster.domain.local
         etcd_servers: *SERVERS

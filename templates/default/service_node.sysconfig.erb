@@ -9,6 +9,11 @@ CONFIG_FILE=<%= node['cookbook-openshift3']['openshift_node_config_file'] %>
 <% if node['cookbook-openshift3']['deploy_containerized'] %>
 IMAGE_VERSION=<%= node['cookbook-openshift3']['openshift_docker_image_version'] %>
 <% end -%>
+<% if defined?(@aws_access_key_id) && defined?(@aws_secret_access_key) %>
+
+AWS_ACCESS_KEY_ID=<%= @aws_access_key_id %>
+AWS_SECRET_ACCESS_KEY=<%= @aws_secret_access_key %>
+<% end -%>
 
 # The $DOCKER_NETWORK_OPTIONS variable is used by sdn plugins to set
 # $DOCKER_NETWORK_OPTIONS variable in the /etc/sysconfig/docker-network

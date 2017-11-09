@@ -1,0 +1,3 @@
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "haproxy stats" -m tcp -p tcp --dport 9000 -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "haproxy balance" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['openshift_lb_port'] %> -j ACCEPT
+

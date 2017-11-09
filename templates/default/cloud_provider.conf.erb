@@ -1,0 +1,4 @@
+[Global]
+<% if node['cookbook-openshift3']['openshift_cloud_provider'] == 'aws' %>
+Zone = <%= @aws['zone'] %>
+<% end -%>

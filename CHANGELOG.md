@@ -1,6 +1,272 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v1.10.65
+### Improvement
+- Initial support for 3.6
+- Capability for Overriding master and node servingInfo.minTLSVersion and .cipherSuites [openshift_(master|node)_cipher_suites, openshift_(master|node)_min_tls_version]
+- Capability for defining ExternalIPNetworkCIDRs controls what values are acceptable for the service external IP field [openshift_master_external_ip_network_cidrs]
+- Capability for defining IngressIPNetworkCIDR controls the range to assign ingress IPs [openshift_master_ingress_ip_network_cidr]
+- Capability for defining mcs_allocator_range, mcs_labels_per_project and uid_allocator_range [openshift_master_NAME]
+- Capability for referencing the registry by a stable name (not IP) [openshift_push_via_dns]
+- Add etcd_debug and etcd_log_package_levels capabilities 
+
+## v1.10.64
+### Improvement
+- All tgz files are encrypted with a default passphrase, and decrypted at the other end after downloading.
+
+### Bug
+- Fixes error in v1.10.62 - file permissions on tar.gz
+- Fix bug with LDAP Provider (Enforce LDAPS when selecting secure)
+
+## v1.10.63
+### Bug
+- Fixes error in v1.10.62 - file permissions on tar.gz
+
+## v1.10.62 - BROKEN
+### Improvement
+- Jenkinsfile parameters added
+- New Centos yum repos added
+
+### Bug
+- Allow users to suppress ruby block call from provider code (breaks in older Chef client versions)
+- Make perms and ownership on tar.gz files explicit for more restrictive distributions
+- Kitchen tests updated for latest versions
+
+## v1.10.61
+### Improvement
+-  Allow passing custom arguments when deploying the hosted router
+
+### Bug
+- Fix issue with cookstyle indentation
+
+## v1.10.60
+### Improvement
+- Update Example files (ImageStreams/Templates)
+- Update Hosted templates
+- Add more logic for dnsmasq (Install NetworkManager and add conf-dir line)
+
+### Bug
+- Fix issues with certificate_servers
+
+## v1.10.59
+### Improvement
+- Add the possibilty for openshift_buildoverrides 
+- Add the possibilty of retrieving the OCP certs from a custom location/server 
+
+### Bug
+- Fix issue with cookstyle indentation
+- Improve the code for ignoring dnsmasq issues
+- Add missing dirs and files to be removed when uninstalling
+
+## v1.10.58
+### Improvement
+- Remove support for 1.2/3.2 (README)
+
+## v1.10.57
+### Improvement
+- Remove support for 1.2/3.2
+- Update openshift_example files
+- Add extra wait time for 1.3/3.3 installation
+
+### Bug
+- Change test for 1.3/3.3 to use docker 1.10.x
+- Adapt the kubelet args
+
+## v1.10.56
+### Improvement
+- Add the possibility of deploying Metrics according to https://docs.openshift.com/container-platform/latest/install_config/cluster_metrics.html
+
+## v1.10.55
+### Bug
+- Fix backticks in environment not working (#138)
+
+## v1.10.54
+### Bug
+- Fix CHEF-3694 warning that triggered while waiting for node registration
+
+## v1.10.53
+### Improvement
+- Remove duplicated code between etcd_cluster and master_cluster recipes.
+
+### Bug
+- Enable *-master-controllers and *-master-api services on master nodes.
+- Fix Jenkinsfile: email address does not support aliases
+- Fix CHEF-3694 warning with master certificates
+
+## v1.10.52
+### Bug
+- Fix cookstyle issues
+
+## v1.10.51
+### Bug
+- Fix bug when not declaring lb_servers role
+
+## v1.10.50
+### Bug
+- Fix Foodcritic issues related to CONTRIBUTING.md
+
+## v1.10.49
+### Bug
+- Fix Foodcritic issues related to metada.rb
+
+## v1.10.48
+### Improvement
+- Initial support for 1.5/3.5 OCP
+- Refactor logic for HA cluster deployment
+- Add support for deploying only LB role (Haproxy) https://github.com/IshentRas/cookbook-openshift3/issues/100
+- MISC bug fix
+
+### Bug
+- Separated certificates to be copied from first master
+
+## v1.10.47
+### Improvement
+- Jenkinsfile gets correct branch
+- Kitchen tests at end (less likely to fail)
+
+### Bug
+- Separated etcd cluster now works (all certs pulled from first master)
+
+## v1.10.46
+### Bug
+- Spacing corrected and defaults not included as per discussion in #115
+
+## v1.10.45
+### Improvement
+- Jenkinsfile has resilient kitchen tests reinstated
+
+### Bug
+- Certificate redeployment code fixed to remove node certs
+- Certificate redeployment - run etcd code only if etcd on the node (eg standalone)
+
+## v1.10.44
+### Improvement
+- Upgrade from x.2 to x.3 supported
+- Service signer cert created as part of cert creation
+
+## v1.10.43
+### Improvement
+- Added Jenkinsfile
+- Rename file: service_openvsitch-containerized.service.erb -> service_openvswitch-containerized.service.erb
+
+### Bug
+- Fix redeploy certs for separate etcd cluster
+- Use more config items rather than hard-coded values in delete node
+
+## v1.10.42
+### Improvement
+- Replace most hard link usage with local copy
+- Change http server binding to default IP address
+- Give the possibility to specify custom certificate for hosted router
+
+### Bug
+- Fix CHEF-3694 warning due to redundant package resource
+- Removed potentially unsafe identity providers defaults
+- Fix named certificates when common_name is also listed in alternative names
+- Allow distinct hostnames for internal and public API access
+
+## v1.10.41
+### Bug
+- Fix AWS issue when using empty data bag
+
+## v1.10.40
+### Bug
+- Fix bug for enterprise version (Hosted template files)
+- Fix deletion of service files
+
+## v1.10.39
+### Improvement
+- Give the possibility of adding custom master CA certificate
+- Give the possibility of supporting AWS IAM based integration
+
+### Bug
+- Fix dnsIP for dedicated nameserver within PODS (Default to IP of the node)
+
+## v1.10.38
+### Improvement
+- Give the possibility of adding cAdvisor port and read-only port for kubelet arguments
+- Give the possibility of skipping nodes when applying schedulability and labelling
+
+### Bug
+- Fix issue reported by https://github.com/IshentRas/cookbook-openshift3/issues/77
+
+## v1.10.37
+### Bug
+- Emergency update for fixing ose_major_version when running standalone deployment
+
+## v1.10.36
+### Bug
+- Fixed cookstyle offenses
+- Revert the ETCD change causing issue when adding / removing members
+- Make secret call compatible with x.2 version(s)
+
+### Improvement
+- Expand .kitchen.yml to test OSE v1.4.1, v1.3.3 and v1.2.1
+- Improved code readability
+- Added support for multiple identity providers
+- Added support for AWS cloud provider
+
+## v1.10.35
+### Bug
+- Fix ETCD service defined in 2 places
+- Fix cookstyle issues
+- Fix admin.kubeconfig logic
+
+## v1.10.34
+### Bug
+- Adjust predicates and priorities based on ose_major_version
+- Fix containerized deployment
+
+### Improvement
+- Give the possibility to add or remove etcd server members
+- Improve ETCD deployment for single etcd server
+
+## v1.10.33
+### Bug
+- Revert e168f9b, use stable repository URLs again
+
+### Improvement
+- Use stable CentOS PaaS repository during tests
+- Add integration test for hosted metrics feature
+
+## v1.10.32
+### Bug
+- Make apiServerArguments conditional on the version for pre-1.3/3.3 versions
+
+## v1.10.31
+### Improvement
+- Handle 1.4/3.4 deployment
+- Clean codes over unused attributes
+- Integration tests for 1.4/3.4
+- Add the possibility to supply dns-search option via Docker
+- Add the possibility to specify a deserialization cache size parameter. 
+
+### Bug
+- Fix permissions over /etc/origin/node
+- Fix iptables issue due to version used by clients
+
+## v1.10.30
+### Improvement
+- Add the possibility to deploy the cluster metrics
+- Add the possibility to add more manageName serviceaccount in master config
+- Move registry persistent_volume_claim name to explicit LWRP attribute
+- Added integration test for openshift_hosted_manage_registry feature
+- Added integration test for openshift_hosted_manage_router feature
+- Added integration test for persistent_storage feature
+- Refactor router-related resources to new openshift_deploy_router LWRP
+- Move registry persistent_volume_claim name to explicit LWRP attribute
+
+### Bug
+- Fix README.md typo
+- Fix issue with systemd when uninstalling the Openshift
+- Fix issue for systemctl daemon-reload
+- Removed redundant guard clause for registry deloyment
+
+## v1.10.29
+### Bug
+- Remove property attributes for resources (backward compatibility)
+
 ## v1.10.28
 ### Improvement
 - Add the possibility to deploy the cluster metrics

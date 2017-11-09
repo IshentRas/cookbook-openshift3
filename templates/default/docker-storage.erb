@@ -34,3 +34,4 @@ VG="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['VG'] %>"
 <% if node['cookbook-openshift3']['openshift_node_docker-storage'].has_key?('DATA_SIZE') -%>
 DATA_SIZE="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['DATA_SIZE'] %>"
 <% end -%>
+WIPE_SIGNATURES="true"
