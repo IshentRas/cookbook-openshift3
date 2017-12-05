@@ -36,23 +36,23 @@ action :create do
 
   deploy_options = %w(--selector=${selector_router} -n ${namespace_router}) + Array(new_resource.deployer_options)
   execute 'Deploy Hosted Router' do
-    command "#{node['cookbook-openshift3']['openshift_common_client_binary']} adm router #{deploy_options.join(' ')} --config=admin.kubeconfig || true"
+    command "#{node['cookbook-openshift3']['openshift_common_client_binary']} adm router #{deploy_options.join(' ')} --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig || true"
     environment(
       'selector_router' => node['cookbook-openshift3']['openshift_hosted_router_selector'],
       'namespace_router' => node['cookbook-openshift3']['openshift_hosted_router_namespace']
     )
     cwd node['cookbook-openshift3']['openshift_master_config_dir']
-    only_if '[[ `oc get pod --selector=router=router --config=admin.kubeconfig | wc -l` -eq 0 ]]'
+    only_if "[[ `oc get pod --selector=router=router --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig | wc -l` -eq 0 ]]"
   end
 
   execute 'Auto Scale Router based on label' do
-    command "#{node['cookbook-openshift3']['openshift_common_client_binary']} scale dc/router --replicas=${replica_number} -n ${namespace_router} --config=admin.kubeconfig"
+    command "#{node['cookbook-openshift3']['openshift_common_client_binary']} scale dc/router --replicas=${replica_number} -n ${namespace_router} --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig"
     environment(
       'replica_number' => Mixlib::ShellOut.new("oc get node --no-headers --selector=#{node['cookbook-openshift3']['openshift_hosted_router_selector']} --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig | wc -l").run_command.stdout.strip,
       'namespace_router' => node['cookbook-openshift3']['openshift_hosted_router_namespace']
     )
     cwd node['cookbook-openshift3']['openshift_master_config_dir']
-    not_if '[[ `oc get pod --selector=router=router --config=admin.kubeconfig --no-headers | wc -l` -eq ${replica_number} ]]'
+    not_if "[[ `oc get pod --selector=router=router --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig --no-headers | wc -l` -eq ${replica_number} ]]"
   end
 
   new_resource.updated_by_last_action(true)
