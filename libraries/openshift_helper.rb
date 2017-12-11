@@ -9,19 +9,19 @@ module OpenShiftHelper
     end
 
     def master_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_master_duty")[0] : node['cookbook-openshift3']['master_servers']
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_master_duty")[0].sort : node['cookbook-openshift3']['master_servers']
     end
 
     def node_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_node_duty")[0] : node['cookbook-openshift3']['node_servers']
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_node_duty")[0].sort : node['cookbook-openshift3']['node_servers']
     end
 
     def etcd_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0] : node['cookbook-openshift3']['etcd_servers']
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0].sort : node['cookbook-openshift3']['etcd_servers']
     end
 
     def lb_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_lb_duty")[0] : node['cookbook-openshift3']['lb_servers']
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['cookbook-openshift3']['openshift_cluster_duty_discovery_id']}_openshift_lb_duty")[0].sort : node['cookbook-openshift3']['lb_servers']
     end
 
     def first_master
