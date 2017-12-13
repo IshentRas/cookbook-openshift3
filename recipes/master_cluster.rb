@@ -6,9 +6,9 @@
 
 server_info = OpenShiftHelper::NodeHelper.new(node)
 first_master = server_info.first_master
+is_first_master = server_info.on_first_master?
 master_servers = server_info.master_servers
 etcd_servers = server_info.etcd_servers
-master_peers = server_info.master_peers
 certificate_server = server_info.certificate_server
 is_certificate_server = server_info.on_certificate_server?
 
@@ -176,38 +176,39 @@ if is_certificate_server
     action :delete
   end
 
-  master_peers.each do |peer_server|
-    directory "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}" do
+  master_servers.each do |master_server|
+    directory "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}" do
       mode '0755'
       owner 'apache'
       group 'apache'
       recursive true
     end
 
-    execute "Create the master server certificates for #{peer_server['fqdn']}" do
+    execute "Create the master server certificates for #{master_server['fqdn']}" do
       command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} ca create-server-cert \
-              --hostnames=#{(node['cookbook-openshift3']['erb_corsAllowedOrigins'] + [peer_server['ipaddress'], peer_server['fqdn'], node['cookbook-openshift3']['openshift_common_api_hostname']]).uniq.join(',')} \
-              --cert=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/master.server.crt \
-              --key=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/master.server.key \
+              --hostnames=#{(node['cookbook-openshift3']['erb_corsAllowedOrigins'] + [master_server['ipaddress'], master_server['fqdn'], node['cookbook-openshift3']['openshift_common_api_hostname']]).uniq.join(',')} \
+              --cert=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/master.server.crt \
+              --key=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/master.server.key \
               --signer-cert=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt \
               --signer-key=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.key \
               --signer-serial=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.serial.txt \
               --overwrite=false"
-      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/master.server.crt"
+      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/master.server.crt"
+      not_if { is_first_master }
     end
 
-    execute "Generate master client configuration for #{peer_server['fqdn']}" do
+    execute "Generate master client configuration for #{master_server['fqdn']}" do
       command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} create-api-client-config \
               --certificate-authority=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt \
-              --master=https://#{peer_server['fqdn']}:#{node['cookbook-openshift3']['openshift_master_api_port']} \
-              --public-master=https://#{peer_server['fqdn']}:#{node['cookbook-openshift3']['openshift_master_api_port']} \
-              --client-dir=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']} \
+              --master=https://#{master_server['fqdn']}:#{node['cookbook-openshift3']['openshift_master_api_port']} \
+              --public-master=https://#{master_server['fqdn']}:#{node['cookbook-openshift3']['openshift_master_api_port']} \
+              --client-dir=#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']} \
               --groups=system:masters,system:openshift-master \
               --signer-cert=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt \
               --signer-key=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.key \
               --signer-serial=#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.serial.txt \
               --user=system:openshift-master --basename=openshift-master"
-      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/openshift-master.kubeconfig"
+      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/openshift-master.kubeconfig"
     end
 
     certs = case ose_major_version.split('.')[1].to_i
@@ -220,47 +221,47 @@ if is_certificate_server
             end
 
     certs.uniq.each do |master_certificate|
-      remote_file "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/#{master_certificate}" do
+      remote_file "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/#{master_certificate}" do
         source "file://#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{master_certificate}"
         only_if { ::File.file?("#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{master_certificate}") }
       end
     end
 
     %w(client.crt client.key).each do |remove_etcd_certificate|
-      file "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{remove_etcd_certificate}" do
+      file "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{remove_etcd_certificate}" do
         action :delete
       end
     end
 
-    execute "Create a tarball of the peer master certs for #{peer_server['fqdn']}" do
-      command "tar czvf #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}.tgz -C #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']} . "
-      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}.tgz"
+    execute "Create a tarball of the master certs for #{master_server['fqdn']}" do
+      command "tar czvf #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}.tgz -C #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']} . "
+      creates "#{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}.tgz"
     end
 
-    execute 'Encrypt master peer tgz files' do
-      command "openssl enc -aes-256-cbc -in #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}.tgz  -out #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{peer_server['fqdn']}.tgz.enc -k '#{encrypted_file_password}' && chmod -R  0755 #{node['cookbook-openshift3']['master_generated_certs_dir']} && chown -R apache: #{node['cookbook-openshift3']['master_generated_certs_dir']}"
+    execute 'Encrypt master master tgz files' do
+      command "openssl enc -aes-256-cbc -in #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}.tgz  -out #{node['cookbook-openshift3']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}.tgz.enc -k '#{encrypted_file_password}' && chmod -R  0755 #{node['cookbook-openshift3']['master_generated_certs_dir']} && chown -R apache: #{node['cookbook-openshift3']['master_generated_certs_dir']}"
     end
   end
 end
 
 unless is_certificate_server
-  remote_file "Retrieve peer certificate from Master[#{certificate_server['fqdn']}]" do
+  remote_file "Retrieve master certificate from Master[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-#{node['fqdn']}.tgz.enc"
     source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz.enc"
     action :create_if_missing
-    notifies :run, 'execute[Un-encrypt master certificate peer tgz files]', :immediately
-    notifies :run, 'execute[Extract peer certificate to Master folder]', :immediately
+    notifies :run, 'execute[Un-encrypt master certificate master tgz files]', :immediately
+    notifies :run, 'execute[Extract master certificate to Master folder]', :immediately
     retries 12
     retry_delay 5
   end
 
-  execute 'Un-encrypt master certificate peer tgz files' do
+  execute 'Un-encrypt master certificate master tgz files' do
     command "openssl enc -d -aes-256-cbc -in openshift-#{node['fqdn']}.tgz.enc -out openshift-#{node['fqdn']}.tgz -k '#{encrypted_file_password}'"
     cwd node['cookbook-openshift3']['openshift_master_config_dir']
     action :nothing
   end
 
-  execute 'Extract peer certificate to Master folder' do
+  execute 'Extract master certificate to Master folder' do
     command "tar xzf openshift-#{node['fqdn']}.tgz"
     cwd node['cookbook-openshift3']['openshift_master_config_dir']
     action :nothing
