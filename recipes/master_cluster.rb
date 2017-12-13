@@ -79,34 +79,36 @@ if is_certificate_server
   end
 end
 
-# Download the certs
-remote_file "Retrieve client certificate from Master[#{certificate_server['fqdn']}]" do
-  path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz.enc"
-  source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
-  action :create_if_missing
-  notifies :run, 'execute[Un-encrypt master certificate tgz files]', :immediately
-  notifies :run, 'execute[Extract certificate to Master folder]', :immediately
-  retries 12
-  retry_delay 5
-end
-
-execute 'Un-encrypt master certificate tgz files' do
-  command "openssl enc -d -aes-256-cbc -in openshift-master-#{node['fqdn']}.tgz.enc -out openshift-master-#{node['fqdn']}.tgz -k '#{encrypted_file_password}'"
-  cwd node['cookbook-openshift3']['openshift_master_config_dir']
-  action :nothing
-end
-
-execute 'Extract certificate to Master folder' do
-  command "tar xzf openshift-master-#{node['fqdn']}.tgz"
-  cwd node['cookbook-openshift3']['openshift_master_config_dir']
-  action :nothing
-end
-
-%w(client.crt client.key ca.crt).each do |certificate_type|
-  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{certificate_type}" do
-    owner 'root'
-    group 'root'
-    mode '0600'
+# Download the certs (unless this is a cert server that is not the first master)
+unless is_certificate_server && node['cookbook-openshift3']['fqdn'] != first_master['fqdn']
+  remote_file "Retrieve client certificate from Master[#{certificate_server['fqdn']}]" do
+    path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz.enc"
+    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
+    action :create_if_missing
+    notifies :run, 'execute[Un-encrypt master certificate tgz files]', :immediately
+    notifies :run, 'execute[Extract certificate to Master folder]', :immediately
+    retries 12
+    retry_delay 5
+  end
+  
+  execute 'Un-encrypt master certificate tgz files' do
+    command "openssl enc -d -aes-256-cbc -in openshift-master-#{node['fqdn']}.tgz.enc -out openshift-master-#{node['fqdn']}.tgz -k '#{encrypted_file_password}'"
+    cwd node['cookbook-openshift3']['openshift_master_config_dir']
+    action :nothing
+  end
+  
+  execute 'Extract certificate to Master folder' do
+    command "tar xzf openshift-master-#{node['fqdn']}.tgz"
+    cwd node['cookbook-openshift3']['openshift_master_config_dir']
+    action :nothing
+  end
+  
+  %w(client.crt client.key ca.crt).each do |certificate_type|
+    file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}#{certificate_type}" do
+      owner 'root'
+      group 'root'
+      mode '0600'
+    end
   end
 end
 
