@@ -80,7 +80,7 @@ if is_certificate_server
 end
 
 # Download the certs (unless this is a cert server that is not the first master)
-unless is_certificate_server && node['cookbook-openshift3']['fqdn'] != first_master['fqdn']
+unless is_certificate_server && node['fqdn'] != first_master['fqdn']
   remote_file "Retrieve client certificate from Master[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz.enc"
     source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
