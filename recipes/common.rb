@@ -111,7 +111,7 @@ ruby_block 'Change HTTPD port xfer' do
     # if #search_file_replace_line is invoked with a multiline Regexp.
     class MyFileEdit
       def initialize(filepath)
-        raise ArgumentError, "File '#{filepath}' does not exist" unless File.exist?(filepath)
+        return ArgumentError, "File '#{filepath}' does not exist" unless File.exist?(filepath)
         @contents = File.open(filepath, &:read)
         @original_pathname = filepath
         @changes = false
