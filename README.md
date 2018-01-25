@@ -15,7 +15,7 @@ Requirements
 
 * Support OSE version from 3.3+
 * Support Origin version from 1.3+
-* Default the installation to 3.6
+* Default the installation to 3.7
 
 **Highly recommended**: explicitly set `node['cookbook-openshift3']['ose_version']`, `node['cookbook-openshift3']['ose_major_version']`
 and ideally `node['cookbook-openshift3']['docker_version']` to be safe when a major version is released on the
@@ -25,9 +25,9 @@ in your openshift3 role or environment.
 Test Matrix
 ===========
 
-| Platform   | OSE 3.6.0 | OSE 1.5.1 | OSE 1.4.1 | OSE 1.3.3 | OSE 1.2.2 |
-| --------   | --------- | --------- | --------- | --------- | --------- |
-| centos 7.4 | PASS      | PASS      | PASS      | PASS      | Not supported |
+| Platform   | OSE 3.7.0 | OSE 3.6.0 | OSE 1.5.1 | OSE 1.4.1 | OSE 1.3.3 | OSE 1.2.2 |
+| --------   | --------- | --------- | --------- | --------- | --------- | --------- |
+| centos 7.4 | PASS      | PASS      | PASS      | PASS      | PASS      | Not supported |
 
 Override Attributes
 ===================

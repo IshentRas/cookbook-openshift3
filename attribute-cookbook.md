@@ -34,7 +34,7 @@ Installs/Configures Openshift 3.x (>= 3.2)
 * `node['cookbook-openshift3']['ose_version']` -  Defaults to `nil`.
 * `node['cookbook-openshift3']['persistent_storage']` -  Defaults to `[ ... ]`.
 * `node['cookbook-openshift3']['openshift_deployment_type']` -  Defaults to `enterprise`.
-* `node['cookbook-openshift3']['ose_major_version']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? '3.4' : '1.4`.
+* `node['cookbook-openshift3']['ose_major_version']` -  Defaults to `'3.7'`.
 * `node['cookbook-openshift3']['deploy_containerized']` -  Defaults to `false`.
 * `node['cookbook-openshift3']['deploy_example']` -  Defaults to `false`.
 * `node['cookbook-openshift3']['deploy_dnsmasq']` -  Defaults to `true`.
@@ -86,7 +86,7 @@ Installs/Configures Openshift 3.x (>= 3.2)
 * `node['cookbook-openshift3']['openshift_docker_add_registry_arg']` -  Defaults to `[ ... ]`.
 * `node['cookbook-openshift3']['openshift_docker_block_registry_arg']` -  Defaults to `[ ... ]`.
 * `node['cookbook-openshift3']['openshift_docker_insecure_registries']` -  Defaults to `node['cookbook-openshift3']['openshift_docker_add_registry_arg'].empty? ? [node['cookbook-openshift3']['openshift_common_portal_net']] : [node['cookbook-openshift3']['openshift_common_portal_net']] + node['cookbook-openshift3']['openshift_docker_insecure_registry_arg']`.
-* `node['cookbook-openshift3']['openshift_docker_image_version']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.4' : 'v1.4`.
+* `node['cookbook-openshift3']['openshift_docker_image_version']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.7' : 'v3.7.0`.
 * `node['cookbook-openshift3']['openshift_docker_cli_image']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/ose' : 'openshift/origin`.
 * `node['cookbook-openshift3']['openshift_docker_master_image']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/ose' : 'openshift/origin`.
 * `node['cookbook-openshift3']['openshift_docker_node_image']` -  Defaults to `node['cookbook-openshift3']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/node' : 'openshift/node`.
