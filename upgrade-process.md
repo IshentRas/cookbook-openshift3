@@ -22,7 +22,7 @@ update the following variables to get the 'normal' Chef recipes working again:
 
 ```json
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "ose_major_version": "1.5",
       "ose_version": "1.5.1-1.0.008f2d5",
       "openshift_docker_image_version": "v1.5.1",
@@ -107,7 +107,7 @@ Before upgrading the cluster, some variables need to be declared:
 
 ```json
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "control_upgrade": true,
       "control_upgrade_version": "37",
       "control_upgrade_flag": "/tmp/ready",

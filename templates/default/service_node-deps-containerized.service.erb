@@ -1,8 +1,8 @@
 [Unit]
 Requires=docker.service
 After=docker.service
-PartOf=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node.service
-Before=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node.service
+PartOf=atomic-openshift-node.service
+Before=atomic-openshift-node.service
 
 
 [Service]
@@ -10,8 +10,8 @@ ExecStart=/bin/bash -c 'if [[ -f /usr/bin/docker-current ]]; \
  then echo DOCKER_ADDTL_BIND_MOUNTS=\"--volume=/usr/bin/docker-current:/usr/bin/docker-current:ro \
  --volume=/etc/sysconfig/docker:/etc/sysconfig/docker:ro \
  --volume=/etc/containers/registries:/etc/containers/registries:ro \" > \
- /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; \
- else echo "#DOCKER_ADDTL_BIND_MOUNTS=" > /etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep; fi'
+ /etc/sysconfig/atomic-openshift-node-dep; \
+ else echo "#DOCKER_ADDTL_BIND_MOUNTS=" > /etc/sysconfig/atomic-openshift-node-dep; fi'
 ExecStop=
-SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep
+SyslogIdentifier=atomic-openshift-node-dep
 

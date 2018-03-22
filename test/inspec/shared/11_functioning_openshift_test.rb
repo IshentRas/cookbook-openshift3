@@ -50,13 +50,13 @@ end
 
 # the openshift master api endpoints should by queriable using the https protocol; in other words,
 # `curl --fail https://$(oc get endpoints kubernetes -n default -o jsonpath='{.subsets[*].addresses[0].ip}'):8443`
-# should always work, even if the endpoint ipaddress is not explicitly listed in `node['cookbook-openshift3']['erb_corsAllowedOrigins']`.
+# should always work, even if the endpoint ipaddress is not explicitly listed in `node['is_apaas_openshift_cookbook']['erb_corsAllowedOrigins']`.
 describe command('curl --fail --cacert /etc/origin/node/ca.crt https://10.0.2.15:8443') do
   its('exit_status') { should eq 0 }
   its('stdout') { should include('/api/v1') }
 end
 
-# non-regression test for https://github.com/IshentRas/cookbook-openshift3/issues/170#issuecomment-338193509
+# non-regression test for https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/170#issuecomment-338193509
 describe command('host kubernetes.default.svc.cluster.local') do
   its('exit_status') { should eq 0 }
   its('stdout') { should include('172.30.0.1') }

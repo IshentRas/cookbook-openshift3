@@ -40,7 +40,7 @@ listen stats :9000
     stats uri /
 
 frontend  atomic-openshift-api
-    bind *:<%= node['cookbook-openshift3']['openshift_lb_port'] %>
+    bind *:<%= node['is_apaas_openshift_cookbook']['openshift_lb_port'] %>
     default_backend atomic-openshift-api
     mode tcp
     option tcplog
@@ -49,5 +49,5 @@ backend atomic-openshift-api
     balance source
     mode tcp
 <% @master_servers.each_with_index do |master, index| %>
-    server master<%= index %> <%= master['ipaddress'] %>:<%= node['cookbook-openshift3']['openshift_master_api_port'] %> check
+    server master<%= index %> <%= master['ipaddress'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_master_api_port'] %> check
 <% end %>

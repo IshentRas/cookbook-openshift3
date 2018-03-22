@@ -1,7 +1,7 @@
 # /etc/sysconfig/docker
 
 # Modify these options if you want to change the way the docker daemon runs
-OPTIONS='--insecure-registry=<%= node['cookbook-openshift3']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled <% unless node['cookbook-openshift3']['docker_dns_search_option'].empty? %><% for dnssearchentry in node['cookbook-openshift3']['docker_dns_search_option'] %> --dns-search=<%= dnssearchentry %><% end -%><% end -%><% unless node['cookbook-openshift3']['docker_log_driver'].empty? %> --log-driver=<%= node['cookbook-openshift3']['docker_log_driver'] %><%= node['cookbook-openshift3']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %><% end -%>'
+OPTIONS='--insecure-registry=<%= node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %> --selinux-enabled <% unless node['is_apaas_openshift_cookbook']['docker_dns_search_option'].empty? %><% for dnssearchentry in node['is_apaas_openshift_cookbook']['docker_dns_search_option'] %> --dns-search=<%= dnssearchentry %><% end -%><% end -%><% unless node['is_apaas_openshift_cookbook']['docker_log_driver'].empty? %> --log-driver=<%= node['is_apaas_openshift_cookbook']['docker_log_driver'] %><%= node['is_apaas_openshift_cookbook']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %><% end -%>'
 
 DOCKER_CERT_PATH=/etc/docker
 
@@ -9,20 +9,20 @@ DOCKER_CERT_PATH=/etc/docker
 # pull use the ADD_REGISTRY option to list a set of registries, each prepended
 # with --add-registry flag. The first registry added will be the first registry
 # searched.
-<% if node['cookbook-openshift3']['openshift_docker_add_registry_arg'].empty? %>
+<% if node['is_apaas_openshift_cookbook']['openshift_docker_add_registry_arg'].empty? %>
 ADD_REGISTRY='--add-registry registry.access.redhat.com'
 <% else -%>
-ADD_REGISTRY='--add-registry <%= node['cookbook-openshift3']['openshift_docker_add_registry_arg'].join(' --add-registry ') %> --add-registry registry.access.redhat.com'
+ADD_REGISTRY='--add-registry <%= node['is_apaas_openshift_cookbook']['openshift_docker_add_registry_arg'].join(' --add-registry ') %> --add-registry registry.access.redhat.com'
 <% end -%>
 
 # If you want to block registries from being used, uncomment the BLOCK_REGISTRY
 # option and give it a set of registries, each prepended with --block-registry
 # flag. For example adding docker.io will stop users from downloading images
 # from docker.io
-<% if node['cookbook-openshift3']['openshift_docker_block_registry_arg'].empty? %>
+<% if node['is_apaas_openshift_cookbook']['openshift_docker_block_registry_arg'].empty? %>
 # BLOCK_REGISTRY='--block-registry'
 <% else -%>
-BLOCK_REGISTRY='--block-registry <%= node['cookbook-openshift3']['openshift_docker_block_registry_arg'].join(' --block-registry ') %>'
+BLOCK_REGISTRY='--block-registry <%= node['is_apaas_openshift_cookbook']['openshift_docker_block_registry_arg'].join(' --block-registry ') %>'
 <% end -%>
 
 # If you have a registry secured with https but do not have proper certs
@@ -42,16 +42,16 @@ BLOCK_REGISTRY='--block-registry <%= node['cookbook-openshift3']['openshift_dock
 # Controls the /etc/cron.daily/docker-logrotate cron job status.
 # To disable, uncomment the line below.
 # LOGROTATE=false
-<% unless node['cookbook-openshift3']['openshift_http_proxy'].empty? && node['cookbook-openshift3']['openshift_https_proxy'].empty? && node['cookbook-openshift3']['openshift_no_proxy'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_http_proxy'].empty? && node['is_apaas_openshift_cookbook']['openshift_https_proxy'].empty? && node['is_apaas_openshift_cookbook']['openshift_no_proxy'].empty? -%>
 
 # If you need Docker to use an HTTP proxy, it can also be specified here.
-<% unless node['cookbook-openshift3']['openshift_http_proxy'].empty? -%>
-HTTP_PROXY="<%= node['cookbook-openshift3']['openshift_http_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_http_proxy'].empty? -%>
+HTTP_PROXY="<%= node['is_apaas_openshift_cookbook']['openshift_http_proxy'] %>"
 <% end %>
-<% unless node['cookbook-openshift3']['openshift_https_proxy'].empty? -%>
-HTTPS_PROXY="<%= node['cookbook-openshift3']['openshift_https_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_https_proxy'].empty? -%>
+HTTPS_PROXY="<%= node['is_apaas_openshift_cookbook']['openshift_https_proxy'] %>"
 <% end %>
-<% unless node['cookbook-openshift3']['openshift_no_proxy'].empty? -%>
-NO_PROXY="<%= node['cookbook-openshift3']['openshift_no_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_no_proxy'].empty? -%>
+NO_PROXY="<%= node['is_apaas_openshift_cookbook']['openshift_no_proxy'] %>"
 <% end %>
 <% end -%>

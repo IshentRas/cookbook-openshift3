@@ -1,37 +1,37 @@
 [Unit]
-After=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master.service
+After=atomic-openshift-master.service
 After=docker.service
 After=openvswitch.service
 PartOf=docker.service
 Requires=docker.service
-<% if node['cookbook-openshift3']['openshift_common_use_openshift_sdn'] == true %>
+<% if node['is_apaas_openshift_cookbook']['openshift_common_use_openshift_sdn'] == true %>
 Wants=openvswitch.service
 PartOf=openvswitch.service
 After=ovsdb-server.service
 After=ovs-vswitchd.service
 <%- end %>
-Wants=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master.service
-Requires=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep.service
-After=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep.service
+Wants=atomic-openshift-master.service
+Requires=atomic-openshift-node-dep.service
+After=atomic-openshift-node-dep.service
 <% if @ose_major_version.split('.')[1].to_i >= 6 %>
 Wants=dnsmasq.service
 After=dnsmasq.service
 <%- end %>
 
 [Service]
-EnvironmentFile=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node
-EnvironmentFile=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node-dep
-ExecStartPre=-/usr/bin/docker rm -f <%= node['cookbook-openshift3']['openshift_service_type'] %>-node
+EnvironmentFile=/etc/sysconfig/atomic-openshift-node
+EnvironmentFile=/etc/sysconfig/atomic-openshift-node-dep
+ExecStartPre=-/usr/bin/docker rm -f atomic-openshift-node
 <% if @ose_major_version.split('.')[1].to_i >= 6 %>
 ExecStartPre=/usr/bin/cp /etc/origin/node/node-dnsmasq.conf /etc/dnsmasq.d/
-ExecStartPre=/usr/bin/dbus-send --system --dest=uk.org.thekelleys.dnsmasq /uk/org/thekelleys/dnsmasq uk.org.thekelleys.SetDomainServers array:string:/in-addr.arpa/127.0.0.1,/<%= node['cookbook-openshift3']['osn_cluster_dns_domain'] %>/127.0.0.1
+ExecStartPre=/usr/bin/dbus-send --system --dest=uk.org.thekelleys.dnsmasq /uk/org/thekelleys/dnsmasq uk.org.thekelleys.SetDomainServers array:string:/in-addr.arpa/127.0.0.1,/<%= node['is_apaas_openshift_cookbook']['osn_cluster_dns_domain'] %>/127.0.0.1
 <%- end %>
-ExecStart=/usr/bin/docker run --name <%= node['cookbook-openshift3']['openshift_service_type'] %>-node \
-  --rm --privileged --net=host --pid=host --env-file=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-node \
+ExecStart=/usr/bin/docker run --name atomic-openshift-node \
+  --rm --privileged --net=host --pid=host --env-file=/etc/sysconfig/atomic-openshift-node \
   -v /:/rootfs:ro,rslave -e CONFIG_FILE=${CONFIG_FILE} -e OPTIONS=${OPTIONS} \
   -e HOST=/rootfs -e HOST_ETC=/host-etc \
-  -v <%= node['cookbook-openshift3']['openshift_data_dir'] %>:<%= node['cookbook-openshift3']['openshift_data_dir'] %>:rslave \
-  -v <%= node['cookbook-openshift3']['openshift_common_base_dir'] %>/node:<%= node['cookbook-openshift3']['openshift_common_base_dir'] %>/node \
+  -v <%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>:rslave \
+  -v <%= node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] %>/node:<%= node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] %>/node \
   -v /etc/localtime:/etc/localtime:ro -v /etc/machine-id:/etc/machine-id:ro \
   -v /run:/run -v /sys:/sys:rw -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
   -v /usr/bin/docker:/usr/bin/docker:ro -v /var/lib/docker:/var/lib/docker \
@@ -39,14 +39,14 @@ ExecStart=/usr/bin/docker run --name <%= node['cookbook-openshift3']['openshift_
   -v /etc/origin/sdn:/etc/openshift-sdn -v /var/lib/cni:/var/lib/cni \
   -v /etc/systemd/system:/host-etc/systemd/system -v /var/log:/var/log \
   -v /dev:/dev $DOCKER_ADDTL_BIND_MOUNTS -v /etc/pki:/etc/pki:ro \
-  <%= node['cookbook-openshift3']['openshift_docker_node_image'] %>:${IMAGE_VERSION}
+  <%= node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] %>:${IMAGE_VERSION}
 ExecStartPost=/usr/bin/sleep 10
-ExecStop=/usr/bin/docker stop <%= node['cookbook-openshift3']['openshift_service_type'] %>-node
+ExecStop=/usr/bin/docker stop atomic-openshift-node
 <% if @ose_major_version.split('.')[1].to_i >= 6 %>
 ExecStopPost=/usr/bin/rm /etc/dnsmasq.d/node-dnsmasq.conf
 ExecStopPost=/usr/bin/dbus-send --system --dest=uk.org.thekelleys.dnsmasq /uk/org/thekelleys/dnsmasq uk.org.thekelleys.SetDomainServers array:string:
 <%- end %>
-SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node
+SyslogIdentifier=atomic-openshift-node
 Restart=always
 RestartSec=5s
 

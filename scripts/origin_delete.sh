@@ -14,7 +14,7 @@ cd ~/chef-solo-example/cookbooks
 echo "Installing prerequisite packages, please wait..."
 yum -y install -q https://packages.chef.io/files/stable/chef/12.17.44/el/7/chef-12.17.44-1.el7.x86_64.rpm git
 ### Installing cookbooks
-[ -d ~/chef-solo-example/cookbooks/cookbook-openshift3 ] || git clone -q https://github.com/IshentRas/cookbook-openshift3.git
+[ -d ~/chef-solo-example/cookbooks/is_apaas_openshift_cookbook ] || git clone -q https://github.com/IshentRas/is_apaas_openshift_cookbook.git
 [ -d ~/chef-solo-example/cookbooks/iptables ] || git clone -q https://github.com/chef-cookbooks/iptables.git
 [ -d ~/chef-solo-example/cookbooks/yum ] || git clone -q https://github.com/chef-cookbooks/yum.git
 [ -d ~/chef-solo-example/cookbooks/selinux_policy ] || git clone -q https://github.com/BackSlasher/chef-selinuxpolicy.git selinux_policy
@@ -33,7 +33,7 @@ log_location STDOUT
 solo true
 BASH
 ### Delete OSE !!!!
-chef-solo -o recipe[cookbook-openshift3::adhoc_uninstall] -c ~/chef-solo-example/solo.rb
+chef-solo -o recipe[is_apaas_openshift_cookbook::adhoc_uninstall] -c ~/chef-solo-example/solo.rb
 cat << BASH
 
 ##### Uninstallation DONE ######

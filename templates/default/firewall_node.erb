@@ -3,10 +3,10 @@
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift kubelet ReadOnlyPort udp" -m udp -p udp --dport 10255 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "https" -m tcp -p tcp --dport 443 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "http" -m tcp -p tcp --dport 80 -j ACCEPT
-<% unless node['cookbook-openshift3']['openshift_node_port_range'].empty? -%>
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Kubernetes service NodePort TCP" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['openshift_node_port_range'].tr("-", ":") %> -j ACCEPT
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Kubernetes service NodePort UDP" -m udp -p udp --dport <%= node['cookbook-openshift3']['openshift_node_port_range'].tr("-", ":") %> -j ACCEPT
+<% unless node['is_apaas_openshift_cookbook']['openshift_node_port_range'].empty? -%>
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Kubernetes service NodePort TCP" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['openshift_node_port_range'].tr("-", ":") %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Kubernetes service NodePort UDP" -m udp -p udp --dport <%= node['is_apaas_openshift_cookbook']['openshift_node_port_range'].tr("-", ":") %> -j ACCEPT
 <% end -%>
-<% unless node['cookbook-openshift3']['enabled_firewall_additional_rules_node'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_node'].empty? -%>
 <%= render "/usr/local/etc/.firewall_node_additional.txt", :local => true %>
 <% end %>

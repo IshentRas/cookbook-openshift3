@@ -5,15 +5,15 @@ fi
 cmd=`basename $0`
 user=`id -u`
 group=`id -g`
-image_tag=<%= node['cookbook-openshift3']['openshift_docker_image_version'] %>
+image_tag=<%= node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] %>
 
 >&2 echo """
 ================================================================================
-ATTENTION: You are running ${cmd} via a wrapper around 'docker run <%= node['cookbook-openshift3']['openshift_docker_master_image'] %>:${image_tag}'.
+ATTENTION: You are running ${cmd} via a wrapper around 'docker run <%= node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] %>:${image_tag}'.
 This wrapper is intended only to be used to bootstrap an environment. Please
 install client tools on another host once you have granted cluster-admin
 privileges to a user.
-<% if node['cookbook-openshift3']['openshift_deployment_type'] == 'enterprise' %>
+<% if node['is_apaas_openshift_cookbook']['openshift_deployment_type'] == 'enterprise' %>
 See https://docs.openshift.com/enterprise/latest/cli_reference/get_started_cli.html
 <%- else -%>
 See https://docs.openshift.org/latest/cli_reference/get_started_cli.html
@@ -21,4 +21,4 @@ See https://docs.openshift.org/latest/cli_reference/get_started_cli.html
 =================================================================================
 """
 
-docker run -i --privileged --net=host --user=${user}:${group} -v ~/.kube:/root/.kube -v /tmp:/tmp -v <%= node['cookbook-openshift3']['openshift_common_base_dir'] %>:<%= node['cookbook-openshift3']['openshift_common_base_dir'] %> -e KUBECONFIG=/root/.kube/config -w /tmp --entrypoint ${cmd} --rm <%= node['cookbook-openshift3']['openshift_docker_cli_image'] %>:${image_tag} "${@}"
+docker run -i --privileged --net=host --user=${user}:${group} -v ~/.kube:/root/.kube -v /tmp:/tmp -v <%= node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] %> -e KUBECONFIG=/root/.kube/config -w /tmp --entrypoint ${cmd} --rm <%= node['is_apaas_openshift_cookbook']['openshift_docker_cli_image'] %>:${image_tag} "${@}"

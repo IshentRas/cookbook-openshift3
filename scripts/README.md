@@ -6,12 +6,12 @@ You will need a CentOS 7.1+  with "Minimal" installation option and at least 10G
 
 * Deploy ORIGIN ALL IN THE BOX Flavour (MASTER + NODE)
 ```
-bash <(curl -s https://raw.githubusercontent.com/IshentRas/cookbook-openshift3/master/scripts/origin_deploy.sh)
+bash <(curl -s https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/scripts/origin_deploy.sh)
 ```
 
 * Delete ORIGIN installation
 ```
-bash <(curl -s https://raw.githubusercontent.com/IshentRas/cookbook-openshift3/master/scripts/origin_delete.sh)
+bash <(curl -s https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/scripts/origin_delete.sh)
 ```
 
 * Post installation

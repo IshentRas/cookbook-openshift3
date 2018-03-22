@@ -7,5 +7,5 @@ enable-dbus
 bind-interfaces
 except-interface=lo
 <%- else -%>
-server=/cluster.local/<%=node['cookbook-openshift3']['openshift_common_first_svc_ip'] %>
+server=/cluster.local/<%=node['is_apaas_openshift_cookbook']['openshift_common_first_svc_ip'] %>
 <%- end %>

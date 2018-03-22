@@ -4,14 +4,14 @@ apiVersion: v1
 dnsBindAddress: 127.0.0.1:53
 dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
 <%- end -%>
-dnsDomain: <%=node['cookbook-openshift3']['osn_cluster_dns_domain'] %>
-dnsIP: <%=node['cookbook-openshift3']['osn_cluster_dns_ip'] %>
+dnsDomain: <%=node['is_apaas_openshift_cookbook']['osn_cluster_dns_domain'] %>
+dnsIP: <%=node['is_apaas_openshift_cookbook']['osn_cluster_dns_ip'] %>
 dockerConfig:
   execHandlerName: ""
-iptablesSyncPeriod: "<%= node['cookbook-openshift3']['openshift_node_iptables_sync_period'] %>"
+iptablesSyncPeriod: "<%= node['is_apaas_openshift_cookbook']['openshift_node_iptables_sync_period'] %>"
 imageConfig:
-  format: <%= node['cookbook-openshift3']['openshift_common_registry_url'] %>
-  latest: <%= node['cookbook-openshift3']['openshift_node_image_config_latest'] %>
+  format: <%= node['is_apaas_openshift_cookbook']['openshift_common_registry_url'] %>
+  latest: <%= node['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] %>
 kind: NodeConfig
 kubeletArguments:
 <% unless @node_labels.empty? -%>
@@ -26,19 +26,19 @@ kubeletArguments:
     - "<%= vv %>"
     <%- end -%>
 <%- end -%>
-<% if node['cookbook-openshift3']['openshift_node_cadvisor_port'] %>
+<% if node['is_apaas_openshift_cookbook']['openshift_node_cadvisor_port'] %>
   cadvisor-port:
-    - "<%= node['cookbook-openshift3']['openshift_node_cadvisor_port'] %>"
+    - "<%= node['is_apaas_openshift_cookbook']['openshift_node_cadvisor_port'] %>"
 <%- end -%>
-<% if node['cookbook-openshift3']['openshift_node_read_only_port'] %>
+<% if node['is_apaas_openshift_cookbook']['openshift_node_read_only_port'] %>
   read-only-port:
-    - "<%= node['cookbook-openshift3']['openshift_node_read_only_port'] %>"
+    - "<%= node['is_apaas_openshift_cookbook']['openshift_node_read_only_port'] %>"
 <%- end -%>
-<% if node['cookbook-openshift3']['openshift_cloud_provider'] %>
+<% if node['is_apaas_openshift_cookbook']['openshift_cloud_provider'] %>
   cloud-provider:
-  - <%= node['cookbook-openshift3']['openshift_cloud_provider'] %>
+  - <%= node['is_apaas_openshift_cookbook']['openshift_cloud_provider'] %>
   cloud-config:
-  - <%= node['cookbook-openshift3']['openshift_cloud_provider_config_dir']%>/<%= node['cookbook-openshift3']['openshift_cloud_provider'] %>.conf
+  - <%= node['is_apaas_openshift_cookbook']['openshift_cloud_provider_config_dir']%>/<%= node['is_apaas_openshift_cookbook']['openshift_cloud_provider'] %>.conf
 <%- end -%>
 <% if @ose_major_version.split('.')[1].to_i >=3 %>
 masterClientConnectionOverrides:
@@ -47,18 +47,18 @@ masterClientConnectionOverrides:
   burst: 200
   qps: 100
 <%- end -%>
-<% if node['cookbook-openshift3']['use_wildcard_nodes'] %>
+<% if node['is_apaas_openshift_cookbook']['use_wildcard_nodes'] %>
 masterKubeConfig: system:node:wildcard_nodes.kubeconfig
 <%- else -%>
 masterKubeConfig: system:node:<%= node['fqdn'] %>.kubeconfig
 <%- end -%>
-networkPluginName: <%= node['cookbook-openshift3']['openshift_common_sdn_network_plugin_name'] %>
+networkPluginName: <%= node['is_apaas_openshift_cookbook']['openshift_common_sdn_network_plugin_name'] %>
 # networkConfig struct introduced in origin 1.0.6 and OSE 3.0.2 which
 # deprecates networkPluginName above. The two should match.
 networkConfig:
-   mtu: <%= node['cookbook-openshift3']['openshift_node_sdn_mtu_sdn'] %>
-   networkPluginName: <%= node['cookbook-openshift3']['openshift_common_sdn_network_plugin_name'] %>
-nodeIP: <%= node['cookbook-openshift3']['openshift_common_ip'] %>
+   mtu: <%= node['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] %>
+   networkPluginName: <%= node['is_apaas_openshift_cookbook']['openshift_common_sdn_network_plugin_name'] %>
+nodeIP: <%= node['is_apaas_openshift_cookbook']['openshift_common_ip'] %>
 nodeName: <%= node['fqdn'] %>
 podManifestConfig:
 servingInfo:
@@ -66,16 +66,16 @@ servingInfo:
   certFile: server.crt
   clientCA: ca.crt
   keyFile: server.key
-<% if (defined?(node['cookbook-openshift3']['openshift_node_min_tls_version'])).nil? %>
-  minTLSVersion: <%= node['cookbook-openshift3']['openshift_node_min_tls_version'] %>
+<% if (defined?(node['is_apaas_openshift_cookbook']['openshift_node_min_tls_version'])).nil? %>
+  minTLSVersion: <%= node['is_apaas_openshift_cookbook']['openshift_node_min_tls_version'] %>
 <% end -%>
-<% if (defined?(node['cookbook-openshift3']['openshift_node_cipher_suites'])).nil? %>
+<% if (defined?(node['is_apaas_openshift_cookbook']['openshift_node_cipher_suites'])).nil? %>
   cipherSuites:
-<% node['cookbook-openshift3']['openshift_node_cipher_suites'].each do |cipher_suite| %>
+<% node['is_apaas_openshift_cookbook']['openshift_node_cipher_suites'].each do |cipher_suite| %>
   - <%= cipher_suite %>
 <%- end -%>
 <% end -%>
-volumeDirectory: <%= node['cookbook-openshift3']['openshift_data_dir'] %>/openshift.local.volumes
+volumeDirectory: <%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>/openshift.local.volumes
 proxyArguments:
   proxy-mode:
     - iptables

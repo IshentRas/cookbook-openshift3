@@ -1,9 +1,9 @@
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "etcd embedded" -m tcp -p tcp --dport 4001 -j ACCEPT
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift api https" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['openshift_master_api_port'] %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift api https" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['openshift_master_api_port'] %> -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift dns tcp" -m tcp -p tcp --dport 8053 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift dns udp" -m udp -p udp --dport 8053 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift dns tcp" -m tcp -p tcp --dport 53 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift dns udp" -m udp -p udp --dport 53 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Fluentd td-agent tcp" -m tcp -p tcp --dport 24224 -j ACCEPT
 -A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "Fluentd td-agent udp" -m udp -p udp --dport 24224 -j ACCEPT
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift HTTPD" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['httpd_xfer_port'] %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift HTTPD" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['httpd_xfer_port'] %> -j ACCEPT
