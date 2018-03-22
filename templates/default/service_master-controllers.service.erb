@@ -2,19 +2,19 @@
 Description=Atomic OpenShift Master Controllers
 Documentation=https://github.com/openshift/origin
 After=network-online.target
-After=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api.service
-Wants=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api.service
+After=atomic-openshift-master-api.service
+Wants=atomic-openshift-master-api.service
 Requires=network-online.target
 
 [Service]
 Type=notify
-EnvironmentFile=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+EnvironmentFile=/etc/sysconfig/atomic-openshift-master-controllers
 Environment=GOTRACEBACK=crash
 ExecStart=/usr/bin/openshift start master controllers --config=${CONFIG_FILE} $OPTIONS
 LimitNOFILE=131072
 LimitCORE=infinity
-WorkingDirectory=<%= node['cookbook-openshift3']['openshift_data_dir'] %>
-SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-controllers
+WorkingDirectory=<%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>
+SyslogIdentifier=atomic-openshift-master-controllers
 Restart=always
 RestartSec=5s
 

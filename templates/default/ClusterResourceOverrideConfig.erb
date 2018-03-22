@@ -2,12 +2,12 @@ ClusterResourceOverride:
   configuration:
     apiVersion: v1
     kind: ClusterResourceOverrideConfig
-<% unless node['cookbook-openshift3']['openshift_clusterresourceoverrides_memorylimit_percent'].empty? %>
-    memoryRequestToLimitPercent: <%= node['cookbook-openshift3']['openshift_clusterresourceoverrides_memorylimit_percent'] %>
+<% unless node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_memorylimit_percent'].empty? %>
+    memoryRequestToLimitPercent: <%= node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_memorylimit_percent'] %>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_clusterresourceoverrides_cpulimit_percent'].empty? %>
-    cpuRequestToLimitPercent: <%= node['cookbook-openshift3']['openshift_clusterresourceoverrides_cpulimit_percent'] %>
+<% unless node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_cpulimit_percent'].empty? %>
+    cpuRequestToLimitPercent: <%= node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_cpulimit_percent'] %>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_clusterresourceoverrides_limitcputomem_percent'].empty? %>
-    limitCPUToMemoryPercent: <%= node['cookbook-openshift3']['openshift_clusterresourceoverrides_limitcputomem_percent'] %>
+<% unless node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_limitcputomem_percent'].empty? %>
+    limitCPUToMemoryPercent: <%= node['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_limitcputomem_percent'] %>
 <%- end -%>

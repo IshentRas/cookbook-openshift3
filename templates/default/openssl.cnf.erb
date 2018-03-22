@@ -6,7 +6,7 @@ keyUsage         = digitalSignature,keyEncipherment
 subjectAltName   = ${ENV::SAN}
 
 [ etcd_ca ]
-dir             = <%= node['cookbook-openshift3']['etcd_ca_dir'] %>
+dir             = <%= node['is_apaas_openshift_cookbook']['etcd_ca_dir'] %>
 crl_dir         = $dir/crl
 database        = $dir/index.txt
 new_certs_dir   = $dir/certs

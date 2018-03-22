@@ -2,27 +2,27 @@ BuildOverrides:
   configuration:
     apiVersion: v1
     kind: BuildOverridesConfig
-<% unless node['cookbook-openshift3']['openshift_buildoverrides_force_pull'].empty? %>
-    forcePull: "<%= node['cookbook-openshift3']['openshift_buildoverrides_force_pull'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_buildoverrides_force_pull'].empty? %>
+    forcePull: "<%= node['is_apaas_openshift_cookbook']['openshift_buildoverrides_force_pull'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_buildoverrides_image_labels'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_buildoverrides_image_labels'].empty? -%>
     imageLabels:
-<% node['cookbook-openshift3']['openshift_buildoverrides_image_labels'].each do |image| %>
+<% node['is_apaas_openshift_cookbook']['openshift_buildoverrides_image_labels'].each do |image| %>
 <% image.each_pair do |k,v| %>
     - name: <%= k %>
       value: <%= v %>
 <%- end -%>
 <%- end -%>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_buildoverrides_nodeselectors'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_buildoverrides_nodeselectors'].empty? -%>
     nodeSelector:
-<% node['cookbook-openshift3']['openshift_buildoverrides_nodeselectors'].each_pair do |k,v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_buildoverrides_nodeselectors'].each_pair do |k,v| %>
       <%= k %>: <%= v %>
 <%- end -%>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_buildoverrides_annotations'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_buildoverrides_annotations'].empty? -%>
     annotations:
-<% node['cookbook-openshift3']['openshift_buildoverrides_annotations'].each_pair do |k,v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_buildoverrides_annotations'].each_pair do |k,v| %>
       <%= k %>: <%= v %>
 <%- end -%>
 <%- end -%>

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Resources:: openshift_deploy_metrics
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -24,30 +24,30 @@ action :delete do
     end
 
     remote_file "#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig" do
-      source "file://#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig"
+      source "file://#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
     end
 
     execute 'Scaling down cluster before deletion' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']} | \
-              xargs --no-run-if-empty #{node['cookbook-openshift3']['openshift_common_client_binary']} scale \
-              --replicas=0 --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
+              xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
+              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
     end
 
     execute 'Uninstalling metrics components' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} $ACTION --ignore-not-found \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION --ignore-not-found \
               --selector=metrics-infra all,sa,secrets,templates,routes,pvc,rolebindings,clusterrolebindings \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
       environment 'ACTION' => 'delete'
     end
 
     execute 'Uninstalling rolebindings' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} $ACTION \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION \
               --ignore-not-found rolebinding/hawkular-view clusterrolebinding/heapster-cluster-reader \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
       environment 'ACTION' => 'delete'
     end
   end
@@ -55,7 +55,7 @@ end
 
 action :create do
   converge_by 'Deploying Metrics' do
-    ose_major_version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+    ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
 
     directory "#{Chef::Config['file_cache_path']}/hosted_metric/templates" do
       recursive true
@@ -67,13 +67,13 @@ action :create do
     end
 
     remote_file "#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig" do
-      source "file://#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig"
+      source "file://#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
     end
 
     package 'java-1.8.0-openjdk-headless'
 
     execute 'Generate ca certificate chain' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} ca create-signer-cert \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-signer-cert \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
               --key=#{Chef::Config['file_cache_path']}/hosted_metric/ca.key \
               --cert=#{Chef::Config['file_cache_path']}/hosted_metric/ca.crt \
@@ -83,7 +83,7 @@ action :create do
 
     %w(hawkular-metrics hawkular-cassandra heapster).each do |component|
       execute "Generate #{component} keys" do
-        command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} ca create-server-cert \
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-server-cert \
                 --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
                 --key=#{Chef::Config['file_cache_path']}/hosted_metric/#{component}.key \
                 --cert=#{Chef::Config['file_cache_path']}/hosted_metric/#{component}.crt \
@@ -237,8 +237,8 @@ action :create do
             data: {
               'heapster.cert' => `base64 --wrap 0 #{Chef::Config['file_cache_path']}/hosted_metric/heapster.crt`,
               'heapster.key' => `base64 --wrap 0 #{Chef::Config['file_cache_path']}/hosted_metric/heapster.key`,
-              'heapster.client-ca' => `base64 --wrap 0 #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca-bundle.crt`,
-              'heapster.allowed-users' => `echo -n #{node['cookbook-openshift3']['openshift_metrics_heapster_allowed_users']} | base64
+              'heapster.client-ca' => `base64 --wrap 0 #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt`,
+              'heapster.allowed-users' => `echo -n #{node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_allowed_users']} | base64
 `
             }
           }
@@ -306,7 +306,7 @@ action :create do
             name: 'heapster-secrets',
             labels: { 'metrics-infra' => 'heapster' },
             data: {
-              'heapster.allowed-users' => `echo -n #{node['cookbook-openshift3']['openshift_metrics_heapster_allowed_users']} | base64
+              'heapster.allowed-users' => `echo -n #{node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_allowed_users']} | base64
 `
             }
           }
@@ -330,7 +330,7 @@ action :create do
       end
     end
 
-    [{ 'name' => 'hawkular-view', 'labels' => { 'metrics-infra' => 'hawkular' }, 'rolerefs' => { 'name' => 'view' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['cookbook-openshift3']['openshift_metrics_project'] }] }, { 'name' => 'hawkular-namespace-watcher', 'labels' => { 'metrics-infra' => 'hawkular' }, 'rolerefs' => { 'name' => 'hawkular-metrics', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['cookbook-openshift3']['openshift_metrics_project'] }], 'cluster' => true }, { 'name' => 'heapster-cluster-reader', 'labels' => { 'metrics-infra' => 'heapster' }, 'rolerefs' => { 'name' => 'cluster-reader', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'heapster', 'namespace' => node['cookbook-openshift3']['openshift_metrics_project'] }], 'cluster' => true }].each do |role|
+    [{ 'name' => 'hawkular-view', 'labels' => { 'metrics-infra' => 'hawkular' }, 'rolerefs' => { 'name' => 'view' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }] }, { 'name' => 'hawkular-namespace-watcher', 'labels' => { 'metrics-infra' => 'hawkular' }, 'rolerefs' => { 'name' => 'hawkular-metrics', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }, { 'name' => 'heapster-cluster-reader', 'labels' => { 'metrics-infra' => 'heapster' }, 'rolerefs' => { 'name' => 'cluster-reader', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'heapster', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }].each do |role|
       template "Generate view role binding for the #{role['name']} service account" do
         path "#{Chef::Config['file_cache_path']}/hosted_metric/templates/#{role['name']}-rolebinding.yaml"
         source 'rolebinding.yaml.erb'
@@ -342,17 +342,17 @@ action :create do
       source 'hawkular_metrics_role.yaml'
     end
 
-    [{ 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics' }, 'host' => node['cookbook-openshift3']['openshift_metrics_hawkular_hostname'], 'to' => { 'kind' => 'Service', 'name' => 'hawkular-metrics' }, 'tls' => true, 'tls_termination' => 'reencrypt' }].each do |route|
+    [{ 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics' }, 'host' => node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_hostname'], 'to' => { 'kind' => 'Service', 'name' => 'hawkular-metrics' }, 'tls' => true, 'tls_termination' => 'reencrypt' }].each do |route|
       template "Generate the #{route['name']} route" do
         path "#{Chef::Config['file_cache_path']}/hosted_metric/templates/#{route['name']}-route.yaml"
         source 'route.yaml.erb'
         variables lazy {
           {
             route: route,
-            annotations: node['cookbook-openshift3']['openshift_metrics_hawkular_route_annotations'],
-            tls_key: node['cookbook-openshift3']['openshift_metrics_hawkular_key'].empty? ? '' : Mixlib::ShellOut.new("base64 --wrap 0 #{node['cookbook-openshift3']['openshift_metrics_hawkular_key']}").run_command.stdout.strip,
-            tls_certificate: node['cookbook-openshift3']['openshift_metrics_hawkular_cert'].empty? ? '' : Mixlib::ShellOut.new("cat #{node['cookbook-openshift3']['openshift_metrics_hawkular_cert']} | ruby -p -e \"gsub(/\n/, '\\n')\"").run_command.stdout.strip,
-            tls_ca_certificate: node['cookbook-openshift3']['openshift_metrics_hawkular_ca'].empty? ? '' : Mixlib::ShellOut.new("cat #{node['cookbook-openshift3']['openshift_metrics_hawkular_ca']} | ruby -p -e \"gsub(/\n/, '\\n')\"").run_command.stdout.strip,
+            annotations: node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_route_annotations'],
+            tls_key: node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_key'].empty? ? '' : Mixlib::ShellOut.new("base64 --wrap 0 #{node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_key']}").run_command.stdout.strip,
+            tls_certificate: node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_cert'].empty? ? '' : Mixlib::ShellOut.new("cat #{node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_cert']} | ruby -p -e \"gsub(/\n/, '\\n')\"").run_command.stdout.strip,
+            tls_ca_certificate: node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_ca'].empty? ? '' : Mixlib::ShellOut.new("cat #{node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_ca']} | ruby -p -e \"gsub(/\n/, '\\n')\"").run_command.stdout.strip,
             tls_destination_ca_certificate: Mixlib::ShellOut.new("cat #{Chef::Config['file_cache_path']}/hosted_metric/ca.crt | ruby -p -e \"gsub(/\n/, '\\n')\"").run_command.stdout.strip
           }
         }
@@ -380,45 +380,45 @@ action :create do
       variables(ose_major_version: ose_major_version)
     end
 
-    [{ 'name' => node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_prefix'], 'labels' => { 'metrics-infra' => 'hawkular-cassandra' }, 'annotations' => { 'volume.alpha.kubernetes.io/storage-class' => 'dynamic' }, 'access_modes' => node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_access'] }].each do |pvc|
+    [{ 'name' => node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_pvc_prefix'], 'labels' => { 'metrics-infra' => 'hawkular-cassandra' }, 'annotations' => { 'volume.alpha.kubernetes.io/storage-class' => 'dynamic' }, 'access_modes' => node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_pvc_access'] }].each do |pvc|
       template 'Generate hawkular-cassandra persistent volume claims (dynamic)' do
         path "#{Chef::Config['file_cache_path']}/hosted_metric/templates/cassandra-#{pvc['name']}-pvc.yaml"
         source 'pvc.yaml.erb'
         variables(pvc: pvc)
-        only_if { node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type'] =~ /dynamic/i }
+        only_if { node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_type'] =~ /dynamic/i }
       end
     end
 
-    [{ 'name' => node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_prefix'], 'labels' => { 'metrics-infra' => 'hawkular-cassandra' }, 'access_modes' => node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_access'] }].each do |pvc|
+    [{ 'name' => node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_pvc_prefix'], 'labels' => { 'metrics-infra' => 'hawkular-cassandra' }, 'access_modes' => node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_pvc_access'] }].each do |pvc|
       template 'Generate hawkular-cassandra persistent volume claims' do
         path "#{Chef::Config['file_cache_path']}/hosted_metric/templates/cassandra-#{pvc['name']}-pvc.yaml"
         source 'pvc.yaml.erb'
         variables(pvc: pvc)
-        not_if { node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type'] =~ /dynamic/i || node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type'] =~ /emptydir/i }
+        not_if { node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_type'] =~ /dynamic/i || node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_type'] =~ /emptydir/i }
       end
     end
 
     execute 'Applying template files' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} apply -f \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} apply -f \
               #{Chef::Config['file_cache_path']}/hosted_metric/templates \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
     end
 
     execute 'Scaling down cluster to recognize changes' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']} | \
-              xargs --no-run-if-empty #{node['cookbook-openshift3']['openshift_common_client_binary']} scale \
-              --replicas=0 --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
+              xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
+              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
     end
 
     execute 'Scaling up cluster' do
-      command "#{node['cookbook-openshift3']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
               --config=#{Chef::Config['file_cache_path']}/hosted_metric/admin.kubeconfig \
-              --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']} | \
-              xargs --no-run-if-empty #{node['cookbook-openshift3']['openshift_common_client_binary']} scale \
-              --replicas=1 --namespace=#{node['cookbook-openshift3']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
+              xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
+              --replicas=1 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
     end
 
     directory "#{Chef::Config['file_cache_path']}/hosted_metric" do

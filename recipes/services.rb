@@ -1,17 +1,17 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: services
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-service "#{node['cookbook-openshift3']['openshift_service_type']}-master"
+service 'atomic-openshift-master'
 
-service "#{node['cookbook-openshift3']['openshift_service_type']}-master-api" do
+service 'atomic-openshift-master-api' do
   retries 5
   retry_delay 5
 end
 
-service "#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers" do
+service 'atomic-openshift-master-controllers' do
   retries 5
   retry_delay 5
 end
@@ -32,30 +32,30 @@ service 'openvswitch'
 service 'haproxy'
 
 service 'Restart Master' do
-  service_name "#{node['cookbook-openshift3']['openshift_service_type']}-master"
+  service_name 'atomic-openshift-master'
   action :nothing
-  only_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master"
+  only_if 'systemctl is-active atomic-openshift-master'
 end
 
 service 'Restart API' do
-  service_name "#{node['cookbook-openshift3']['openshift_service_type']}-master-api"
+  service_name 'atomic-openshift-master-api'
   action :nothing
-  only_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-api"
+  only_if 'systemctl is-active atomic-openshift-master-api'
 end
 
 service 'Restart Controller' do
-  service_name "#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
+  service_name 'atomic-openshift-master-controllers'
   action :nothing
-  only_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
+  only_if 'systemctl is-active atomic-openshift-master-controllers'
 end
 
 service 'Restart Node' do
-  service_name "#{node['cookbook-openshift3']['openshift_service_type']}-node"
+  service_name 'atomic-openshift-node'
   action :nothing
-  only_if "systemctl is-active #{node['cookbook-openshift3']['openshift_service_type']}-node"
+  only_if 'systemctl is-active atomic-openshift-node'
 end
 
-if node['cookbook-openshift3']['deploy_containerized']
+if node['is_apaas_openshift_cookbook']['deploy_containerized']
   service 'etcd-service' do
     service_name 'etcd_container'
     action :nothing

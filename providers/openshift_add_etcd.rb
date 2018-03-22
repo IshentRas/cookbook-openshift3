@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Resources:: openshift_add_etcd
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -25,11 +25,11 @@ action :add_node do
           BASH
         environment(
           'ETCD_SERVER' => etcd_servers.find { |etcd_node| etcd_node['fqdn'] == node['fqdn'] }['ipaddress'],
-          'ETCD_CLIENT_PORT' => node['cookbook-openshift3']['etcd_client_port'],
-          'ETCD_PEER_PORT' => node['cookbook-openshift3']['etcd_peer_port'],
-          'CRT' => node['cookbook-openshift3']['etcd_peer_file'],
-          'KEY' => node['cookbook-openshift3']['etcd_peer_key'],
-          'CA' => node['cookbook-openshift3']['etcd_ca_cert'],
+          'ETCD_CLIENT_PORT' => node['is_apaas_openshift_cookbook']['etcd_client_port'],
+          'ETCD_PEER_PORT' => node['is_apaas_openshift_cookbook']['etcd_peer_port'],
+          'CRT' => node['is_apaas_openshift_cookbook']['etcd_peer_file'],
+          'KEY' => node['is_apaas_openshift_cookbook']['etcd_peer_key'],
+          'CA' => node['is_apaas_openshift_cookbook']['etcd_ca_cert'],
           'ETCD_NODE_FQDN' => etcd['fqdn'],
           'ETCD_NODE_IP' => etcd['ipaddress']
         )
@@ -56,11 +56,11 @@ action :remove_node do
           BASH
         environment(
           'ETCD_SERVER' => etcd_servers.find { |etcd_node| etcd_node['fqdn'] == node['fqdn'] }['ipaddress'],
-          'ETCD_CLIENT_PORT' => node['cookbook-openshift3']['etcd_client_port'],
-          'ETCD_PEER_PORT' => node['cookbook-openshift3']['etcd_peer_port'],
-          'CRT' => node['cookbook-openshift3']['etcd_peer_file'],
-          'KEY' => node['cookbook-openshift3']['etcd_peer_key'],
-          'CA' => node['cookbook-openshift3']['etcd_ca_cert'],
+          'ETCD_CLIENT_PORT' => node['is_apaas_openshift_cookbook']['etcd_client_port'],
+          'ETCD_PEER_PORT' => node['is_apaas_openshift_cookbook']['etcd_peer_port'],
+          'CRT' => node['is_apaas_openshift_cookbook']['etcd_peer_file'],
+          'KEY' => node['is_apaas_openshift_cookbook']['etcd_peer_key'],
+          'CA' => node['is_apaas_openshift_cookbook']['etcd_ca_cert'],
           'ETCD_NODE_FQDN' => etcd['fqdn']
         )
         retries 1

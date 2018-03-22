@@ -6,7 +6,7 @@
 
   },
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "openshift_deployment_type": "origin",
       "ose_major_version": "1.5",
       "ose_version": "1.5.1-1.el7",
@@ -22,6 +22,6 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[cookbook-openshift3::default]"
+    "recipe[is_apaas_openshift_cookbook::default]"
   ]
 }

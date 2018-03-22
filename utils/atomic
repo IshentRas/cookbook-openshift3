@@ -1,5 +1,5 @@
-grep -r "#{node\['cookbook-openshift3'\]\['openshift_service_type'\]}" attributes providers recipes -l | xargs sed -i "s/#{node\['cookbook-openshift3'\]\['openshift_service_type'\]}/atomic-openshift/g"
-grep -r "\ node\['cookbook-openshift3'\]\['openshift_service_type'\]" attributes providers recipes -l | xargs sed -i "s/\ node\['cookbook-openshift3'\]\['openshift_service_type'\]/\ 'atomic-openshift'/g"
-grep -r "<%= node\['cookbook-openshift3'\]\['openshift_service_type'\] %>" templates -l | xargs sed -i "s/<%= node\['cookbook-openshift3'\]\['openshift_service_type'\] %>/atomic-openshift/g"
-grep cookbook-openshift3 -R -l | grep -v '^\.' | xargs sed 's/cookbook-openshift3/is_apaas_openshift_cookbook/g' -i
+grep -r "#{node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]}" attributes providers recipes -l | xargs sed -i "s/#{node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]}/atomic-openshift/g"
+grep -r "\ node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]" attributes providers recipes -l | xargs sed -i "s/\ node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]/\ 'atomic-openshift'/g"
+grep -r "<%= node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\] %>" templates -l | xargs sed -i "s/<%= node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\] %>/atomic-openshift/g"
+grep is_apaas_openshift_cookbook -R -l | grep -v '^\.' | xargs sed 's/is_apaas_openshift_cookbook/is_apaas_openshift_cookbook/g' -i
 docker run -t --rm --volume "$PWD:/app:Z" --workdir /app chef/chefdk:1.6.1 rubocop -a

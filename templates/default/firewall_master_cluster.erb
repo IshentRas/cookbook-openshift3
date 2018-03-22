@@ -1,3 +1,3 @@
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "api server https" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['openshift_master_api_port'] %> -j ACCEPT
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "api controllers https" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['openshift_master_controllers_port'] %> -j ACCEPT
--A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift HTTPD" -m tcp -p tcp --dport <%= node['cookbook-openshift3']['httpd_xfer_port'] %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "api server https" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['openshift_master_api_port'] %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "api controllers https" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['openshift_master_controllers_port'] %> -j ACCEPT
+-A OS_FIREWALL_ALLOW -m state --state NEW -m comment --comment "OpenShift HTTPD" -m tcp -p tcp --dport <%= node['is_apaas_openshift_cookbook']['httpd_xfer_port'] %> -j ACCEPT

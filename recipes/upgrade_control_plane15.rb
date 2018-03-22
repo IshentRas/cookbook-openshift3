@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: upgrade_control_plane15
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -8,14 +8,14 @@
 # It creates the service signer certs (and any others) if they were not in
 # existence previously.
 
-Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['cookbook-openshift3']['control_upgrade_flag']}") unless ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
+Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['is_apaas_openshift_cookbook']['control_upgrade_flag']}") unless ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
-if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
+if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
-  node.force_override['cookbook-openshift3']['upgrade'] = true
-  node.force_override['cookbook-openshift3']['ose_major_version'] = node['cookbook-openshift3']['upgrade_ose_major_version']
-  node.force_override['cookbook-openshift3']['ose_version'] = node['cookbook-openshift3']['upgrade_ose_version']
-  node.force_override['cookbook-openshift3']['openshift_docker_image_version'] = node['cookbook-openshift3']['upgrade_openshift_docker_image_version']
+  node.force_override['is_apaas_openshift_cookbook']['upgrade'] = true
+  node.force_override['is_apaas_openshift_cookbook']['ose_major_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_major_version']
+  node.force_override['is_apaas_openshift_cookbook']['ose_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_version']
+  node.force_override['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version']
   node.force_override['yum']['main']['exclude'] = 'docker-1.13* etcd-3.2*'
 
   server_info = OpenShiftHelper::NodeHelper.new(node)
@@ -25,21 +25,21 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
   is_node_server = server_info.on_node_server?
   is_first_master = server_info.on_first_master?
 
-  if defined? node['cookbook-openshift3']['upgrade_repos']
-    node.force_override['cookbook-openshift3']['yum_repositories'] = node['cookbook-openshift3']['upgrade_repos']
+  if defined? node['is_apaas_openshift_cookbook']['upgrade_repos']
+    node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos']
   end
 
   if is_master_server
-    return unless ::Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 ls /migration/#{node['cookbook-openshift3']['control_upgrade_version']}/#{node['fqdn']}").run_command.error?
+    return unless ::Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 ls /migration/#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}/#{node['fqdn']}").run_command.error?
   end
 
   include_recipe 'yum::default'
 
   if is_master_server || is_node_server
     %w(excluder docker-excluder).each do |pkg|
-      execute "Disable #{node['cookbook-openshift3']['openshift_service_type']}-#{pkg} (Best effort < 3.5)" do
-        command "#{node['cookbook-openshift3']['openshift_service_type']}-#{pkg} enable"
-        only_if "rpm -q #{node['cookbook-openshift3']['openshift_service_type']}-#{pkg}"
+      execute "Disable atomic-openshift-#{pkg} (Best effort < 3.5)" do
+        command "atomic-openshift-#{pkg} enable"
+        only_if "rpm -q atomic-openshift-#{pkg}"
       end
     end
   end
@@ -50,30 +50,30 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
     end
 
     execute 'Generate etcd backup before upgrade' do
-      command "etcdctl backup --data-dir=#{node['cookbook-openshift3']['etcd_data_dir']} --backup-dir=#{node['cookbook-openshift3']['etcd_data_dir']}-pre-upgrade15"
-      not_if { ::File.directory?("#{node['cookbook-openshift3']['etcd_data_dir']}-pre-upgrade15") }
+      command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade15"
+      not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade15") }
       notifies :run, 'execute[Copy etcd v3 data store (PRE)]', :immediately
     end
 
     execute 'Copy etcd v3 data store (PRE)' do
-      command "cp -a #{node['cookbook-openshift3']['etcd_data_dir']}/member/snap/db #{node['cookbook-openshift3']['etcd_data_dir']}-pre-upgrade15/member/snap/"
-      only_if { ::File.file?("#{node['cookbook-openshift3']['etcd_data_dir']}/member/snap/db") }
+      command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade15/member/snap/"
+      only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db") }
       action :nothing
     end
 
-    include_recipe 'cookbook-openshift3'
-    include_recipe 'cookbook-openshift3::common'
-    include_recipe 'cookbook-openshift3::etcd_cluster'
+    include_recipe 'is_apaas_openshift_cookbook'
+    include_recipe 'is_apaas_openshift_cookbook::common'
+    include_recipe 'is_apaas_openshift_cookbook::etcd_cluster'
 
     execute 'Generate etcd backup after upgrade' do
-      command "etcdctl backup --data-dir=#{node['cookbook-openshift3']['etcd_data_dir']} --backup-dir=#{node['cookbook-openshift3']['etcd_data_dir']}-post-upgrade15"
-      not_if { ::File.directory?("#{node['cookbook-openshift3']['etcd_data_dir']}-post-upgrade15") }
+      command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade15"
+      not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade15") }
       notifies :run, 'execute[Copy etcd v3 data store (POST)]', :immediately
     end
 
     execute 'Copy etcd v3 data store (POST)' do
-      command "cp -a #{node['cookbook-openshift3']['etcd_data_dir']}/member/snap/db #{node['cookbook-openshift3']['etcd_data_dir']}-post-upgrade15/member/snap/"
-      only_if { ::File.file?("#{node['cookbook-openshift3']['etcd_data_dir']}/member/snap/db") }
+      command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade15/member/snap/"
+      only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db") }
       action :nothing
     end
 
@@ -87,29 +87,29 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
       level :info
     end
 
-    include_recipe 'cookbook-openshift3::certificate_server' if node['cookbook-openshift3']['deploy_containerized']
+    include_recipe 'is_apaas_openshift_cookbook::certificate_server' if node['is_apaas_openshift_cookbook']['deploy_containerized']
 
-    if node['cookbook-openshift3']['openshift_HA']
-      include_recipe 'cookbook-openshift3::master_cluster'
+    if node['is_apaas_openshift_cookbook']['openshift_HA']
+      include_recipe 'is_apaas_openshift_cookbook::master_cluster'
     else
-      include_recipe 'cookbook-openshift3::master_standalone'
+      include_recipe 'is_apaas_openshift_cookbook::master_standalone'
     end
 
-    include_recipe 'cookbook-openshift3::node' if is_node_server
+    include_recipe 'is_apaas_openshift_cookbook::node' if is_node_server
 
-    include_recipe 'cookbook-openshift3::excluder'
+    include_recipe 'is_apaas_openshift_cookbook::excluder'
 
     log 'Restart Master & Node services' do
       level :info
-      notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master]", :immediately unless node['cookbook-openshift3']['openshift_HA']
-      notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately if node['cookbook-openshift3']['openshift_HA']
-      notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately if node['cookbook-openshift3']['openshift_HA']
-      notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-node]", :immediately if is_node_server
+      notifies :restart, 'service[atomic-openshift-master]', :immediately unless node['is_apaas_openshift_cookbook']['openshift_HA']
+      notifies :restart, 'service[atomic-openshift-master-api]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
+      notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
+      notifies :restart, 'service[atomic-openshift-node]', :immediately if is_node_server
       notifies :restart, 'service[openvswitch]', :immediately if is_node_server
     end
 
     execute "Set upgrade markup for master : #{node['fqdn']}" do
-      command "/usr/bin/etcdctl --cert-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['cookbook-openshift3']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 set /migration/#{node['cookbook-openshift3']['control_upgrade_version']}/#{node['fqdn']} ok"
+      command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 set /migration/#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}/#{node['fqdn']} ok"
     end
 
     log 'Upgrade for MASTERS [COMPLETED]' do
@@ -123,20 +123,20 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
     end
 
     execute 'Wait for API to be ready' do
-      command "[[ $(curl --silent #{node['cookbook-openshift3']['openshift_master_api_url']}/healthz/ready --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt --cacert #{node['cookbook-openshift3']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+      command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
       retries 120
       retry_delay 1
     end
 
     execute 'Reconcile Cluster Roles' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} \
-              --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               policy reconcile-cluster-roles --additive-only=true --confirm"
     end
 
     execute 'Reconcile Cluster Role Bindings' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} \
-              --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               policy reconcile-cluster-role-bindings \
               --exclude-groups=system:authenticated \
               --exclude-groups=system:authenticated:oauth \
@@ -146,20 +146,20 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
     end
 
     execute 'Reconcile Jenkins Pipeline Role Bindings' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} \
-              --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               policy reconcile-cluster-role-bindings system:build-strategy-jenkinspipeline --confirm"
     end
 
     execute 'Reconcile Security Context Constraints' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} \
-              --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               policy reconcile-sccs --confirm --additive-only=true"
     end
 
     execute 'Upgrade job storage' do
-      command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} \
-              --config=#{node['cookbook-openshift3']['openshift_master_config_dir']}/admin.kubeconfig \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               migrate storage --include=jobs --confirm"
     end
 
@@ -167,6 +167,6 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
       level :info
     end
 
-    include_recipe 'cookbook-openshift3::upgrade_managed_hosted'
+    include_recipe 'is_apaas_openshift_cookbook::upgrade_managed_hosted'
   end
 end

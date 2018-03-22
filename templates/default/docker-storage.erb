@@ -7,8 +7,8 @@
 # then use of the root disk's extra space is implied.
 #
 # Ex. DEVS=/dev/vdb
-<% if node['cookbook-openshift3']['openshift_node_docker-storage'].has_key?('DEVS') -%>
-DEVS="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['DEVS'].join(' ') %>"
+<% if node['is_apaas_openshift_cookbook']['openshift_node_docker-storage'].has_key?('DEVS') -%>
+DEVS="<%= node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']['DEVS'].join(' ') %>"
 <% end -%>
 # VG=
 # The volume group to use for docker storage.  Defaults to the
@@ -18,8 +18,8 @@ DEVS="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['DEVS'].j
 # the root disk).
 #
 # Ex. VG=docker-vg
-<% if node['cookbook-openshift3']['openshift_node_docker-storage'].has_key?('VG') -%>
-VG="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['VG'] %>"
+<% if node['is_apaas_openshift_cookbook']['openshift_node_docker-storage'].has_key?('VG') -%>
+VG="<%= node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']['VG'] %>"
 <% end -%>
 #
 #
@@ -31,7 +31,7 @@ VG="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['VG'] %>"
 # value is suitable for "lvcreate -L".
 #
 # Ex. DATA_SIZE=40%FREE
-<% if node['cookbook-openshift3']['openshift_node_docker-storage'].has_key?('DATA_SIZE') -%>
-DATA_SIZE="<%= node['cookbook-openshift3']['openshift_node_docker-storage']['DATA_SIZE'] %>"
+<% if node['is_apaas_openshift_cookbook']['openshift_node_docker-storage'].has_key?('DATA_SIZE') -%>
+DATA_SIZE="<%= node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']['DATA_SIZE'] %>"
 <% end -%>
 WIPE_SIGNATURES="true"

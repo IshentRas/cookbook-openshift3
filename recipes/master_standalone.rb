@@ -1,28 +1,28 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: master_standalone
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-ose_major_version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
 
-if node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'] && node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name']
-  secret_file = node['cookbook-openshift3']['openshift_master_ca_certificate']['secret_file'] || nil
-  ca_vars = data_bag_item(node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name'], node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_item_name'], secret_file)
+if node['is_apaas_openshift_cookbook']['openshift_master_ca_certificate']['data_bag_name'] && node['is_apaas_openshift_cookbook']['openshift_master_ca_certificate']['data_bag_item_name']
+  secret_file = node['is_apaas_openshift_cookbook']['openshift_master_ca_certificate']['secret_file'] || nil
+  ca_vars = data_bag_item(node['is_apaas_openshift_cookbook']['openshift_master_ca_certificate']['data_bag_name'], node['is_apaas_openshift_cookbook']['openshift_master_ca_certificate']['data_bag_item_name'], secret_file)
 
-  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.key" do
+  file "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.key" do
     content Base64.decode64(ca_vars['key_base64'])
     mode '0600'
     action :create_if_missing
   end
 
-  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.crt" do
+  file "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt" do
     content Base64.decode64(ca_vars['cert_base64'])
     mode '0644'
     action :create_if_missing
   end
 
-  file "#{node['cookbook-openshift3']['openshift_master_config_dir']}/ca.serial.txt" do
+  file "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.serial.txt" do
     content '00'
     mode '0644'
     action :create_if_missing
@@ -30,78 +30,78 @@ if node['cookbook-openshift3']['openshift_master_ca_certificate']['data_bag_name
 end
 
 execute 'Create the master certificates' do
-  command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} ca create-master-certs \
-          --hostnames=#{(node['cookbook-openshift3']['erb_corsAllowedOrigins'] + [node['cookbook-openshift3']['openshift_common_ip'], node['cookbook-openshift3']['openshift_common_api_hostname']]).uniq.join(',')} \
-          --master=#{node['cookbook-openshift3']['openshift_master_api_url']} \
-          --public-master=#{node['cookbook-openshift3']['openshift_master_public_api_url']} \
-          --cert-dir=#{node['cookbook-openshift3']['openshift_master_config_dir']} --overwrite=false"
-  creates "#{node['cookbook-openshift3']['openshift_master_config_dir']}/master.server.key"
+  command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-master-certs \
+          --hostnames=#{(node['is_apaas_openshift_cookbook']['erb_corsAllowedOrigins'] + [node['is_apaas_openshift_cookbook']['openshift_common_ip'], node['is_apaas_openshift_cookbook']['openshift_common_api_hostname']]).uniq.join(',')} \
+          --master=#{node['is_apaas_openshift_cookbook']['openshift_master_api_url']} \
+          --public-master=#{node['is_apaas_openshift_cookbook']['openshift_master_public_api_url']} \
+          --cert-dir=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']} --overwrite=false"
+  creates "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.server.key"
 end
 
-package "#{node['cookbook-openshift3']['openshift_service_type']}-master" do
+package 'atomic-openshift-master' do
   action :install
-  version node['cookbook-openshift3']['ose_version'] unless node['cookbook-openshift3']['ose_version'].nil?
+  version node['is_apaas_openshift_cookbook']['ose_version'] unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
   notifies :run, 'execute[daemon-reload]', :immediately
-  not_if { node['cookbook-openshift3']['deploy_containerized'] }
+  not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
   retries 3
 end
 
-template "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-master.service" do
+template '/etc/systemd/system/atomic-openshift-master.service' do
   source 'service_master-containerized.service.erb'
   notifies :run, 'execute[daemon-reload]', :immediately
-  only_if { node['cookbook-openshift3']['deploy_containerized'] }
+  only_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
 end
 
 sysconfig_vars = {}
 
-if node['cookbook-openshift3']['openshift_cloud_provider'] == 'aws'
-  if node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_name'] && node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_item_name']
-    secret_file = node['cookbook-openshift3']['openshift_cloud_providers']['aws']['secret_file'] || nil
-    aws_vars = data_bag_item(node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_name'], node['cookbook-openshift3']['openshift_cloud_providers']['aws']['data_bag_item_name'], secret_file)
+if node['is_apaas_openshift_cookbook']['openshift_cloud_provider'] == 'aws'
+  if node['is_apaas_openshift_cookbook']['openshift_cloud_providers']['aws']['data_bag_name'] && node['is_apaas_openshift_cookbook']['openshift_cloud_providers']['aws']['data_bag_item_name']
+    secret_file = node['is_apaas_openshift_cookbook']['openshift_cloud_providers']['aws']['secret_file'] || nil
+    aws_vars = data_bag_item(node['is_apaas_openshift_cookbook']['openshift_cloud_providers']['aws']['data_bag_name'], node['is_apaas_openshift_cookbook']['openshift_cloud_providers']['aws']['data_bag_item_name'], secret_file)
     sysconfig_vars['aws_access_key_id'] = aws_vars['access_key_id']
     sysconfig_vars['aws_secret_access_key'] = aws_vars['secret_access_key']
   end
 end
 
-template "/etc/sysconfig/#{node['cookbook-openshift3']['openshift_service_type']}-master" do
+template '/etc/sysconfig/atomic-openshift-master' do
   source 'service_master.sysconfig.erb'
   variables(sysconfig_vars)
   notifies :restart, 'service[Restart Master]', :immediately
 end
 
 execute 'Create the policy file' do
-  command "#{node['cookbook-openshift3']['openshift_common_admin_binary']} create-bootstrap-policy-file --filename=#{node['cookbook-openshift3']['openshift_master_policy']}"
-  creates node['cookbook-openshift3']['openshift_master_policy']
+  command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} create-bootstrap-policy-file --filename=#{node['is_apaas_openshift_cookbook']['openshift_master_policy']}"
+  creates node['is_apaas_openshift_cookbook']['openshift_master_policy']
   notifies :restart, 'service[Restart Master]', :immediately
 end
 
-template node['cookbook-openshift3']['openshift_master_scheduler_conf'] do
+template node['is_apaas_openshift_cookbook']['openshift_master_scheduler_conf'] do
   source 'scheduler.json.erb'
-  variables ose_major_version: node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
+  variables ose_major_version: node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
   notifies :restart, 'service[Restart Master]', :immediately
 end
 
-if node['cookbook-openshift3']['oauth_Identities'].include? 'HTPasswdPasswordIdentityProvider'
+if node['is_apaas_openshift_cookbook']['oauth_Identities'].include? 'HTPasswdPasswordIdentityProvider'
   package 'httpd-tools' do
     retries 3
   end
 
-  template node['cookbook-openshift3']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider']['filename'] do
+  template node['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider']['filename'] do
     source 'htpasswd.erb'
     mode '600'
   end
 end
 
-include_recipe 'cookbook-openshift3::wire_aggregator' if ose_major_version.split('.')[1].to_i >= 7
+include_recipe 'is_apaas_openshift_cookbook::wire_aggregator' if ose_major_version.split('.')[1].to_i >= 7
 
 openshift_create_master 'Create master configuration file' do
-  named_certificate node['cookbook-openshift3']['openshift_master_named_certificates']
-  origins node['cookbook-openshift3']['erb_corsAllowedOrigins'].uniq
-  standalone_registry node['cookbook-openshift3']['deploy_standalone_registry']
-  master_file node['cookbook-openshift3']['openshift_master_config_file']
-  openshift_service_type node['cookbook-openshift3']['openshift_service_type']
+  named_certificate node['is_apaas_openshift_cookbook']['openshift_master_named_certificates']
+  origins node['is_apaas_openshift_cookbook']['erb_corsAllowedOrigins'].uniq
+  standalone_registry node['is_apaas_openshift_cookbook']['deploy_standalone_registry']
+  master_file node['is_apaas_openshift_cookbook']['openshift_master_config_file']
+  openshift_service_type 'atomic-openshift'
 end
 
-service "#{node['cookbook-openshift3']['openshift_service_type']}-master" do
+service 'atomic-openshift-master' do
   action %i(start enable)
 end

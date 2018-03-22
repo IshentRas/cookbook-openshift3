@@ -3,21 +3,21 @@ Description=Atomic OpenShift Master API
 Documentation=https://github.com/openshift/origin
 After=network-online.target
 After=etcd.service
-Before=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node.service
+Before=atomic-openshift-node.service
 Requires=network-online.target
 
 [Service]
 Type=notify
-EnvironmentFile=/etc/sysconfig/<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api
+EnvironmentFile=/etc/sysconfig/atomic-openshift-master-api
 Environment=GOTRACEBACK=crash
 ExecStart=/usr/bin/openshift start master api --config=${CONFIG_FILE} $OPTIONS
 LimitNOFILE=131072
 LimitCORE=infinity
-WorkingDirectory=<%= node['cookbook-openshift3']['openshift_data_dir'] %>
-SyslogIdentifier=<%= node['cookbook-openshift3']['openshift_service_type'] %>-master-api
+WorkingDirectory=<%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>
+SyslogIdentifier=atomic-openshift-master-api
 Restart=always
 RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
-WantedBy=<%= node['cookbook-openshift3']['openshift_service_type'] %>-node.service
+WantedBy=atomic-openshift-node.service
