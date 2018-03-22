@@ -29,6 +29,12 @@ if is_certificate_server
 end
 
 if is_master_server || is_certificate_server
+  file '/usr/local/etc/.firewall_master_additional.txt' do
+    content node['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_master'].join("\n")
+    owner 'root'
+    group 'root'
+  end
+
   node['is_apaas_openshift_cookbook']['enabled_firewall_rules_master'].each do |rule|
     iptables_rule rule do
       action :enable

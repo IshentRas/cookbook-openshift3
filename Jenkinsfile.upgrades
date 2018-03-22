@@ -1,0 +1,65 @@
+#!groovy
+
+
+try {
+  properties([parameters([
+    string(name: 'BRANCH_NAME',                                  defaultValue: env.BRANCH_NAME,                                description: 'Branch to build'),
+    string(name: 'builddir',                                     defaultValue: 'is_apaas_openshift_cookbook-test-' + env.BUILD_NUMBER, description: 'Build directory'),
+    string(name: 'nodename',                                     defaultValue: 'cage',                                         description: 'Node to build on'),
+    string(name: 'OSE_VERSIONS',                                 defaultValue: '1.4 1.5 3.6 3.7',                              description: 'OSE versions to build, separated by spaces'),
+    string(name: 'CHEF_IPTABLES_COOKBOOK_VERSION',               defaultValue: 'latest',                                       description: 'IPtables cookbook version, eg 1.0.0'),
+    string(name: 'CHEF_SELINUX_COOKBOOK_VERSION',                defaultValue: 'latest',                                       description: 'SELinux cookbook version, eg 0.7.2'),
+    string(name: 'CHEF_YUM_COOKBOOK_VERSION',                    defaultValue: 'latest',                                       description: 'yum cookbook version, eg 3.6.1'),
+    string(name: 'CHEF_COMPAT_RESOURCE_COOKBOOK_VERSION',        defaultValue: 'latest',                                       description: 'compat_resource cookbook version'),
+    string(name: 'CHEF_INJECT_COMPAT_RESOURCE_COOKBOOK_VERSION', defaultValue: 'false',                                        description: 'Whether to inject compat_resource cookbook version (eg true for some envs)'),
+    string(name: 'CHEF_DEPLOY_METHODS',                          defaultValue: 'server',                                       description: 'Which deployment methods to use (server and/or solo)'),
+    string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: '',                                             description: 'If non-empty, deploy containerized'),
+    string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
+    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_separate_etcd',                description: 'which cluster configs to test'),
+    booleanParam(name: 'doshutit',                               defaultValue: true,                                           description: 'Whether to run shutit tests'),
+  ])])
+  lock('cookbook_openshift3_test_lock_1') {
+    if (params.doshutit) {
+      stage('shutit_tests') {
+        node(nodename) {
+          dir(builddir) {
+            sh 'git clone --recursive --depth 1 https://github.com/ianmiell/shutit-openshift-cluster'
+            dir('shutit-openshift-cluster') {
+              withEnv(["SHUTIT=/usr/local/bin/shutit"]) {
+                sh './run_tests.sh -s tk.shutit.shutit_openshift_cluster.shutit_openshift_cluster do_upgrade_13_14 true --interactive 0'
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/is_apaas_openshift_cookbook-upgrades-pipeline
+
+''', cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build OK', to: 'ian.miell@gmail.com, william17.burton@gmail.com, julien.perville@perfect-memory.com'
+  stage('cleanup') {
+    node(nodename) {
+      dir(builddir) {
+        dir('shutit-openshift-cluster') {
+          sh('yes | ./destroy_vms.sh || true')
+        }
+      }
+    }
+  }
+} catch(err) {
+  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/is_apaas_openshift_cookbook-pipeline
+
+''' + err, cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
+  throw(err)
+  if (params.doshutit) {
+    stage('cleanup') {
+      node(nodename) {
+        dir(builddir) {
+          dir('shutit-openshift-cluster') {
+            sh('yes | ./destroy_vms.sh || true')
+          }
+        }
+      }
+    }
+  }
+}

@@ -59,6 +59,7 @@ default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master'] = %w(fir
 default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master_cluster'] = %w(firewall_master_cluster)
 default['is_apaas_openshift_cookbook']['enabled_firewall_rules_node'] = %w(firewall_node)
 default['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_node'] = []
+default['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_master'] = []
 default['is_apaas_openshift_cookbook']['enabled_firewall_rules_etcd'] = %w(firewall_etcd)
 default['is_apaas_openshift_cookbook']['enabled_firewall_rules_lb'] = %w(firewall_lb)
 default['is_apaas_openshift_cookbook']['openshift_service_type'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'atomic-openshift' : 'origin'
