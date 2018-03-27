@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: upgrade_node36
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -8,21 +8,21 @@
 # It creates the service signer certs (and any others) if they were not in
 # existence previously.
 
-Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['cookbook-openshift3']['control_upgrade_flag']}") unless ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
+Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['is_apaas_openshift_cookbook']['control_upgrade_flag']}") unless ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
-if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
+if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
-  node.force_override['cookbook-openshift3']['upgrade'] = true
-  node.force_override['cookbook-openshift3']['ose_major_version'] = node['cookbook-openshift3']['upgrade_ose_major_version']
-  node.force_override['cookbook-openshift3']['ose_version'] = node['cookbook-openshift3']['upgrade_ose_version']
-  node.force_override['cookbook-openshift3']['openshift_docker_image_version'] = node['cookbook-openshift3']['upgrade_openshift_docker_image_version']
+  node.force_override['is_apaas_openshift_cookbook']['upgrade'] = true
+  node.force_override['is_apaas_openshift_cookbook']['ose_major_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_major_version']
+  node.force_override['is_apaas_openshift_cookbook']['ose_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_version']
+  node.force_override['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version']
   node.force_override['yum']['main']['exclude'] = 'docker-1.13*'
 
   server_info = OpenShiftHelper::NodeHelper.new(node)
   is_node_server = server_info.on_node_server?
 
-  if defined? node['cookbook-openshift3']['upgrade_repos']
-    node.force_override['cookbook-openshift3']['yum_repositories'] = node['cookbook-openshift3']['upgrade_repos']
+  if defined? node['is_apaas_openshift_cookbook']['upgrade_repos']
+    node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos']
   end
 
   include_recipe 'yum::default'
@@ -33,19 +33,19 @@ if ::File.file?(node['cookbook-openshift3']['control_upgrade_flag'])
     end
 
     %w(excluder docker-excluder).each do |pkg|
-      execute "Disable #{node['cookbook-openshift3']['openshift_service_type']}-#{pkg}" do
-        command "#{node['cookbook-openshift3']['openshift_service_type']}-#{pkg} enable"
+      execute "Disable atomic-openshift-#{pkg}" do
+        command "atomic-openshift-#{pkg} enable"
       end
     end
 
-    include_recipe 'cookbook-openshift3'
-    include_recipe 'cookbook-openshift3::common'
-    include_recipe 'cookbook-openshift3::node'
-    include_recipe 'cookbook-openshift3::excluder'
+    include_recipe 'is_apaas_openshift_cookbook'
+    include_recipe 'is_apaas_openshift_cookbook::common'
+    include_recipe 'is_apaas_openshift_cookbook::node'
+    include_recipe 'is_apaas_openshift_cookbook::excluder'
 
     log 'Node services' do
       level :info
-      notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-node]", :immediately
+      notifies :restart, 'service[atomic-openshift-node]', :immediately
       notifies :restart, 'service[openvswitch]', :immediately
     end
 

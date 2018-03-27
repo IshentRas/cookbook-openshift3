@@ -4,7 +4,7 @@
 try {
   properties([parameters([
     string(name: 'BRANCH_NAME',                                  defaultValue: 'master',                                       description: 'Branch to build'),
-    string(name: 'builddir',                                     defaultValue: 'cookbook-openshift3-test-' + env.BUILD_NUMBER, description: 'Build directory'),
+    string(name: 'builddir',                                     defaultValue: 'is_apaas_openshift_cookbook-test-' + env.BUILD_NUMBER, description: 'Build directory'),
     string(name: 'nodename',                                     defaultValue: 'cage',                                         description: 'Node to build on'),
     string(name: 'OSE_VERSIONS',                                 defaultValue: '1.3',                                          description: 'OSE versions to build, separated by spaces'),
     string(name: 'CHEF_IPTABLES_COOKBOOK_VERSION',               defaultValue: 'latest',                                       description: 'IPtables cookbook version, eg 1.0.0'),
@@ -34,9 +34,9 @@ try {
       }
     }
   }
-  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/cookbook-openshift3-upgrades-pipeline
+  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/is_apaas_openshift_cookbook-upgrades-pipeline
 
-''', cc: '', from: 'cookbook-openshift3@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build OK', to: 'ian.miell@gmail.com, william17.burton@gmail.com, julien.perville@perfect-memory.com'
+''', cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build OK', to: 'ian.miell@gmail.com, william17.burton@gmail.com, julien.perville@perfect-memory.com'
   stage('cleanup') {
     node(nodename) {
       dir(builddir) {
@@ -47,9 +47,9 @@ try {
     }
   }
 } catch(err) {
-  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/cookbook-openshift3-pipeline
+  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/job/is_apaas_openshift_cookbook-pipeline
 
-''' + err, cc: '', from: 'cookbook-openshift3@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
+''' + err, cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
   throw(err)
   if (params.doshutit) {
     stage('cleanup') {

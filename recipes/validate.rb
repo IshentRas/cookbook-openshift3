@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: validate
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -11,49 +11,49 @@ lb_servers = server_info.lb_servers
 etcd_servers = server_info.etcd_servers
 certificate_server = server_info.certificate_server
 
-if node['cookbook-openshift3']['ose_version']
-  if node['cookbook-openshift3']['ose_version'].to_f.round(1) != node['cookbook-openshift3']['ose_major_version'].to_f.round(1)
-    Chef::Log.error("\"ose_version\" #{node['cookbook-openshift3']['ose_version']} should be a subset of \"ose_major_version\" #{node['cookbook-openshift3']['ose_major_version']}")
+if node['is_apaas_openshift_cookbook']['ose_version']
+  if node['is_apaas_openshift_cookbook']['ose_version'].to_f.round(1) != node['is_apaas_openshift_cookbook']['ose_major_version'].to_f.round(1)
+    Chef::Log.error("\"ose_version\" #{node['is_apaas_openshift_cookbook']['ose_version']} should be a subset of \"ose_major_version\" #{node['is_apaas_openshift_cookbook']['ose_major_version']}")
     node.run_state['issues_detected'] = true
   end
 end
 
-if node['cookbook-openshift3']['use_wildcard_nodes'] && node['cookbook-openshift3']['wildcard_domain'].empty?
+if node['is_apaas_openshift_cookbook']['use_wildcard_nodes'] && node['is_apaas_openshift_cookbook']['wildcard_domain'].empty?
   Chef::Log.error('"wildcard_domain" cannot be left empty when using "use_wildcard_nodes attribute"')
   node.run_state['issues_detected'] = true
 end
 
-if node['cookbook-openshift3']['openshift_HA'] && node['cookbook-openshift3']['openshift_cluster_name'].empty?
+if node['is_apaas_openshift_cookbook']['openshift_HA'] && node['is_apaas_openshift_cookbook']['openshift_cluster_name'].empty?
   Chef::Log.error('A Cluster Name must be defined via "openshift_cluster_name"')
   node.run_state['issues_detected'] = true
 end
 
-if !node['cookbook-openshift3']['openshift_HA'] && node['cookbook-openshift3']['certificate_server'] != {}
+if !node['is_apaas_openshift_cookbook']['openshift_HA'] && node['is_apaas_openshift_cookbook']['certificate_server'] != {}
   Chef::Log.error('Separate certificate server and master standalone not supported.')
   node.run_state['issues_detected'] = true
 end
 
-if !node['cookbook-openshift3']['openshift_HA'] && node['cookbook-openshift3']['ose_major_version'].split('.')[1].to_i > 6
+if !node['is_apaas_openshift_cookbook']['openshift_HA'] && node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i > 6
   Chef::Log.error('Master standalone is not supported with 3.7+')
   node.run_state['issues_detected'] = true
 end
 
-if node['cookbook-openshift3']['openshift_hosted_cluster_metrics']
-  unless node['cookbook-openshift3']['openshift_metrics_cassandra_storage_types'].any? { |t| t.casecmp(node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type']).zero? }
+if node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics']
+  unless node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_types'].any? { |t| t.casecmp(node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_type']).zero? }
     Chef::Log.error('Key openshift_metrics_cassandra_storage_types is not valid. Please refer to the documentation for supprted types')
     node.run_state['issues_detected'] = true
   end
 end
 
-if node['cookbook-openshift3']['etcd_add_additional_nodes']
-  unless node['cookbook-openshift3']['etcd_add_additional_nodes'] && etcd_servers.any? { |key| key['new_node'] }
+if node['is_apaas_openshift_cookbook']['etcd_add_additional_nodes']
+  unless node['is_apaas_openshift_cookbook']['etcd_add_additional_nodes'] && etcd_servers.any? { |key| key['new_node'] }
     Chef::Log.error('A key named "new_node" must be defined when adding new members to ETCD cluster')
     node.run_state['issues_detected'] = true
   end
 end
 
 %w(openshift_node_max_pod openshift_node_minimum_container_ttl_duration openshift_node_maximum_dead_containers_per_container openshift_node_maximum_dead_containers openshift_node_image_gc_high_threshold openshift_node_image_gc_low_threshold).each do |deprecated|
-  unless node['cookbook-openshift3'][deprecated].empty?
+  unless node['is_apaas_openshift_cookbook'][deprecated].empty?
     Chef::Log.warn("The attributes #{deprecated} has been deprecated, please use \"openshift_node_kubelet_args_custom\",")
   end
 end
@@ -88,4 +88,4 @@ if master_servers.empty?
   node.run_state['issues_detected'] = true
 end
 
-include_recipe 'cookbook-openshift3::commons' unless node.run_state['issues_detected']
+include_recipe 'is_apaas_openshift_cookbook::commons' unless node.run_state['issues_detected']

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: cookbook-openshift3
+# Cookbook Name:: is_apaas_openshift_cookbook
 # Recipe:: common
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
@@ -24,7 +24,7 @@ if !lb_servers.nil? && lb_servers.find { |lb| lb['fqdn'] == node['fqdn'] }
     retries 3
   end
 
-  node['cookbook-openshift3']['enabled_firewall_rules_lb'].each do |rule|
+  node['is_apaas_openshift_cookbook']['enabled_firewall_rules_lb'].each do |rule|
     iptables_rule rule do
       action :enable
     end
@@ -40,7 +40,7 @@ if !lb_servers.nil? && lb_servers.find { |lb| lb['fqdn'] == node['fqdn'] }
       lazy do
         {
           master_servers: master_servers,
-          maxconn: node['cookbook-openshift3']['lb_default_maxconn'].nil? ? '20000' : node['cookbook-openshift3']['lb_default_maxconn']
+          maxconn: node['is_apaas_openshift_cookbook']['lb_default_maxconn'].nil? ? '20000' : node['is_apaas_openshift_cookbook']['lb_default_maxconn']
         }
       end
     )
@@ -49,14 +49,14 @@ if !lb_servers.nil? && lb_servers.find { |lb| lb['fqdn'] == node['fqdn'] }
 
   template '/etc/systemd/system/haproxy.service.d/limits.conf' do
     source 'haproxy.service.erb'
-    variables nofile: node['cookbook-openshift3']['lb_limit_nofile'].nil? ? '100000' : node['cookbook-openshift3']['lb_limit_nofile']
+    variables nofile: node['is_apaas_openshift_cookbook']['lb_limit_nofile'].nil? ? '100000' : node['is_apaas_openshift_cookbook']['lb_limit_nofile']
     notifies :run, 'execute[daemon-reload]', :immediately
     notifies :restart, 'service[haproxy]', :immediately
   end
 end
 
-if node['cookbook-openshift3']['install_method'].eql? 'yum'
-  node['cookbook-openshift3']['yum_repositories'].each do |repo|
+if node['is_apaas_openshift_cookbook']['install_method'].eql? 'yum'
+  node['is_apaas_openshift_cookbook']['yum_repositories'].each do |repo|
     yum_repository repo['name'] do
       description "#{repo['name'].capitalize} aPaaS Repository"
       baseurl repo['baseurl']
@@ -78,18 +78,18 @@ package 'deltarpm' do
   retries 3
 end
 
-node['cookbook-openshift3']['core_packages'].each do |pkg|
+node['is_apaas_openshift_cookbook']['core_packages'].each do |pkg|
   package pkg do
     retries 3
   end
 end
 
-if is_node_server || node['cookbook-openshift3']['deploy_containerized']
+if is_node_server || node['is_apaas_openshift_cookbook']['deploy_containerized']
   yum_package 'docker' do
-    action :upgrade if node['cookbook-openshift3']['upgrade']
-    version node['cookbook-openshift3']['docker_version'] unless node['cookbook-openshift3']['docker_version'].nil?
+    action :upgrade if node['is_apaas_openshift_cookbook']['upgrade']
+    version node['is_apaas_openshift_cookbook']['docker_version'] unless node['is_apaas_openshift_cookbook']['docker_version'].nil?
     retries 3
-    notifies :restart, 'service[docker]', :immediately if node['cookbook-openshift3']['upgrade']
+    notifies :restart, 'service[docker]', :immediately if node['is_apaas_openshift_cookbook']['upgrade']
   end
 
   bash "Configure Docker to use the default FS type for #{node['fqdn']}" do
@@ -122,7 +122,7 @@ ruby_block 'Change HTTPD port xfer' do
     openshift_settings = helper.new('/etc/httpd/conf/httpd.conf')
     openshift_settings.search_file_replace_line(
       /(^Listen.*?\n)+/m,
-      http_addresses.map { |addr| "Listen #{addr}:#{node['cookbook-openshift3']['httpd_xfer_port']}\n" }.join
+      http_addresses.map { |addr| "Listen #{addr}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}\n" }.join
     )
     openshift_settings.write_file
   end
@@ -143,5 +143,5 @@ ruby_block 'Modify the AllowOverride options' do
   notifies :restart, 'service[httpd]', :immediately
 end
 
-include_recipe 'cookbook-openshift3::certificate_server' unless node['cookbook-openshift3']['upgrade']
-include_recipe 'cookbook-openshift3::cloud_provider'
+include_recipe 'is_apaas_openshift_cookbook::certificate_server' unless node['is_apaas_openshift_cookbook']['upgrade']
+include_recipe 'is_apaas_openshift_cookbook::cloud_provider'

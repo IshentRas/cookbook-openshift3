@@ -1,15 +1,15 @@
-  <% if node['cookbook-openshift3']['openshift_master_asset_config'] %>
+  <% if node['is_apaas_openshift_cookbook']['openshift_master_asset_config'] %>
   <% for key in ['extensionScripts' , 'extensionStylesheets'] %>
-  <% if node['cookbook-openshift3']['openshift_master_asset_config'].has_key?(key) %>
+  <% if node['is_apaas_openshift_cookbook']['openshift_master_asset_config'].has_key?(key) %>
   <%= key %>:
-  <%- node['cookbook-openshift3']['openshift_master_asset_config'][key].each do |name| -%>
+  <%- node['is_apaas_openshift_cookbook']['openshift_master_asset_config'][key].each do |name| -%>
     - <%= name %>
   <% end %>
   <% end %>
   <% end %>
-  <% if node['cookbook-openshift3']['openshift_master_asset_config'].has_key?('extensions') %>
+  <% if node['is_apaas_openshift_cookbook']['openshift_master_asset_config'].has_key?('extensions') %>
   extensions:
     - name: images
-      sourceDirectory: <%= node['cookbook-openshift3']['openshift_master_asset_config']['extensions'] %>
+      sourceDirectory: <%= node['is_apaas_openshift_cookbook']['openshift_master_asset_config']['extensions'] %>
   <% end %>
   <% end %>

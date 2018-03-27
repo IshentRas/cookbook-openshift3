@@ -18,15 +18,15 @@ spec:
         name: heapster
     spec:
       serviceAccountName: heapster
-<% unless node['cookbook-openshift3']['openshift_metrics_heapster_nodeselector'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_nodeselector'].empty? -%>
       nodeSelector:
-<% node['cookbook-openshift3']['openshift_metrics_heapster_nodeselector'].each_pair do |k, v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_nodeselector'].each_pair do |k, v| %>
         <%= k %>: "<%= v %>"
 <%- end -%>
 <%- end -%>
       containers:
       - name: heapster
-        image: <%= node['cookbook-openshift3']['openshift_metrics_image_prefix'] %>metrics-heapster:<%= node['cookbook-openshift3']['openshift_metrics_image_version'] %>
+        image: <%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_prefix'] %>metrics-heapster:<%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_version'] %>
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
@@ -45,29 +45,29 @@ spec:
         - "--tls_client_ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"        
 <%- end -%>
         - "--allowed_users=%allowed_users%"
-        - "--metric_resolution=<%= node['cookbook-openshift3']['openshift_metrics_resolution'] %>"
+        - "--metric_resolution=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_resolution'] %>"
         - "--wrapper.username_file=/hawkular-account/hawkular-metrics.username"
         - "--wrapper.password_file=/hawkular-account/hawkular-metrics.password"
         - "--wrapper.endpoint_check=https://hawkular-metrics:443/hawkular/metrics/status"
 <% if @ose_major_version.split('.')[1].to_i < 6 %>          
-        - "--sink=hawkular:https://hawkular-metrics:443?tenant=_system&labelToTenant=pod_namespace&labelNodeId=<%= node['cookbook-openshift3']['openshift_metrics_node_id'] %>&caCert=/hawkular-cert/hawkular-metrics-ca.certificate&user=%username%&pass=%password%&filter=label(container_name:^system.slice.*|^user.slice)"
+        - "--sink=hawkular:https://hawkular-metrics:443?tenant=_system&labelToTenant=pod_namespace&labelNodeId=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_node_id'] %>&caCert=/hawkular-cert/hawkular-metrics-ca.certificate&user=%username%&pass=%password%&filter=label(container_name:^system.slice.*|^user.slice)"
 <%- else -%>          
-        - "--sink=hawkular:https://hawkular-metrics:443?tenant=_system&labelToTenant=pod_namespace&labelNodeId=<%= node['cookbook-openshift3']['openshift_metrics_node_id'] %>&caCert=/hawkular-metrics-certs/tls.crt&user=%username%&pass=%password%&filter=label(container_name:^system.slice.*|^user.slice)"
+        - "--sink=hawkular:https://hawkular-metrics:443?tenant=_system&labelToTenant=pod_namespace&labelNodeId=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_node_id'] %>&caCert=/hawkular-metrics-certs/tls.crt&user=%username%&pass=%password%&filter=label(container_name:^system.slice.*|^user.slice)"
 <%- end -%>
         env:
         - name: STARTUP_TIMEOUT
-          value: "<%= node['cookbook-openshift3']['openshift_metrics_startup_timeout'] %>"
+          value: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_startup_timeout'] %>"
         resources:
           limits:
-<% unless node['cookbook-openshift3']['openshift_metrics_heapster_limits_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_heapster_limits_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_limits_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_limits_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_heapster_limits_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_limits_memory'] %>"
           requests:
-<% unless node['cookbook-openshift3']['openshift_metrics_heapster_requests_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_heapster_requests_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_requests_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_requests_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_heapster_requests_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_heapster_requests_memory'] %>"
         volumeMounts:
         - name: heapster-secrets
           mountPath: "/secrets"

@@ -32,7 +32,7 @@ echo "Installing prerequisite packages, please wait..."
 curl -s -L https://omnitruck.chef.io/install.sh | bash
 yum install -y git
 ### Installing cookbooks
-[ -d ~/chef-solo-example/cookbooks/cookbook-openshift3 ] || git clone -q https://github.com/IshentRas/cookbook-openshift3.git
+[ -d ~/chef-solo-example/cookbooks/is_apaas_openshift_cookbook ] || git clone -q https://github.com/IshentRas/is_apaas_openshift_cookbook.git
 [ -d ~/chef-solo-example/cookbooks/iptables ] || git clone -q https://github.com/chef-cookbooks/iptables.git
 [ -d ~/chef-solo-example/cookbooks/yum ] || git clone -q https://github.com/chef-cookbooks/yum.git
 [ -d ~/chef-solo-example/cookbooks/selinux_policy ] || git clone -q https://github.com/BackSlasher/chef-selinuxpolicy.git selinux_policy
@@ -53,7 +53,7 @@ cat << BASH > environments/origin.json
 
   },
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "openshift_common_sdn_network_plugin_name": "redhat/openshift-ovs-multitenant",
       "openshift_cluster_name": "console.${IP}.nip.io",
       "openshift_HA": true,
@@ -107,7 +107,7 @@ BASH
 cat << BASH > /root/chef-solo-example/run_list.json
 { 
   "run_list": [
-    "recipe[cookbook-openshift3::default]"
+    "recipe[is_apaas_openshift_cookbook::default]"
   ]
 }
 BASH
@@ -120,7 +120,7 @@ then
   oc adm policy add-cluster-role-to-user cluster-admin admin
   # Create a demo project
   oc adm new-project demo --display-name="Origin Demo Project" --admin=admin
-  oc create -f /root/chef-solo-example/cookbooks/cookbook-openshift3/scripts/build_and_run.yml &> /dev/null
+  oc create -f /root/chef-solo-example/cookbooks/is_apaas_openshift_cookbook/scripts/build_and_run.yml &> /dev/null
 fi
 # Enable completion of commands
 . /etc/bash_completion.d/oc

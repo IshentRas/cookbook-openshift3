@@ -1,10 +1,10 @@
-OPTIONS=--loglevel=<%= node['cookbook-openshift3']['openshift_master_debug_level'] %> --listen=https://<%= node['cookbook-openshift3']['openshift_master_bind_addr'] %>:<%= node['cookbook-openshift3']['openshift_master_api_port'] %> --master=<%= node['cookbook-openshift3']['openshift_master_loopback_api_url'] %>
-CONFIG_FILE=<%= node['cookbook-openshift3']['openshift_master_config_file'] %>
-<% if node['cookbook-openshift3']['openshift_push_via_dns'] %>
+OPTIONS=--loglevel=<%= node['is_apaas_openshift_cookbook']['openshift_master_debug_level'] %> --listen=https://<%= node['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_master_api_port'] %> --master=<%= node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url'] %>
+CONFIG_FILE=<%= node['is_apaas_openshift_cookbook']['openshift_master_config_file'] %>
+<% if node['is_apaas_openshift_cookbook']['openshift_push_via_dns'] %>
 OPENSHIFT_DEFAULT_REGISTRY=docker-registry.default.svc.cluster.local:5000
 <% end -%>
-<% if node['cookbook-openshift3']['deploy_containerized'] %>
-IMAGE_VERSION=<%= node['cookbook-openshift3']['openshift_docker_image_version'] %>
+<% if node['is_apaas_openshift_cookbook']['deploy_containerized'] %>
+IMAGE_VERSION=<%= node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] %>
 <% end -%>
 <% if defined?(@aws_access_key_id) && defined?(@aws_secret_access_key) %>
 
@@ -15,26 +15,26 @@ AWS_SECRET_ACCESS_KEY=<%= @aws_secret_access_key %>
 # Proxy configuration
 # Origin uses standard HTTP_PROXY environment variables. Be sure to set
 # NO_PROXY for your master
-<% if node['cookbook-openshift3']['openshift_no_proxy'].empty? -%>
+<% if node['is_apaas_openshift_cookbook']['openshift_no_proxy'].empty? -%>
 #NO_PROXY=master.example.com
 <% else -%>
 NO_PROXY=<%= [
-  node['cookbook-openshift3']['openshift_no_proxy'].split(','),
-  node['cookbook-openshift3']['openshift_common_api_hostname'],
-  node['cookbook-openshift3']['master_servers'].map { |server| server['fqdn'] },
-  node['cookbook-openshift3']['node_servers'].map { |server| server['fqdn'] },
-  ".#{node['cookbook-openshift3']['osn_cluster_dns_domain']}",
-  node['cookbook-openshift3']['openshift_common_portal_net'],
-  node['cookbook-openshift3']['openshift_master_sdn_cluster_network_cidr']
+  node['is_apaas_openshift_cookbook']['openshift_no_proxy'].split(','),
+  node['is_apaas_openshift_cookbook']['openshift_common_api_hostname'],
+  node['is_apaas_openshift_cookbook']['master_servers'].map { |server| server['fqdn'] },
+  node['is_apaas_openshift_cookbook']['node_servers'].map { |server| server['fqdn'] },
+  ".#{node['is_apaas_openshift_cookbook']['osn_cluster_dns_domain']}",
+  node['is_apaas_openshift_cookbook']['openshift_common_portal_net'],
+  node['is_apaas_openshift_cookbook']['openshift_master_sdn_cluster_network_cidr']
 ].flatten.uniq.join(',') %>
 <% end %>
-<% if node['cookbook-openshift3']['openshift_http_proxy'].empty? -%>
+<% if node['is_apaas_openshift_cookbook']['openshift_http_proxy'].empty? -%>
 #HTTP_PROXY=http://USER:PASSWORD@IPADDR:PORT
 <% else -%>
-HTTP_PROXY=<%= node['cookbook-openshift3']['openshift_http_proxy'] %>
+HTTP_PROXY=<%= node['is_apaas_openshift_cookbook']['openshift_http_proxy'] %>
 <% end %>
-<% if node['cookbook-openshift3']['openshift_https_proxy'].empty? -%>
+<% if node['is_apaas_openshift_cookbook']['openshift_https_proxy'].empty? -%>
 #HTTPS_PROXY=https://USER:PASSWORD@IPADDR:PORT
 <% else -%>
-HTTPS_PROXY=<%= node['cookbook-openshift3']['openshift_https_proxy'] %>
+HTTPS_PROXY=<%= node['is_apaas_openshift_cookbook']['openshift_https_proxy'] %>
 <% end %>

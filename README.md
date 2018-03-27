@@ -19,8 +19,8 @@ Requirements
 
 **Highly recommended**: 
 
-Explicitly set `node['cookbook-openshift3']['ose_version']`, `node['cookbook-openshift3']['ose_major_version']`
-and ideally `node['cookbook-openshift3']['docker_version']` to be safe when a major version is released on the
+Explicitly set `node['is_apaas_openshift_cookbook']['ose_version']`, `node['is_apaas_openshift_cookbook']['ose_major_version']`
+and ideally `node['is_apaas_openshift_cookbook']['docker_version']` to be safe when a major version is released on the
 CentOS PaaS repository; 
 
 This cookbook does support upgrade between major versions (Read doc)
@@ -56,7 +56,7 @@ Variables:
 
 ```json
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "control_upgrade": true,
       "control_upgrade_version": "37",
       "control_upgrade_flag": "/tmp/ready",
@@ -88,7 +88,7 @@ Override Attributes
 #### Structure ####
 -------------------
 
-* `node['cookbook-openshift3']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider']`
+* `node['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider']`
 
 ```json
 {
@@ -100,7 +100,7 @@ Override Attributes
 }
 ```
 
-* `node['cookbook-openshift3']['openshift_master_identity_provider']['LDAPPasswordIdentityProvider']`
+* `node['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['LDAPPasswordIdentityProvider']`
 
 ```json
 {
@@ -117,7 +117,7 @@ Override Attributes
 }
 ```
 
-* `node['cookbook-openshift3']['openshift_master_asset_config']`
+* `node['is_apaas_openshift_cookbook']['openshift_master_asset_config']`
 
 ```json
 {
@@ -128,7 +128,7 @@ Override Attributes
 }
 ```
 
-* `node['cookbook-openshift3']['openshift_node_docker-storage']`
+* `node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']`
 
 ```json
 {
@@ -138,14 +138,14 @@ Override Attributes
 }
 ```
 
-* `node['cookbook-openshift3']['docker_log_driver']`
+* `node['is_apaas_openshift_cookbook']['docker_log_driver']`
 
 Set to `'json-file'` (default), `'journald'` or any other supported [docker log driver](https://docs.docker.com/engine/admin/logging/overview/).
 Set to '' to disable it.
 
-* `node['cookbook-openshift3']['docker_log_options']`
+* `node['is_apaas_openshift_cookbook']['docker_log_options']`
 
-Assuming `node['cookbook-openshift3']['docker_log_driver']` is `'json-file'` (the default):
+Assuming `node['is_apaas_openshift_cookbook']['docker_log_driver']` is `'json-file'` (the default):
 
 ```json
 {
@@ -157,7 +157,7 @@ Assuming `node['cookbook-openshift3']['docker_log_driver']` is `'json-file'` (th
 Any option can be set, as long as they are supported by the current [docker log driver](https://docs.docker.com/engine/admin/logging/overview/).
 
 
-* `node['cookbook-openshift3']['openshift_master_named_certificates']`
+* `node['is_apaas_openshift_cookbook']['openshift_master_named_certificates']`
 
 * CN or SAN names are automatically detected from the certificate file.
 
@@ -170,7 +170,7 @@ Any option can be set, as long as they are supported by the current [docker log 
 ]
 ```
 
-* `node['cookbook-openshift3']['persistent_storage']`
+* `node['is_apaas_openshift_cookbook']['persistent_storage']`
 
 * They key called 'claim' is optional and will automatically create a PersistentVolumeClaim within a specified namespace.
  
@@ -186,11 +186,11 @@ Any option can be set, as long as they are supported by the current [docker log 
   }
 }
 ```
-* `node['cookbook-openshift3']['openshift_hosted_cluster_metrics']`
+* `node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics']`
 
 Any option can be set, as long as they are supported by the current [Metrics deployer template](https://docs.openshift.com/container-platform/latest/install_config/cluster_metrics.html#metrics-ansible-variables).
 
-Full list of attributes can be found [here](https://raw.githubusercontent.com/IshentRas/cookbook-openshift3/master/attributes/metrics.rb).
+Full list of attributes can be found [here](https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/attributes/metrics.rb).
 
 We only support 1 cassandra POD.
 
@@ -215,7 +215,7 @@ Example of removing metrics components:
 ```
 
 Example of overriding the default kubelet options:
-* `node['cookbook-openshift3']['openshift_node_kubelet_args_custom']`
+* `node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_custom']`
 Any option can be set, as long as they are supported by current [Kubelet Options](https://kubernetes.io/docs/admin/kubelet/).
 
 ```json
@@ -362,7 +362,7 @@ Cloud providers integration requires passing some sensetive credentials to OpenS
 
 ### AWS 
 
-To integrate your OpenShift installation with AWS you should have following attributes for `cookbook-openshift3` cookbook:
+To integrate your OpenShift installation with AWS you should have following attributes for `is_apaas_openshift_cookbook` cookbook:
 
 ```json
 {
@@ -391,7 +391,7 @@ Data bag item content should be of the form:
 
 Please note: `id` value should be exactly the same as `data_bag_item_name` attribute value from above.
 
-**Alternatively** you can attach IAM policies to your AWS instances and do *not* provide AWS credentials in encrypted data bags. In this case you should have the following attribute for `cookbook-openshift3` cookbook:
+**Alternatively** you can attach IAM policies to your AWS instances and do *not* provide AWS credentials in encrypted data bags. In this case you should have the following attribute for `is_apaas_openshift_cookbook` cookbook:
 
 ```json
 {
@@ -464,7 +464,7 @@ Include the default recipe in a CHEF role so as to ease the deployment.
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[cookbook-openshift3]"
+    "recipe[is_apaas_openshift_cookbook]"
   ],
   "env_run_lists": {
 
@@ -486,7 +486,7 @@ Include the default recipe in a CHEF role so as to ease the deployment.
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[cookbook-openshift3::adhoc_uninstall]"
+    "recipe[is_apaas_openshift_cookbook::adhoc_uninstall]"
   ],
   "env_run_lists": {
 
@@ -508,7 +508,7 @@ Include the default recipe in a CHEF role so as to ease the deployment.
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[cookbook-openshift3::adhoc_redeploy_certificates]"
+    "recipe[is_apaas_openshift_cookbook::adhoc_redeploy_certificates]"
   ],
   "env_run_lists": {
 
@@ -550,7 +550,7 @@ In general, override attributes in the environment should be used when changing 
 
   },
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "openshift_HA": true,
       "openshift_cluster_name": "ose-cluster.domain.local",
       "persistent_storage": [
@@ -665,7 +665,7 @@ In general, override attributes in the environment should be used when changing 
 
   },
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "master_servers": [
         {
           "fqdn": "ose1-server.domain.local",
@@ -795,7 +795,7 @@ You will need a CentOS 7.1+  with "Minimal" installation option and at least 10G
 
 * Deploy ORIGIN ALL IN THE BOX Flavour (MASTER + NODE)
 ```
-bash <(curl -s https://raw.githubusercontent.com/IshentRas/cookbook-openshift3/master/scripts/origin_deploy.sh)
+bash <(curl -s https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/scripts/origin_deploy.sh)
 ```
 
 Automated Integration Tests (KITCHEN)

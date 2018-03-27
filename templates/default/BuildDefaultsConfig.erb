@@ -2,59 +2,59 @@ BuildDefaults:
   configuration:
     apiVersion: v1
     kind: BuildDefaultsConfig
-<% unless node['cookbook-openshift3']['openshift_builddefaults_git_http_proxy'].empty? -%>
-    gitHTTPProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_http_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_http_proxy'].empty? -%>
+    gitHTTPProxy: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_http_proxy'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_git_https_proxy'].empty? -%>
-    gitHTTPSProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_https_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_https_proxy'].empty? -%>
+    gitHTTPSProxy: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_https_proxy'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_git_no_proxy'].empty? -%>
-    gitNoProxy: "<%= node['cookbook-openshift3']['openshift_builddefaults_git_no_proxy'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_no_proxy'].empty? -%>
+    gitNoProxy: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_git_no_proxy'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_env'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_env'].empty? -%>
     env:
-<% node['cookbook-openshift3']['openshift_builddefaults_env'].each do |env| %>
+<% node['is_apaas_openshift_cookbook']['openshift_builddefaults_env'].each do |env| %>
 <% env.each_pair do |k,v| %>
     - name: <%= k.upcase %>
       value: <%= v %>
 <%- end -%>
 <%- end -%>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_image_labels'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_image_labels'].empty? -%>
     imageLabels:
-<% node['cookbook-openshift3']['openshift_builddefaults_image_labels'].each do |image| %>
+<% node['is_apaas_openshift_cookbook']['openshift_builddefaults_image_labels'].each do |image| %>
 <% image.each_pair do |k,v| %>
     - name: <%= k %>
       value: <%= v %>
 <%- end -%>
 <%- end -%>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_nodeselectors'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_nodeselectors'].empty? -%>
     nodeSelector:
-<% node['cookbook-openshift3']['openshift_builddefaults_nodeselectors'].each_pair do |k,v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_builddefaults_nodeselectors'].each_pair do |k,v| %>
       <%= k %>: <%= v %>
 <%- end -%>
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_annotations'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_annotations'].empty? -%>
     annotations:
-<% node['cookbook-openshift3']['openshift_builddefaults_annotations'].each_pair do |k,v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_builddefaults_annotations'].each_pair do |k,v| %>
       <%= k %>: <%= v %>
 <%- end -%>
 <%- end -%>
-<% if node['cookbook-openshift3']['openshift_builddefaults_resources'] -%>
+<% if node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources'] -%>
     resources:
       requests:
-<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_requests_cpu'].empty? %>
-        cpu: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_requests_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_requests_cpu'].empty? %>
+        cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_requests_cpu'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_requests_memory'].empty? %>
-        memory: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_requests_memory'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_requests_memory'].empty? %>
+        memory: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_requests_memory'] %>"
 <%- end -%>
       limits:
-<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_limits_cpu'].empty? %>
-        cpu: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_limits_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_limits_cpu'].empty? %>
+        cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_limits_cpu'] %>"
 <%- end -%>
-<% unless node['cookbook-openshift3']['openshift_builddefaults_resources_limits_memory'].empty? %>
-        memory: "<%= node['cookbook-openshift3']['openshift_builddefaults_resources_limits_memory'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_limits_memory'].empty? %>
+        memory: "<%= node['is_apaas_openshift_cookbook']['openshift_builddefaults_resources_limits_memory'] %>"
 <%- end -%>
 <%- end -%>

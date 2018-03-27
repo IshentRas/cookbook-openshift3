@@ -126,7 +126,7 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 ### Improvement
 - Initial support for 1.5/3.5 OCP
 - Refactor logic for HA cluster deployment
-- Add support for deploying only LB role (Haproxy) https://github.com/IshentRas/cookbook-openshift3/issues/100
+- Add support for deploying only LB role (Haproxy) https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/100
 - MISC bug fix
 
 ### Bug
@@ -201,7 +201,7 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 - Give the possibility of skipping nodes when applying schedulability and labelling
 
 ### Bug
-- Fix issue reported by https://github.com/IshentRas/cookbook-openshift3/issues/77
+- Fix issue reported by https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/77
 
 ## v1.10.37
 ### Bug
@@ -291,8 +291,8 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 
 ## v1.10.27
 ### Bug
-- Fix the Origin deployment issue (https://github.com/IshentRas/cookbook-openshift3/issues/20)
-- Fix master-api service and master-controllers service (https://github.com/IshentRas/cookbook-openshift3/issues/40)
+- Fix the Origin deployment issue (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/20)
+- Fix master-api service and master-controllers service (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/40)
 
 ## v1.10.26
 ### Improvement
@@ -324,7 +324,7 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 
 ## v1.10.22
 ### Bug
-- Skip nodes which are not listed when labelling or seetingn schedulability (https://github.com/IshentRas/cookbook-openshift3/issues/32)
+- Skip nodes which are not listed when labelling or seetingn schedulability (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/32)
 
 ## v1.10.21
 ### Bug
@@ -339,15 +339,15 @@ This file is used to list changes made in each version of the Openshift 3 cookbo
 - Add the possibility to create PV and PVC (Type NFS only)
 - Deploy Hosted environment (Registry & Router)
 - Autoscale Hosted environment (Registry & Router) based on labelling
-- Only 1 recipe is needed for deploying the environment : recipe[cookbook-openshift3]
+- Only 1 recipe is needed for deploying the environment : recipe[is_apaas_openshift_cookbook]
 
 ### Bug
 - Remove duplicated resources
 - Fix Docker log-driver for json
  
 ### Removal
-- Remove the node['cookbook-openshift3']['use_params_roles'] which used the CHEF search capability
-- Remove the node['cookbook-openshift3']['set_nameserver'] and node['cookbook-openshift3']['register_dns']
+- Remove the node['is_apaas_openshift_cookbook']['use_params_roles'] which used the CHEF search capability
+- Remove the node['is_apaas_openshift_cookbook']['set_nameserver'] and node['is_apaas_openshift_cookbook']['register_dns']
 
 ## v1.10.19
 ### Improvement

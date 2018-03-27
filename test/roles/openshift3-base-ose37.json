@@ -6,7 +6,7 @@
 
   },
   "override_attributes": {
-    "cookbook-openshift3": {
+    "is_apaas_openshift_cookbook": {
       "openshift_deployment_type": "origin",
       "openshift_common_portal_net": "172.30.0.0/16",
       "openshift_master_sdn_cluster_network_cidr": "10.128.0.0/14",
@@ -20,6 +20,6 @@
   },
   "chef_type": "role",
   "run_list": [
-    "recipe[cookbook-openshift3::default]"
+    "recipe[is_apaas_openshift_cookbook::default]"
   ]
 }

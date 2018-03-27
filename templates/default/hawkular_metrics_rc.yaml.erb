@@ -17,14 +17,14 @@ spec:
         name: hawkular-metrics
     spec:
       serviceAccount: hawkular
-<% unless node['cookbook-openshift3']['openshift_metrics_hawkular_nodeselector'].empty? -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_nodeselector'].empty? -%>
       nodeSelector:
-<% node['cookbook-openshift3']['openshift_metrics_hawkular_nodeselector'].each_pair do |k, v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_nodeselector'].each_pair do |k, v| %>
         <%= k %>: "<%= v %>"
 <%- end -%>
 <%- end -%>
       containers:
-      - image: <%= node['cookbook-openshift3']['openshift_metrics_image_prefix'] %>metrics-hawkular-metrics:<%= node['cookbook-openshift3']['openshift_metrics_image_version'] %>
+      - image: <%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_prefix'] %>metrics-hawkular-metrics:<%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_version'] %>
         imagePullPolicy: Always
         name: hawkular-metrics
         ports:
@@ -47,7 +47,7 @@ spec:
         - "-Dhawkular.metrics.openshift.htpasswd-file=/hawkular-account/hawkular-metrics.htpasswd"
 <%- end -%>        
         - "-Dhawkular.metrics.allowed-cors-access-control-allow-headers=authorization"
-        - "-Dhawkular.metrics.default-ttl=<%= node['cookbook-openshift3']['openshift_metrics_duration'] %>"
+        - "-Dhawkular.metrics.default-ttl=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_duration'] %>"
         - "-Dhawkular.metrics.admin-tenant=_hawkular_admin"
         - "-Dhawkular-alerts.cassandra-nodes=hawkular-cassandra"
         - "-Dhawkular-alerts.cassandra-use-ssl"
@@ -61,8 +61,8 @@ spec:
         - "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
         - "-Dorg.apache.catalina.connector.CoyoteAdapter.ALLOW_BACKSLASH=true"
         - "-Dcom.datastax.driver.FORCE_NIO=true"
-        - "-DKUBERNETES_MASTER_URL=<%= node['cookbook-openshift3']['openshift_metrics_master_url'] %>"
-        - "-DUSER_WRITE_ACCESS=<%= node['cookbook-openshift3']['openshift_metrics_hawkular_user_write_access'] %>"
+        - "-DKUBERNETES_MASTER_URL=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_master_url'] %>"
+        - "-DUSER_WRITE_ACCESS=<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_user_write_access'] %>"
 <% if @ose_major_version.split('.')[1].to_i < 6 %>
         - "--hmw.keystore=/secrets/hawkular-metrics.keystore"
         - "--hmw.truststore=/secrets/hawkular-metrics.truststore"
@@ -78,7 +78,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: MASTER_URL
-          value: "<%= node['cookbook-openshift3']['openshift_metrics_master_url'] %>"
+          value: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_master_url'] %>"
 <% if @ose_major_version.split('.')[1].to_i >= 6 %>
         - name: JGROUPS_PASSWORD
           value: "<%= @random_word %>"
@@ -92,7 +92,7 @@ spec:
         - name: OPENSHIFT_KUBE_PING_LABELS
           value: "metrics-infra=hawkular-metrics,name=hawkular-metrics"
         - name: STARTUP_TIMEOUT
-          value: "<%= node['cookbook-openshift3']['openshift_metrics_startup_timeout'] %>"
+          value: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_startup_timeout'] %>"
         volumeMounts:
 <% if @ose_major_version.split('.')[1].to_i < 6 %>
         - name: hawkular-metrics-secrets
@@ -107,15 +107,15 @@ spec:
 <%- end -%>
         resources:
           limits:
-<% unless node['cookbook-openshift3']['openshift_metrics_hawkular_limits_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_hawkular_limits_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_limits_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_limits_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_hawkular_limits_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_limits_memory'] %>"
           requests:
-<% unless node['cookbook-openshift3']['openshift_metrics_hawkular_requests_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_hawkular_requests_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_requests_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_requests_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_hawkular_requests_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_requests_memory'] %>"
         readinessProbe:
           exec:
             command:

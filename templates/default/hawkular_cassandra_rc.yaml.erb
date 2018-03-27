@@ -21,15 +21,15 @@ spec:
       serviceAccount: cassandra
       securityContext:
         supplementalGroups:
-        - <%= node['cookbook-openshift3']['openshift_metrics_cassandra_storage_group'] %>
-<% unless node['cookbook-openshift3']['openshift_metrics_cassandra_nodeselector'].empty? -%>
+        - <%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_group'] %>
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_nodeselector'].empty? -%>
       nodeSelector:
-<% node['cookbook-openshift3']['openshift_metrics_cassandra_nodeselector'].each_pair do |k, v| %>
+<% node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_nodeselector'].each_pair do |k, v| %>
         <%= k %>: "<%= v %>"
 <%- end -%>
 <%- end -%>
       containers:
-      - image: "<%= node['cookbook-openshift3']['openshift_metrics_image_prefix'] %>metrics-cassandra:<%= node['cookbook-openshift3']['openshift_metrics_image_version'] %>"
+      - image: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_prefix'] %>metrics-cassandra:<%= node['is_apaas_openshift_cookbook']['openshift_metrics_image_version'] %>"
         imagePullPolicy: Always
         name: hawkular-cassandra-1
         ports:
@@ -94,15 +94,15 @@ spec:
 <%- end -%>
         resources:
           limits:
-<% unless node['cookbook-openshift3']['openshift_metrics_cassandra_limits_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_limits_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_limits_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_limits_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_limits_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_limits_memory'] %>"
           requests:
-<% unless node['cookbook-openshift3']['openshift_metrics_cassandra_requests_cpu'].empty? %>
-            cpu: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_requests_cpu'] %>"
+<% unless node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_requests_cpu'].empty? %>
+            cpu: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_requests_cpu'] %>"
 <%- end -%>
-            memory: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_requests_memory'] %>"
+            memory: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_requests_memory'] %>"
         readinessProbe:
           exec:
             command:
@@ -119,11 +119,11 @@ spec:
         terminationGracePeriodSeconds: 1800
       volumes:
       - name: cassandra-data
-<% if node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type'] == 'emptydir' -%>
+<% if node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_storage_type'] == 'emptydir' -%>
         emptyDir: {}
 <%- else -%>        
         persistentVolumeClaim:
-          claimName: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_prefix'] %>"
+          claimName: "<%= node['is_apaas_openshift_cookbook']['openshift_metrics_cassandra_pvc_prefix'] %>"
 <%- end -%>          
 <% if @ose_major_version.split('.')[1].to_i < 6 %>
       - name: hawkular-cassandra-secrets
