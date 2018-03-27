@@ -43,7 +43,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
     include_recipe 'is_apaas_openshift_cookbook::common'
     include_recipe 'is_apaas_openshift_cookbook::node'
     include_recipe 'is_apaas_openshift_cookbook::excluder'
-
+    
     file 'Remove obsolete docker-sdn-ovs.conf' do
       path '/etc/systemd/system/docker.service.d/docker-sdn-ovs.conf'
       action :delete
