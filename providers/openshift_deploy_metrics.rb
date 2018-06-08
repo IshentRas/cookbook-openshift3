@@ -150,6 +150,7 @@ action :create do
     end
 
     package 'java-1.8.0-openjdk-headless'
+    package 'httpd-tools'
 
     execute 'Generate ca certificate chain' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-signer-cert \
