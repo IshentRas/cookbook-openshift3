@@ -1,3 +1,4 @@
+default['is_apaas_openshift_cookbook']['openshift_hosted_metrics_flag'] = '/usr/local/share/info/.metrics'
 default['is_apaas_openshift_cookbook']['openshift_hosted_metrics_storage_access_modes'] = %w(ReadWriteOnce)
 default['is_apaas_openshift_cookbook']['openshift_hosted_metrics_storage_kind'] = 'emptydir'
 default['is_apaas_openshift_cookbook']['openshift_hosted_metrics_storage_volume_name'] = 'metrics-cassandra'

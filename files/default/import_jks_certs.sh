@@ -27,11 +27,11 @@ function import_certs() {
   hawkular_jgroups_password=$JGROUPS_PASSWD
 
   if [ -f $dir/hawkular-cassandra.truststore ]; then
-    cassandra_alias=`keytool -noprompt -list -keystore $dir/hawkular-cassandra.truststore -storepass ${hawkular_cassandra_truststore_password} | sed -n '7~2s/,.*$//p'`
+    cassandra_alias=`keytool -noprompt -list -keystore $dir/hawkular-cassandra.truststore -storepass ${hawkular_cassandra_truststore_password} | sed -n 's/,.*$//p'`
   fi
 
   if [ -f $dir/hawkular-metrics.truststore ]; then
-    hawkular_alias=`keytool -noprompt -list -keystore $dir/hawkular-metrics.truststore -storepass ${hawkular_metrics_truststore_password} | sed -n '7~2s/,.*$//p'`
+    hawkular_alias=`keytool -noprompt -list -keystore $dir/hawkular-metrics.truststore -storepass ${hawkular_metrics_truststore_password} | sed -n 's/,.*$//p'`
   fi
 
   if [ ! -f $dir/hawkular-metrics.keystore ]; then

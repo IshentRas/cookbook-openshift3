@@ -193,6 +193,7 @@ Any option can be set, as long as they are supported by the current [Metrics dep
 Full list of attributes can be found [here](https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/attributes/metrics.rb).
 
 We only support 1 cassandra POD.
+Once the metrics is deployed, it creates a flag (openshift_hosted_metrics_flag) on the first master to avoid having CHEF re-creating the resources over and over.
 
 Example of options for deploying metrics:
 ```json
