@@ -197,6 +197,8 @@ default['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_fi
 default['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_name'] = 'config-volume'
 default['is_apaas_openshift_cookbook']['openshift_hosted_deploy_env_router'] = []
 default['is_apaas_openshift_cookbook']['openshift_hosted_manage_router'] = true
+default['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards'] = false
+default['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'] = []
 default['is_apaas_openshift_cookbook']['openshift_hosted_router_selector'] = 'region=infra'
 default['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace'] = 'default'
 default['is_apaas_openshift_cookbook']['openshift_hosted_router_options'] = []

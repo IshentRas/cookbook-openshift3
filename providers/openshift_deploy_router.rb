@@ -23,6 +23,20 @@ action :create do
       only_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace/${namespace_router} --no-headers"
     end
 
+    if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
+      node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+        execute "Annotate Hosted Router Project for sharding[#{shard['service_account']}]" do
+          command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} annotate --overwrite namespace/${namespace_router} openshift.io/node-selector=${selector_router}"
+          environment(
+            'selector_router' => shard['selector'],
+            'namespace_router' => shard['namespace']
+          )
+          not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace/${namespace_router} --template '{{ .metadata.annotations }}' | fgrep -q openshift.io/node-selector:${selector_router}"
+          only_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace/${namespace_router} --no-headers"
+        end
+      end
+    end
+
     execute 'Create Hosted Router Certificate' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create secret generic router-certs --from-file tls.crt=${certfile} --from-file tls.key=${keyfile} -n ${namespace_router}"
       environment(
@@ -43,7 +57,21 @@ action :create do
         'namespace_router' => node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']
       )
       cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
-      only_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get pod --selector=router=router --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | wc -l` -eq 0 ]]"
+      only_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get pod --selector=router=router -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | wc -l` -eq 0 ]]"
+    end
+
+    if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
+      node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+        execute "Deploy Hosted Router for sharding[#{shard['service_account']}]" do
+          command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} adm router router-#{shard['service_account']} --selector=${selector_router} --service-account=#{shard['service_account']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig || true"
+          environment(
+            'selector_router' => shard['selector'],
+            'namespace_router' => shard['namespace']
+          )
+          cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+          only_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get pod --selector=router=router-#{shard['service_account']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | wc -l` -eq 0 ]]"
+        end
+      end
     end
 
     execute 'Auto Scale Router based on label' do
@@ -56,6 +84,21 @@ action :create do
       not_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get pod --selector=router=router --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --no-headers | wc -l` -eq ${replica_number} ]]"
     end
 
+    if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
+      node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+        execute "Auto Scale Router based on label for sharding[#{shard['service_account']}]" do
+          command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale dc/router-#{shard['service_account']} --replicas=${replica_number} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+          environment(
+            'replica_number' => Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node --no-headers --selector=#{shard['selector']} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | wc -l").run_command.stdout.strip,
+            'selector_router' => shard['selector'],
+            'namespace_router' => shard['namespace']
+          )
+          cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+          not_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get pod --selector=router=router-#{shard['service_account']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --no-headers | wc -l` -eq ${replica_number} ]]"
+        end
+      end
+    end
+
     unless node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_env_router'].empty?
       node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_env_router'].each do |env|
         execute "Set ENV \"#{env.upcase}\" for Hosted Router" do
@@ -65,6 +108,22 @@ action :create do
           )
           cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
           not_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} env dc/router --list -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig` =~ \"#{env}\" ]]"
+        end
+      end
+    end
+
+    if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
+      node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+        shard['env'].each do |env|
+          execute "Set Sharding ENV #{env} for Hosted Router sharding[#{shard['service_account']}]" do
+            command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} set env dc/router-#{shard['service_account']} #{env} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+            environment(
+              'selector_router' => shard['selector'],
+              'namespace_router' => shard['namespace']
+            )
+            cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+            not_if "[[ `#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} env dc/router-#{shard['service_account']} --list -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig` =~ \"#{env}\" ]]"
+          end
         end
       end
     end

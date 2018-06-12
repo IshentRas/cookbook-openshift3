@@ -36,6 +36,19 @@ service_accounts.each do |serviceaccount|
     not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get sa #{serviceaccount['name']} -n #{serviceaccount['namespace']} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
   end
 
+  if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
+    node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+      execute "Add cluster-reader for router sharing service account: \"#{shard['service_account']}\"" do
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} adm policy add-cluster-role-to-user cluster-reader ${serviceaccount} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+        environment(
+          'serviceaccount' => "system:serviceaccount:#{shard['namespace']}:#{shard['service_account']}"
+        )
+        cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrolebinding/cluster-readers -o yaml --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | grep ${serviceaccount}"
+      end
+    end
+  end
+
   next unless serviceaccount.key?('scc')
 
   sccs = serviceaccount['scc'].is_a?(Array) ? serviceaccount['scc'] : serviceaccount['scc'].split(' ') # Backport old logic

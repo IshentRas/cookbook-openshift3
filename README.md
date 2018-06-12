@@ -245,6 +245,52 @@ Example of enabling a specific "feature-gate": enabling the [persistent local vo
 }
 ```
 
+* `node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']`
+
+Any ENV options can be set for the sharding router, as long as they are supported by the current documentation [Set ENV for router sharding](https://docs.openshift.com/container-platform/latest/install_config/router/default_haproxy_router.html#modifying-router-shards).
+
+** The dedicated service account must have access to the hostnetwork SCC **
+
+Example of options for deploying router sharding:
+```json
+{
+  "....."
+  "openshift_hosted_router_deploy_shards": true,
+  "openshift_hosted_router_shard":[
+    {
+      "namespace": "custom-shard1",
+      "service_account": "shard1",
+      "selector": "region=shard1",
+      "env": [
+        "ROUTE_LABELS='shard1=yes'"
+      ]
+    },
+    {
+      "namespace": "custom-shard2",
+      "service_account": "shard2",
+      "selector": "region=shard2",
+      "env": [
+        "NAMESPACE_LABELS='dept != finance'",
+      ]
+    },
+  ],
+  "openshift_common_service_accounts_additional": [
+    { 
+      "name": "shard1", 
+      "namespace": "shard1", 
+      "scc": ["hostnetwork"] 
+    },
+    { 
+      "name": "shard2", 
+      "namespace": "custom-shard2", 
+      "scc": ["hostnetwork"] 
+    }
+
+  ],
+  "....."
+}
+```
+
 Example of overriding the Audit Configuration Parameters for the `openshift_master_auditconfig` Hash
 
 | Key Name   | Description |

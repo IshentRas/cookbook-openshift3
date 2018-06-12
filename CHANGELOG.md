@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.60
+### Improvement
+- Give the possibility to deploy router sharding (Read README)
+
 ## v2.0.58-59
 ### Improvement
 - Improve metrics deployment logic
