@@ -12,7 +12,7 @@ try {
     string(name: 'CHEF_COMPAT_RESOURCE_COOKBOOK_VERSION',        defaultValue: 'latest',                                       description: 'compat_resource cookbook version'),
     string(name: 'CHEF_INJECT_COMPAT_RESOURCE_COOKBOOK_VERSION', defaultValue: 'false',                                        description: 'Whether to inject compat_resource cookbook version (eg true for some envs)'),
     string(name: 'CHEF_DEPLOY_METHODS',                          defaultValue: 'solo server',                                  description: 'Which deployment methods to use (server and/or solo)'),
-    string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'true false',                                   description: 'If "true", deploy containerized, "true false" for both'),
+    string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'false',                                        description: 'If "true", deploy containerized, "true false" for both'),
     string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
     string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_colocated_etcd',               description: 'which cluster configs to test')
   ])])
