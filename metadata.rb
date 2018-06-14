@@ -7,7 +7,7 @@ issues_url 'https://github.com/IshentRas/is_apaas_openshift_cookbook/issues'
 description 'Installs/Configures Openshift 3.x (>= 3.3)'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 chef_version '>= 12.4' if respond_to?(:chef_version)
-version '2.0.64'
+version '2.0.65'
 supports 'redhat', '>= 7.1'
 supports 'centos', '>= 7.1'
 
@@ -21,6 +21,7 @@ recipe 'is_apaas_openshift_cookbook::adhoc_redeploy_certificates', 'Redeploy cer
 recipe 'is_apaas_openshift_cookbook::adhoc_redeploy_cluster_ca', 'Redeploy OpenShift certificates'
 recipe 'is_apaas_openshift_cookbook::adhoc_redeploy_etcd_ca', 'Redeploy ETCD CA certificates'
 recipe 'is_apaas_openshift_cookbook::adhoc_uninstall', 'Adhoc action for uninstalling Openshift from server'
+recipe 'is_apaas_openshift_cookbook::adhoc_reset', 'Adhoc action for resetting server (Keeping OCP configurations, Certificates, ETCD DATA)'
 recipe 'is_apaas_openshift_cookbook::certificate_server', 'Configure the certificate server'
 recipe 'is_apaas_openshift_cookbook::cloud_provider', 'Configure cloud providers'
 recipe 'is_apaas_openshift_cookbook::common', 'Apply common packages'

@@ -5,7 +5,7 @@ dnsBindAddress: 127.0.0.1:53
 dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
 <%- end -%>
 dnsDomain: <%=node['is_apaas_openshift_cookbook']['osn_cluster_dns_domain'] %>
-dnsIP: <%=node['is_apaas_openshift_cookbook']['osn_cluster_dns_ip'] %>
+dnsIP: <%= @osn_cluster_dns_ip %>
 dockerConfig:
   execHandlerName: ""
 iptablesSyncPeriod: "<%= node['is_apaas_openshift_cookbook']['openshift_node_iptables_sync_period'] %>"

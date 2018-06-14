@@ -29,6 +29,38 @@ This cookbook does support upgrade between major versions (Read doc)
 
 - Control upgrades between versions
 - ETCD migration v2 to v3 (Mandatory before upgrading to 3.7)
+- Node vars override variables
+
+Supported Node Variables:
+
+| NAME |
+| ---------------- |
+| deploy_dnsmasq |
+| custom_origin-dns |
+| custom_origin_location |
+| osn_cluster_dns_ip |
+
+In the following example, DNSMASQ will only be deployed on mynodeoverride.domain.local (Being overrided by local vars)
+
+```json
+  "override_attributes": {
+    "is_apaas_openshift_cookbook": {
+      "deploy_dnsmasq": false,
+      "node_servers": [
+        {
+          "fqdn": "mynode.domain.local",
+          "ipaddress": "1.1.1.1"
+        },
+        {
+          "fqdn": "mynodeoverride.domain.local",
+          "ipaddress": "1.2.2.2",
+          "deploy_dnsmasq": true
+        }
+      ],
+      ....
+    }
+  }
+```
 
 ### Supported version
 [x] 1.3 to 1.4
@@ -269,6 +301,7 @@ Example of options for deploying router sharding:
       "namespace": "custom-shard2",
       "service_account": "shard2",
       "selector": "region=shard2",
+      "custom_router_file": "/folder/custom_template_forshard2",
       "env": [
         "NAMESPACE_LABELS='dept != finance'",
       ]

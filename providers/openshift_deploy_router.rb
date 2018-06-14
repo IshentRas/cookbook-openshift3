@@ -159,9 +159,10 @@ action :create do
       if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
         node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
           execute "Create ConfigMap of the customised Hosted Router sharding[#{shard['service_account']}]" do
-            command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=#{node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+            command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=${custom_router_file} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
             environment(
-              'namespace_router' => shard['namespace']
+              'namespace_router' => shard['namespace'],
+              'custom_router_file' => shard.key?('custom_router_file') ? shard['custom_router_file'] : node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file']
             )
             cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
             not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get configmap customrouter -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"

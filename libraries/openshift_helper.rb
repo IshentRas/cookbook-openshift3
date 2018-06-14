@@ -124,6 +124,14 @@ module OpenShiftHelper
       ca_exist && !dir_exist
     end
 
+    def get_nodevar(var)
+      if node_servers.any? { |server_node| server_node['fqdn'] == node['fqdn'] && server_node.key?(var) }
+        node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }[var.to_s]
+      else
+        node['is_apaas_openshift_cookbook'][var.to_s]
+      end
+    end
+
     protected
 
     attr_reader :node
