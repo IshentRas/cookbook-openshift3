@@ -1,9 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.0.63
+## v2.0.63-64
 ### Bug 
 - Fix issue when resetting a master node
+- Fix issue when resetting an ETCD node
 - Fix several Cloning resource attributes issues
 
 ## v2.0.62
