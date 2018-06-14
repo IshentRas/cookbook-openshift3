@@ -14,6 +14,13 @@ end
 action :reset do
   converge_by 'Resetting server' do
     helper = OpenShiftHelper::NodeHelper.new(node)
+    is_node_server = helper.on_node_server?
+
+    systemd_unit 'docker' do
+      action :nothing
+      retry_delay 2
+      retries 5
+    end
 
     %w(atomic-openshift-node openvswitch atomic-openshift-master atomic-openshift-master-api atomic-openshift-master-controllers etcd etcd_container haproxy).each do |svc|
       systemd_unit svc do
@@ -84,40 +91,34 @@ action :reset do
       retries 3
     end
 
-    systemd_unit 'docker' do
-      action :stop
-      ignore_failure true
-      retries 3
-    end
+    if is_node_server || node['is_apaas_openshift_cookbook']['deploy_containerized']
 
-    ruby_block 'Remove docker directory (Contents Only)' do
-      block do
-        helper.remove_dir('/var/lib/docker/*')
+      ruby_block 'Remove docker directory (Contents Only)' do
+        block do
+          helper.remove_dir('/var/lib/docker/*')
+        end
+        notifies :stop, 'systemd_unit[docker]', :before
       end
-    end
 
-    execute 'Resetting docker storage' do
-      command '/usr/bin/docker-storage-setup --reset'
-    end
-
-    ruby_block 'Reload SystemD Daemon services' do
-      block do
-        Mixlib::ShellOut.new('systemctl daemon-reload').run_command
+      execute 'Resetting docker storage' do
+        command '/usr/bin/docker-storage-setup --reset'
       end
-    end
 
-    systemd_unit 'docker' do
-      action :start
-      retry_delay 2
-      retries 5
-    end
+      ruby_block 'Reload SystemD Daemon services' do
+        block do
+          Mixlib::ShellOut.new('systemctl daemon-reload').run_command
+        end
+        notifies :start, 'systemd_unit[docker]', :immediately
+      end
 
-    # Add to force the daemon-reload mechanism as we do not remove files within /etc/origin
-    ruby_block 'Insert Dummy line for forcing node to reload' do
-      block do
-        file = Chef::Util::FileEdit.new('/etc/origin/node/node-config.yaml')
-        file.insert_line_if_no_match('/^#DUMY_LINE/', '#DUMY_LINE FOR RESTARTING')
-        file.write_file
+      # Add to force the daemon-reload mechanism as we do not remove files within /etc/origin
+      ruby_block 'Insert Dummy line for forcing node to reload' do
+        block do
+          file = Chef::Util::FileEdit.new('/etc/origin/node/node-config.yaml')
+          file.insert_line_if_no_match('/^#DUMMY_LINE/', '#DUMMY_LINE FOR RESTARTING')
+          file.write_file
+        end
+        only_if { ::File.exist?('/etc/origin/node/node-config.yaml') }
       end
     end
   end
