@@ -214,7 +214,10 @@ if is_node_server
     template '/etc/dnsmasq.d/origin-dns.conf' do
       source 'origin-dns.conf.erb'
       variables(
-        ose_major_version: ose_major_version
+        ose_major_version: ose_major_version,
+        openshift_node_dnsmasq_log_queries: helper.get_nodevar('openshift_node_dnsmasq_log_queries'),
+        openshift_node_dnsmasq_cache_size: helper.get_nodevar('openshift_node_dnsmasq_cache_size'),
+        openshift_node_dnsmasq_maxcachettl: helper.get_nodevar('openshift_node_dnsmasq_maxcachettl')
       )
       notifies :restart, 'service[dnsmasq]', :immediately
     end

@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.66
+### Improvement
+- Give the possibility of controlling dnsmasq openshift_node_dnsmasq_log_queries (false) openshift_node_dnsmasq_cache_size (150) openshift_node_dnsmasq_maxcachettl (1)
+- Improve the node reset mechanism (Deleting master and node directories)
+
 ## v2.0.65
 ### Improvement
 - Give the possibility to override global variables at the node level ((Read README) 
