@@ -22,7 +22,7 @@ kubeletArguments:
 <%- end -%>
 <% @kubelet_args.each_pair do |k, v| %>
   <%= k %>:
-    <%- Array(v).each do |vv| -%>
+    <%- v.each do |vv| -%>
     - "<%= vv %>"
     <%- end -%>
 <%- end -%>

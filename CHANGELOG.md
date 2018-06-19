@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.67
+### Bug
+- Fix typo when applying openshift_node_kubelet_args_custom
+
 ## v2.0.66
 ### Improvement
 - Give the possibility of controlling dnsmasq openshift_node_dnsmasq_log_queries (false) openshift_node_dnsmasq_cache_size (150) openshift_node_dnsmasq_maxcachettl (1)
