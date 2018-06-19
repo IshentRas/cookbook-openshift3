@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.68
+### Bug
+- Fix typo when upgrading ConfigMap of the customised Hosted Router
+
 ## v2.0.67
 ### Bug
 - Fix typo when applying openshift_node_kubelet_args_custom
