@@ -4,8 +4,12 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+server_info = OpenShiftHelper::NodeHelper.new(node)
+
 originrepos = [{ 'name' => 'centos-openshift-origin13', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin13/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin14', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin14/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin15', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin15/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin36', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin36/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin37', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin37/', 'gpgcheck' => false }]
 
+default['is_apaas_openshift_cookbook']['docker_signature_verification'] = 'false'
+default['is_apaas_openshift_cookbook']['docker_signature_args'] = server_info.getdockerversion ? " --signature-verification=#{node['is_apaas_openshift_cookbook']['docker_signature_verification']}" : ''
 default['is_apaas_openshift_cookbook']['use_wildcard_nodes'] = false
 default['is_apaas_openshift_cookbook']['custom_origin-dns'] = false
 default['is_apaas_openshift_cookbook']['custom_origin_location'] = ''

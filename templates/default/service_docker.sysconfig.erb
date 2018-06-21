@@ -1,7 +1,7 @@
 # /etc/sysconfig/docker
 
 # Modify these options if you want to change the way the docker daemon runs
-OPTIONS='<% unless node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'].empty? %>--insecure-registry=<%= node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %><% end -%> --selinux-enabled <% unless node['is_apaas_openshift_cookbook']['docker_dns_search_option'].empty? %><% for dnssearchentry in node['is_apaas_openshift_cookbook']['docker_dns_search_option'] %> --dns-search=<%= dnssearchentry %><% end -%><% end -%><% unless node['is_apaas_openshift_cookbook']['docker_log_driver'].empty? %> --log-driver=<%= node['is_apaas_openshift_cookbook']['docker_log_driver'] %><%= node['is_apaas_openshift_cookbook']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %><% end -%>'
+OPTIONS='<% unless node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'].empty? %>--insecure-registry=<%= node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'].join(' --insecure-registry=') %><% end -%> --selinux-enabled <% unless node['is_apaas_openshift_cookbook']['docker_dns_search_option'].empty? %><% for dnssearchentry in node['is_apaas_openshift_cookbook']['docker_dns_search_option'] %> --dns-search=<%= dnssearchentry %><% end -%><% end -%><% unless node['is_apaas_openshift_cookbook']['docker_log_driver'].empty? %> --log-driver=<%= node['is_apaas_openshift_cookbook']['docker_log_driver'] %><%= node['is_apaas_openshift_cookbook']['docker_log_options'].map { |opt, value| " --log-opt #{opt}=#{value}" }.sort.join('') %><% end -%><%= node['is_apaas_openshift_cookbook']['docker_signature_args'] %>'
 
 DOCKER_CERT_PATH=/etc/docker
 
