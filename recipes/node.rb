@@ -217,7 +217,9 @@ if is_node_server
         ose_major_version: ose_major_version,
         openshift_node_dnsmasq_log_queries: helper.get_nodevar('openshift_node_dnsmasq_log_queries'),
         openshift_node_dnsmasq_cache_size: helper.get_nodevar('openshift_node_dnsmasq_cache_size'),
-        openshift_node_dnsmasq_maxcachettl: helper.get_nodevar('openshift_node_dnsmasq_maxcachettl')
+        openshift_node_dnsmasq_maxcachettl: helper.get_nodevar('openshift_node_dnsmasq_maxcachettl'),
+        openshift_node_dnsmasq_interface: helper.get_nodevar('openshift_node_dnsmasq_interface'),
+        openshift_node_dnsmasq_bind_interface: helper.get_nodevar('openshift_node_dnsmasq_bind_interface')
       )
       notifies :restart, 'service[dnsmasq]', :immediately
     end

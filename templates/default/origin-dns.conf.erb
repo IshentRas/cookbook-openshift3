@@ -1,6 +1,10 @@
 no-resolv
 domain-needed
 no-negcache
+<% if @openshift_node_dnsmasq_interface %>
+interface=<%= @openshift_node_dnsmasq_bind_interface %>
+<%- end %>
+bind-interfaces
 <% if @openshift_node_dnsmasq_log_queries %>
 log-queries
 <%- end %>
@@ -8,7 +12,6 @@ cache-size=<%= @openshift_node_dnsmasq_cache_size %>
 max-cache-ttl=<%= @openshift_node_dnsmasq_maxcachettl %>
 <% if @ose_major_version.split('.')[1].to_i >= 6 %>
 enable-dbus
-bind-interfaces
 except-interface=lo
 <%- else -%>
 server=/cluster.local/<%= node['is_apaas_openshift_cookbook']['openshift_common_first_svc_ip'] %>

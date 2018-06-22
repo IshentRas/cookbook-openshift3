@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.70
+### Bug
+- Fix issue DNS does not work over TCP from pod (Adjusting DNSMasq binding interfaces) < 3.6
+
 ## v2.0.69
 ### Bug
 - Fix issue when ussing docker 1.12+ (https://bugzilla.redhat.com/show_bug.cgi?id=1502560)
