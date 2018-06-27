@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.71
+### Bug
+- Fix issue with nodes after upgrading and until removing the flag (Keep restarting the openvswitch)
+
 ## v2.0.70
 ### Bug
 - Fix issue DNS does not work over TCP from pod (Adjusting DNSMasq binding interfaces) < 3.6
