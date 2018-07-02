@@ -24,7 +24,7 @@ action :create do
     end
 
     execute 'Deploy Hosted Registry' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} adm registry --selector=${selector_registry} -n ${namespace_registry} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} adm registry --images=#{node['is_apaas_openshift_cookbook']['openshift_docker_hosted_registry_image']} --selector=${selector_registry} -n ${namespace_registry} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
       environment(
         'selector_registry' => node['is_apaas_openshift_cookbook']['openshift_hosted_registry_selector'],
         'namespace_registry' => node['is_apaas_openshift_cookbook']['openshift_hosted_registry_namespace']

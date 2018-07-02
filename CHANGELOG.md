@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.72
+### Bug
+- Fix issue when deploying router and registry v1/3.5+ on premise. (Default to iexternal redhat registry)
+  Possibilty to specify openshift_docker_hosted_registry_image or openshift_docker_hosted_router_image
+
 ## v2.0.71
 ### Bug
 - Fix issue with nodes after upgrading and until removing the flag (Keep restarting the openvswitch)
