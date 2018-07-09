@@ -1,11 +1,11 @@
 #
 # Cookbook Name:: is_apaas_openshift_cookbook
-# Resources:: openshift_deploy_metrics
+# Resources:: openshift_deploy_logging
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-provides :openshift_deploy_metrics
-resource_name :openshift_deploy_metrics
+provides :openshift_deploy_logging
+resource_name :openshift_deploy_logging
 
 actions %i(create delete)
 

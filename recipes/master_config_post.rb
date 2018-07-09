@@ -175,3 +175,18 @@ openshift_deploy_metrics 'Deploy Cluster Metrics' do
       node['is_apaas_openshift_cookbook']['openshift_metrics_install_metrics']
   end
 end
+
+openshift_deploy_logging 'Remove Cluster Logging' do
+  action :delete
+  only_if do
+    node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_logging'] &&
+      !node['is_apaas_openshift_cookbook']['openshift_logging_install_logging']
+  end
+end
+
+openshift_deploy_logging 'Deploy Cluster Logging' do
+  only_if do
+    node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_logging'] &&
+      node['is_apaas_openshift_cookbook']['openshift_logging_install_logging']
+  end
+end

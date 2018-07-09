@@ -29,12 +29,8 @@ assetConfig:
   logoutURL: ""
   masterPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_public_api_url'] %>
   publicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_console_url'] %>/
-<% if node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics'] %>
-  metricsPublicURL: https://<%= node['is_apaas_openshift_cookbook']['openshift_metrics_hawkular_hostname'] %>/hawkular/metrics
-<%- end -%>
-<% if node['is_apaas_openshift_cookbook']['openshift_master_logging_public_url'] %>
-  loggingPublicURL: https://<%= node['is_apaas_openshift_cookbook']['openshift_master_logging_public_url'] %>
-<%- end -%>
+  metricsPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics'] && node['is_apaas_openshift_cookbook']['openshift_metrics_install_metrics'] ? node['is_apaas_openshift_cookbook']['openshift_metrics_url'] : '""' %>
+  loggingPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_logging'] && node['is_apaas_openshift_cookbook']['openshift_logging_install_logging'] ? node['is_apaas_openshift_cookbook']['openshift_logging_kibana_url'] : '""' %>
   servingInfo:
     bindAddress: <%= node['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_master_console_port'] %>
     bindNetwork: tcp4

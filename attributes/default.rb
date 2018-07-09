@@ -144,7 +144,6 @@ default['is_apaas_openshift_cookbook']['openshift_master_deserialization_cache_s
 default['is_apaas_openshift_cookbook']['openshift_master_pod_eviction_timeout'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_message'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_template'] = ''
-default['is_apaas_openshift_cookbook']['openshift_master_logging_public_url'] = nil
 default['is_apaas_openshift_cookbook']['openshift_master_router_subdomain'] = 'cloudapps.domain.local'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_cluster_network_cidr'] = '10.128.0.0/14'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_host_subnet_length'] = '9'
@@ -220,6 +219,7 @@ default['is_apaas_openshift_cookbook']['openshift_hosted_manage_registry'] = tru
 default['is_apaas_openshift_cookbook']['openshift_hosted_registry_selector'] = 'region=infra'
 default['is_apaas_openshift_cookbook']['openshift_hosted_registry_namespace'] = 'default'
 
+default['is_apaas_openshift_cookbook']['openshift_hosted_cluster_logging'] = false
 default['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics'] = false
 
 default['is_apaas_openshift_cookbook']['erb_corsAllowedOrigins'] = ['127.0.0.1', 'localhost', node['is_apaas_openshift_cookbook']['openshift_common_public_hostname']].uniq + node['is_apaas_openshift_cookbook']['openshift_common_svc_names']
