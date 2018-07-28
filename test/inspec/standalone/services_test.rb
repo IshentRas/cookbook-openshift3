@@ -1,5 +1,5 @@
 describe service('etcd') do
-  it { should_not be_installed }
+  it { should_not be_running }
 end
 
 describe service('origin-master') do

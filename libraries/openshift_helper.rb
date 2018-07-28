@@ -23,6 +23,14 @@ module OpenShiftHelper
       server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0].sort : node['is_apaas_openshift_cookbook']['etcd_servers']
     end
 
+    def new_etcd_servers
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_new_etcd_duty")[0].sort : node['is_apaas_openshift_cookbook']['new_etcd_servers']
+    end
+
+    def remove_etcd_servers
+      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_remove_etcd_duty")[0].sort : node['is_apaas_openshift_cookbook']['remove_etcd_servers']
+    end
+
     def lb_servers
       server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_lb_duty")[0].sort : node['is_apaas_openshift_cookbook']['lb_servers']
     end
@@ -62,6 +70,14 @@ module OpenShiftHelper
 
     def on_etcd_server?
       etcd_servers.any? { |server_etcd| server_etcd['fqdn'] == node['fqdn'] }
+    end
+
+    def on_new_etcd_server?
+      new_etcd_servers.any? { |new_server_etcd| new_server_etcd['fqdn'] == node['fqdn'] }
+    end
+
+    def on_remove_etcd_server?
+      remove_etcd_servers.any? { |remove_server_etcd| remove_server_etcd['fqdn'] == node['fqdn'] }
     end
 
     def on_first_master?
@@ -139,6 +155,11 @@ module OpenShiftHelper
         current_version = Mixlib::ShellOut.new('repoquery --plugins --installed --qf \'%{version}\' docker').run_command.stdout.strip
         current_version.split('.')[1].to_i >= 12
       end
+    end
+
+    def removing_etcd_leader?
+      etcd_leader = Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C https://#{first_etcd['ipaddress']}:2379 member list | awk '/isLeader=true/ {print substr($2,6,100)}'").run_command.stdout.strip
+      remove_etcd_servers.any? { |remove_server_etcd| remove_server_etcd['fqdn'] == etcd_leader.to_s }
     end
 
     protected

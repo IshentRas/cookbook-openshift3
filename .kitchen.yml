@@ -13,7 +13,7 @@ provisioner:
     solo: false
 
 driver_config:
-  require_chef_omnibus: 12.21.4
+  require_chef_omnibus: 13.6.4
 
 verifier:
   name: inspec
@@ -121,58 +121,6 @@ suites:
   - name: cluster-native-ose15
     run_list:
       - role[openshift3-base-ose15]
-    verifier:
-      inspec_tests:
-        - test/inspec/cluster-native
-        - test/inspec/shared
-    attributes:
-      cookbook-openshift3:
-        << : *SHARED
-        openshift_HA: true
-        openshift_cluster_name: test-cluster.domain.local
-        etcd_servers: *SERVERS
-
-  - name: standalone-ose14
-    run_list:
-      - role[openshift3-base-ose14]
-    verifier:
-      inspec_tests:
-        - test/inspec/standalone
-        - test/inspec/shared
-    attributes:
-      cookbook-openshift3:
-        << : *SHARED
-        openshift_HA: false
-
-  - name: cluster-native-ose14
-    run_list:
-      - role[openshift3-base-ose14]
-    verifier:
-      inspec_tests:
-        - test/inspec/cluster-native
-        - test/inspec/shared
-    attributes:
-      cookbook-openshift3:
-        << : *SHARED
-        openshift_HA: true
-        openshift_cluster_name: test-cluster.domain.local
-        etcd_servers: *SERVERS
-
-  - name: standalone-ose13
-    run_list:
-      - role[openshift3-base-ose13]
-    verifier:
-      inspec_tests:
-        - test/inspec/standalone
-        - test/inspec/shared
-    attributes:
-      cookbook-openshift3:
-        << : *SHARED
-        openshift_HA: false
-
-  - name: cluster-native-ose13
-    run_list:
-      - role[openshift3-base-ose13]
     verifier:
       inspec_tests:
         - test/inspec/cluster-native

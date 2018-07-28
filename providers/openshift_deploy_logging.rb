@@ -101,37 +101,42 @@ action :delete do
     end
 
     execute 'Delete logging api objects' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete dc,rc,svc,routes,templates,daemonset,is --selector=logging-infra \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION dc,rc,svc,routes,templates,daemonset,is --selector=logging-infra \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete oauthclient kibana-proxy' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete oauthclient kibana-proxy \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION oauthclient kibana-proxy \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete logging secrets' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete secret logging-fluentd logging-elasticsearch logging-kibana logging-kibana-proxy logging-curator \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION secret logging-fluentd logging-elasticsearch logging-kibana logging-kibana-proxy logging-curator \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete logging service accounts' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete secret,serviceaccount aggregated-logging-elasticsearch aggregated-logging-kibana aggregated-logging-curator aggregated-logging-fluentd \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION secret,serviceaccount aggregated-logging-elasticsearch aggregated-logging-kibana aggregated-logging-curator aggregated-logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete logging rolebindings' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete rolebinding logging-elasticsearch-view-role \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION rolebinding logging-elasticsearch-view-role \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete logging cluster role bindings' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete rolebinding logging-elasticsearch-view-role \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION rolebinding logging-elasticsearch-view-role \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
     end
@@ -140,6 +145,7 @@ action :delete do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete configmap logging-elasticsearch logging-curator logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Remove privileged permissions for fluentd' do

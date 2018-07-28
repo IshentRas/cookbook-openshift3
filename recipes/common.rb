@@ -10,6 +10,7 @@ lb_servers = server_info.lb_servers
 is_master_server = server_info.on_master_server?
 is_node_server = server_info.on_node_server?
 is_certificate_server = server_info.on_certificate_server?
+is_remove_etcd_server = server_info.on_remove_etcd_server?
 
 include_recipe 'is_apaas_openshift_cookbook::packages'
 include_recipe 'is_apaas_openshift_cookbook::docker'
@@ -86,4 +87,5 @@ directory node['is_apaas_openshift_cookbook']['openshift_data_dir'] do
 end
 
 include_recipe 'is_apaas_openshift_cookbook::certificate_server' if is_certificate_server
+include_recipe 'is_apaas_openshift_cookbook::etcd_removal' if is_remove_etcd_server
 include_recipe 'is_apaas_openshift_cookbook::cloud_provider'

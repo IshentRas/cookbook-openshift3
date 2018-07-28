@@ -1,6 +1,9 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.75
+### Improvement
+- Add logic for adding or removing ETCD servers from ETCD cluster (Read README)
 
 ## v2.0.74
 ### Improvement

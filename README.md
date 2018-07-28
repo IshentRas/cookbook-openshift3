@@ -30,6 +30,7 @@ This cookbook does support upgrade between major versions (Read doc)
 - Control upgrades between versions
 - ETCD migration v2 to v3 (Mandatory before upgrading to 3.7)
 - Node vars override variables
+- Add or remove ETCD members from ETCD cluster
 
 Supported Node Variables:
 
@@ -765,13 +766,10 @@ In general, override attributes in the environment should be used when changing 
   }
 }
 ```
-* ADD NEW ETCD SERVERS TO CLUSTER ("etcd_add_additional_nodes" must be set to true and a key called "new_node" should be added to the server(s)". If the server was previously part of the cluster, remember to clear its data directory before starting CHEF)
-
-**Members `must` be added one by one !!!**
+* ADD NEW ETCD SERVERS TO CLUSTER ("new_etcd_servers" group should be used for adding new etcd members". If the server was previously part of the cluster, remember to clear its data directory before starting CHEF)
 
 ```json
 ...
-      "etcd_add_additional_nodes": true,
       "etcd_servers": [
         {
           "fqdn": "ose1-server.domain.local",
@@ -785,22 +783,26 @@ In general, override attributes in the environment should be used when changing 
         {
           "fqdn": "ose3-server.domain.local",
           "ipaddress": "1.1.1.3"
-        },
+        }
+      ],
+      "new_etcd_servers": [
         {
           "fqdn": "ose4-server.domain.local",
           "ipaddress": "1.1.1.4",
-          "new_node": true
         }
       ]
 ...
 ```
-* REMOVE ETCD SERVERS FROM CLUSTER ("etcd_remove_servers" must be defined and list all servers you want to remove. etcd_servers should be your desire state")
+* REMOVE ETCD SERVERS FROM CLUSTER ("remove_etcd_servers" group must be used to remove members. etcd_servers should be your desire state")
 
-**You can remove all members in once!!!**
+  **You can remove all members in once!!!**
+  
+  **Make sure the ETCD LEADER is not part of the remove_etcd_servers group!!! If it the case the removal operation will be skipped.**
+
 
 ```json
 ...
-      "etcd_remove_servers": [
+      "remove_etcd_servers": [
         {
           "fqdn": "ose4-server.domain.local",
         }
@@ -822,6 +824,21 @@ In general, override attributes in the environment should be used when changing 
       ]
 ...
 ```
+
+Here is a simple example of a addition/removal for the ETCD cluster:
+
+1. Part1: Creating an OCP cluster with 3 etcd servers (etc1, etcd2 and etcd3)
+
+2. Part2: Adding new etcd members (etcd4, etcd5 and etcd6)
+
+3. Part3 a: Trying to remove etcd1, etcd2 and etcd3 with etcd1 ETCD LEADER
+
+4. Part3 b: Move the leadership to new set of etcds (etcd4, etcd5 or etcd6)
+
+5. Part4: Remove old members (etcd1, etcd2 and etcd3)
+
+[![Simple Example](https://asciinema.org/a/193880.png)](https://asciinema.org/a/193880)
+
 * EXCLUDE NODES FROM SCHEDULING AND LABELLING("skip_run" must be defined and the node will be excluded when enforcing labels and schedulability")
   
   Ex (ose2 and ose3 will be skipped when enforcing the schedulable and labels parts.)

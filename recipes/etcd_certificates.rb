@@ -5,7 +5,7 @@
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
 server_info = OpenShiftHelper::NodeHelper.new(node)
-etcd_servers = server_info.etcd_servers
+etcd_servers = server_info.etcd_servers + server_info.new_etcd_servers
 is_certificate_server = server_info.on_certificate_server?
 
 if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']

@@ -10,6 +10,9 @@ Metrics/BlockLength:
 Metrics/AbcSize:
   Enabled: false
 
+Style/FormatStringToken:
+  Enabled: false
+
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     "%i": ()

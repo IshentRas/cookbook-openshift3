@@ -5,7 +5,7 @@ try {
   properties([parameters([
     string(name: 'BRANCH_NAME',                                  defaultValue: 'master',                                       description: 'Branch to build'),
     string(name: 'builddir',                                     defaultValue: 'is_apaas_openshift_cookbook-test-' + env.BUILD_NUMBER, description: 'Build directory'),
-    string(name: 'OSE_VERSIONS',                                 defaultValue: '3.6',                                          description: 'OSE versions to build, separated by spaces'),
+    string(name: 'OSE_VERSIONS',                                 defaultValue: '1.4',                                          description: 'OSE versions to build, separated by spaces'),
     string(name: 'CHEF_IPTABLES_COOKBOOK_VERSION',               defaultValue: 'latest',                                       description: 'IPtables cookbook version, eg 1.0.0'),
     string(name: 'CHEF_SELINUX_COOKBOOK_VERSION',                defaultValue: 'latest',                                       description: 'SELinux cookbook version, eg 0.7.2'),
     string(name: 'CHEF_YUM_COOKBOOK_VERSION',                    defaultValue: 'latest',                                       description: 'yum cookbook version, eg 3.6.1'),
@@ -15,10 +15,10 @@ try {
     string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'false true',                                   description: 'If "true", deploy containerized, "true false" for both'),
     string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
     string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_colocated_etcd',               description: 'which cluster configs to test'),
-    string(name: 'do_upgrade_14_15',                             defaultValue: 'false',                                        description: 'whether to upgrade from 1.4 to 1.5'),
-    string(name: 'do_upgrade_15_36',                             defaultValue: 'false',                                        description: 'whether to upgrade from 1.5 to 3.6'),
-    string(name: 'do_upgrade_36_37',                             defaultValue: 'true',                                         description: 'whether to upgrade from 3.6 to 3.7'),
-    string(name: 'do_upgrade_37_39',                             defaultValue: 'true',                                         description: 'whether to upgrade from 3.7 to 3.9')
+    string(name: 'do_upgrade_14_15',                             defaultValue: 'true',                                         description: 'whether to upgrade from 1.4 to 1.5'),
+    string(name: 'do_upgrade_15_36',                             defaultValue: 'true',                                         description: 'whether to upgrade from 1.5 to 3.6'),
+    string(name: 'do_upgrade_36_37',                             defaultValue: 'false',                                        description: 'whether to upgrade from 3.6 to 3.7'),
+    string(name: 'do_upgrade_37_39',                             defaultValue: 'false',                                        description: 'whether to upgrade from 3.7 to 3.9')
   ])])
   node() {
     stage('shutit_tests') {

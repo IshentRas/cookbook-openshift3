@@ -7,10 +7,11 @@
 server_info = OpenShiftHelper::NodeHelper.new(node)
 is_master_server = server_info.on_master_server?
 is_etcd_server = server_info.on_etcd_server?
+is_new_etcd_server = server_info.on_new_etcd_server?
 is_certificate_server = server_info.on_certificate_server?
 etcd_servers = server_info.etcd_servers
 
-if is_etcd_server
+if is_etcd_server || is_new_etcd_server
   yum_package 'Install ETCD for ETCD servers' do
     package_name 'etcd'
     action :install

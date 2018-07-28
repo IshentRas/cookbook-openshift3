@@ -7,8 +7,11 @@
 server_info = helper = OpenShiftHelper::NodeHelper.new(node)
 helper_certs = OpenShiftHelper::CertHelper.new
 etcd_servers = server_info.etcd_servers
+new_etcd_servers = server_info.new_etcd_servers
+remove_etcd_servers = server_info.new_etcd_servers
 certificate_server = server_info.certificate_server
 is_etcd_server = server_info.on_etcd_server?
+is_new_etcd_server = server_info.on_new_etcd_server?
 is_master_server = server_info.on_master_server?
 
 if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']
@@ -18,7 +21,7 @@ else
   encrypted_file_password = node['is_apaas_openshift_cookbook']['encrypted_file_password']['default']
 end
 
-if is_etcd_server
+if is_etcd_server || is_new_etcd_server
   include_recipe 'is_apaas_openshift_cookbook::etcd_packages'
 
   node['is_apaas_openshift_cookbook']['enabled_firewall_rules_etcd'].each do |rule|
@@ -112,13 +115,13 @@ if is_etcd_server
 
   template "#{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}/etcd.conf" do
     source 'etcd.conf.erb'
-    notifies :restart, 'service[etcd-service]', :immediately
-    notifies :enable, 'service[etcd-service]', :immediately
+    notifies :restart, 'service[etcd-service]', :immediately unless is_new_etcd_server || remove_etcd_servers.any?
+    notifies :enable, 'service[etcd-service]', :immediately unless is_new_etcd_server
     variables(
       lazy do
         {
-          etcd_servers: etcd_servers,
-          initial_cluster_state: etcd_servers.find { |etcd_node| etcd_node['fqdn'] == node['fqdn'] }.key?('new_node') ? 'existing' : node['is_apaas_openshift_cookbook']['etcd_initial_cluster_state']
+          etcd_servers: is_etcd_server ? etcd_servers : new_etcd_servers,
+          initial_cluster_state: node['is_apaas_openshift_cookbook']['etcd_initial_cluster_state']
         }
       end
     )
@@ -132,3 +135,5 @@ if is_etcd_server
     only_if { helper_certs.valid_certificate?(node['is_apaas_openshift_cookbook']['etcd_ca_cert'], node['is_apaas_openshift_cookbook']['etcd_cert_file']) && ::File.file?(node['is_apaas_openshift_cookbook']['redeploy_etcd_certs_control_flag']) }
   end
 end
+
+include_recipe 'is_apaas_openshift_cookbook::etcd_scaleup' if is_new_etcd_server
