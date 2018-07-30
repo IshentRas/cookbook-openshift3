@@ -25,31 +25,19 @@ if is_etcd_server
     level :info
   end
 
-  execute 'Generate etcd backup before upgrade' do
-    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade37"
-    not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade37") }
-    notifies :run, 'execute[Copy etcd v3 data store (PRE)]', :immediately
-  end
-
-  execute 'Copy etcd v3 data store (PRE)' do
-    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-upgrade37/member/snap/"
-    only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db") }
-    action :nothing
+  openshift_upgrade 'Generate etcd backup before upgrade' do
+    action :create_backup
+    etcd_action 'pre'
+    target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
   end
 
   include_recipe 'is_apaas_openshift_cookbook'
   include_recipe 'is_apaas_openshift_cookbook::etcd_cluster'
 
-  execute 'Generate etcd backup after upgrade' do
-    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade37"
-    not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade37") }
-    notifies :run, 'execute[Copy etcd v3 data store (POST)]', :immediately
-  end
-
-  execute 'Copy etcd v3 data store (POST)' do
-    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-post-upgrade37/member/snap/"
-    only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db") }
-    action :nothing
+  openshift_upgrade 'Generate etcd backup after upgrade' do
+    action :create_backup
+    etcd_action 'post'
+    target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
   end
 
   log 'Upgrade for ETCD [COMPLETED]' do

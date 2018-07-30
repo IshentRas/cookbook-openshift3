@@ -7,7 +7,7 @@ issues_url 'https://github.com/IshentRas/is_apaas_openshift_cookbook/issues'
 description 'Installs/Configures Openshift 3.x (>= 3.4)'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 chef_version '>= 12.4' if respond_to?(:chef_version)
-version '2.0.75'
+version '2.0.76'
 supports 'redhat', '>= 7.1'
 supports 'centos', '>= 7.1'
 
@@ -40,7 +40,6 @@ recipe 'is_apaas_openshift_cookbook::master_cluster_ca', 'Configure CA cluster c
 recipe 'is_apaas_openshift_cookbook::master_cluster_certificates', 'Configure Master/Node certificates'
 recipe 'is_apaas_openshift_cookbook::master_cluster', 'Configure HA cluster master (Only Native method)'
 recipe 'is_apaas_openshift_cookbook::master_config_post', 'Configure Post actions for master server'
-recipe 'is_apaas_openshift_cookbook::master_packages', 'Install/Configure Master packages'
 recipe 'is_apaas_openshift_cookbook::master', 'Configure basic master logic'
 recipe 'is_apaas_openshift_cookbook::master_standalone', 'Configure standalone master logic (<= 3.6)'
 recipe 'is_apaas_openshift_cookbook::node', 'Configure node server'

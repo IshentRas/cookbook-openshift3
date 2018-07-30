@@ -16,7 +16,8 @@ if is_certificate_server
     end
   end
 
-  include_recipe 'is_apaas_openshift_cookbook::master_packages'
+  openshift_master_pkg 'Install OpenShift Master Packages for Certificate Server'
+
   include_recipe 'is_apaas_openshift_cookbook::etcd_packages'
   include_recipe 'is_apaas_openshift_cookbook::etcd_certificates' if node['is_apaas_openshift_cookbook']['openshift_HA']
   include_recipe 'is_apaas_openshift_cookbook::etcd_scaleup' unless new_etcd_servers.empty?

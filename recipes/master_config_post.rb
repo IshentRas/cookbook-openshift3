@@ -7,6 +7,7 @@
 server_info = OpenShiftHelper::NodeHelper.new(node)
 master_servers = server_info.master_servers
 node_servers = server_info.node_servers
+ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
 
 service_accounts = node['is_apaas_openshift_cookbook']['openshift_common_service_accounts_additional'].any? ? node['is_apaas_openshift_cookbook']['openshift_common_service_accounts'] + node['is_apaas_openshift_cookbook']['openshift_common_service_accounts_additional'] : node['is_apaas_openshift_cookbook']['openshift_common_service_accounts']
 
@@ -146,6 +147,36 @@ node_servers.reject { |h| h.key?('skip_run') }.each do |nodes|
   end
 end
 
+if ose_major_version.split('.')[1].to_i >= 9
+  master_servers.each do |master_server|
+    execute "Set \"master\" label for master : #{master_server['fqdn']}" do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node #{master_server['fqdn']} ${labels} --overwrite --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      environment(
+        'labels' => 'node-role.kubernetes.io/master=true'
+      )
+      cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+      not_if do
+        Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node | grep #{master_server['fqdn']}").run_command.error?
+      end
+    end
+  end
+
+  node_servers.each do |node_server|
+    execute "Set \"compute\" label for node : #{node_server['fqdn']}" do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node #{node_server['fqdn']} ${labels} --overwrite --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      environment(
+        'labels' => 'node-role.kubernetes.io/compute=true'
+      )
+      cwd node['is_apaas_openshift_cookbook']['openshift_master_config_dir']
+      not_if do
+        Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node | grep #{node_server['fqdn']}").run_command.error?
+      end
+    end
+  end
+
+  include_recipe 'is_apaas_openshift_cookbook::web_console' if ose_major_version.split('.')[1].to_i >= 9
+end
+
 openshift_deploy_router 'Deploy Router' do
   deployer_options node['is_apaas_openshift_cookbook']['openshift_hosted_router_options']
   only_if do
@@ -158,6 +189,19 @@ openshift_deploy_registry 'Deploy Registry' do
   persistent_volume_claim_name "#{node['is_apaas_openshift_cookbook']['registry_persistent_volume']}-claim"
   only_if do
     node['is_apaas_openshift_cookbook']['openshift_hosted_manage_registry']
+  end
+end
+
+if ose_major_version.split('.')[1].to_i >= 6 && ::File.exist?(node['is_apaas_openshift_cookbook']['adhoc_redeploy_registry_certificates_flag'])
+  openshift_deploy_registry 'Redeploy Registry certificate' do
+    action :redeploy_certificate
+    only_if do
+      node['is_apaas_openshift_cookbook']['openshift_hosted_manage_registry']
+    end
+  end
+
+  file node['is_apaas_openshift_cookbook']['adhoc_redeploy_registry_certificates_flag'] do
+    action :delete
   end
 end
 

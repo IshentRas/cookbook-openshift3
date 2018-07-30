@@ -18,11 +18,10 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
   node.force_override['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version']
 
   server_info = OpenShiftHelper::NodeHelper.new(node)
-  first_etcd = server_info.first_etcd
   is_master_server = server_info.on_master_server?
 
   if is_master_server
-    return if ::Mixlib::ShellOut.new("test `ETCDCTL_API=3 /usr/bin/etcdctl --cert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}/#{node['fqdn']} -w simple | wc -l` -eq 0").run_command.error?
+    return unless server_info.check_master_upgrade?(server_info.first_etcd, node['is_apaas_openshift_cookbook']['control_upgrade_version'])
 
     config_options = YAML.load_file("#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/master-config.yaml")
     unless config_options['kubernetesMasterConfig']['apiServerArguments'].key?('storage-backend')

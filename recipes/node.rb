@@ -106,7 +106,7 @@ if is_node_server
   package 'atomic-openshift-node' do
     action :install
     version node['is_apaas_openshift_cookbook']['ose_version'] unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
-    options node['is_apaas_openshift_cookbook']['yum_options'] unless node['is_apaas_openshift_cookbook']['yum_options'].nil?
+    options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?
     not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
     retries 3
   end
@@ -114,7 +114,7 @@ if is_node_server
   package 'atomic-openshift-sdn-ovs' do
     action :install
     version node['is_apaas_openshift_cookbook']['ose_version'] unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
-    options node['is_apaas_openshift_cookbook']['yum_options'] unless node['is_apaas_openshift_cookbook']['yum_options'].nil?
+    options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?
     only_if { node['is_apaas_openshift_cookbook']['openshift_common_use_openshift_sdn'] == true }
     not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
     retries 3

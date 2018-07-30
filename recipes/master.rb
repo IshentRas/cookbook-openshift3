@@ -62,7 +62,7 @@ if is_master_server
     recursive true
   end
 
-  include_recipe 'is_apaas_openshift_cookbook::master_packages'
+  openshift_master_pkg 'Install OpenShift Master Packages for Master Server'
   include_recipe 'is_apaas_openshift_cookbook::etcd_packages'
 
   if node['is_apaas_openshift_cookbook']['openshift_HA']

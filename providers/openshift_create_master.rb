@@ -45,7 +45,7 @@ action :create do
       admission_default = {}
     when 5..6
       admission_default = { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } } }
-    when 7
+    when 7..9
       admission_default = { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } }, 'PodPreset' => { 'configuration' => { 'kind' => 'DefaultAdmissionConfig', 'apiVersion' => 'v1', 'disable' => false } } }
     end
 

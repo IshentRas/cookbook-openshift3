@@ -1,0 +1,33 @@
+apiVersion: webconsole.config.openshift.io/v1
+kind: WebConsoleConfiguration
+clusterInfo:
+  consolePublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_console_url'] %>/
+  loggingPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_web_console_logging_public_url'] %>
+  logoutPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_web_console_logout_url'] %>
+  masterPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_public_api_url'] %>
+  metricsPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_web_console_metrics_public_url'] %>
+extensions:
+  scriptURLs: 
+<% node['is_apaas_openshift_cookbook']['openshift_web_console_extension_script_urls'].each do |url| %>
+    - <%= url %>
+<%- end -%>
+  stylesheetURLs: 
+<% node['is_apaas_openshift_cookbook']['openshift_web_console_extension_stylesheet_urls'].each do |url| %>
+    - <%= url %>
+<%- end -%>    
+  properties:
+<% node['is_apaas_openshift_cookbook']['openshift_web_console_properties'].each_pair do |k,v| %>
+    <%= k %>: <%= v %> 
+<%- end -%>
+features:
+  inactivityTimeoutMinutes: <%= node['is_apaas_openshift_cookbook']['openshift_web_console_inactivity_timeout_minutes'] %>
+  clusterResourceOverridesEnabled: <%= node['is_apaas_openshift_cookbook']['openshift_web_console_cluster_resource_overrides_enabled'] %>
+servingInfo:
+  bindAddress: 0.0.0.0:8443
+  bindNetwork: tcp4
+  certFile: /var/serving-cert/tls.crt
+  clientCA: ""
+  keyFile: /var/serving-cert/tls.key
+  maxRequestsInFlight: 0
+  namedCertificates: null
+  requestTimeoutSeconds: 0

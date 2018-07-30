@@ -4,9 +4,8 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+originrepos = [{ 'name' => 'centos-openshift-origin13', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin13/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin14', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin14/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin15', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin15/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin36', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin36/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin37', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin37/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin39', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin39/', 'gpgcheck' => false }]
 server_info = OpenShiftHelper::NodeHelper.new(node)
-
-originrepos = [{ 'name' => 'centos-openshift-origin13', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin13/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin14', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin14/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin15', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin15/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin36', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin36/', 'gpgcheck' => false }, { 'name' => 'centos-openshift-origin37', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin37/', 'gpgcheck' => false }]
 
 default['is_apaas_openshift_cookbook']['docker_signature_verification'] = 'false'
 default['is_apaas_openshift_cookbook']['docker_signature_args'] = server_info.getdockerversion ? " --signature-verification=#{node['is_apaas_openshift_cookbook']['docker_signature_verification']}" : ''
@@ -23,8 +22,8 @@ default['is_apaas_openshift_cookbook']['remove_etcd_servers'] = []
 default['is_apaas_openshift_cookbook']['node_servers'] = []
 default['is_apaas_openshift_cookbook']['lb_servers'] = []
 default['is_apaas_openshift_cookbook']['certificate_server'] = {}
-default['is_apaas_openshift_cookbook']['openshift_push_via_dns'] = false
 default['is_apaas_openshift_cookbook']['openshift_hosted_registry_insecure'] = false
+default['is_apaas_openshift_cookbook']['openshift_yum_options'] = ''
 
 if node['is_apaas_openshift_cookbook']['openshift_HA']
   default['is_apaas_openshift_cookbook']['openshift_common_api_hostname'] = node['is_apaas_openshift_cookbook']['openshift_cluster_name']
@@ -43,8 +42,9 @@ end
 default['is_apaas_openshift_cookbook']['ose_version'] = nil
 default['is_apaas_openshift_cookbook']['persistent_storage'] = []
 default['is_apaas_openshift_cookbook']['openshift_deployment_type'] = 'enterprise'
-default['is_apaas_openshift_cookbook']['ose_major_version'] = '3.7'
-default['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.7' : 'v3.7.2'
+default['is_apaas_openshift_cookbook']['ose_major_version'] = '3.9'
+default['is_apaas_openshift_cookbook']['openshift_push_via_dns'] = node['is_apaas_openshift_cookbook']['ose_major_version'].to_f >= 3.6 ? true : false
+default['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.9' : 'v3.9.0'
 default['is_apaas_openshift_cookbook']['upgrade'] = false
 default['is_apaas_openshift_cookbook']['deploy_containerized'] = false
 default['is_apaas_openshift_cookbook']['deploy_example'] = false
@@ -91,7 +91,7 @@ default['is_apaas_openshift_cookbook']['openshift_master_mcs_allocator_range'] =
 default['is_apaas_openshift_cookbook']['openshift_master_mcs_labels_per_project'] = 5
 default['is_apaas_openshift_cookbook']['openshift_master_uid_allocator_range'] = '1000000000-1999999999/10000'
 default['is_apaas_openshift_cookbook']['openshift_common_first_svc_ip'] = node['is_apaas_openshift_cookbook']['openshift_common_portal_net'].split('/')[0].gsub(/\.0$/, '.1')
-default['is_apaas_openshift_cookbook']['openshift_common_default_nodeSelector'] = 'region=user'
+default['is_apaas_openshift_cookbook']['openshift_common_default_nodeSelector'] = node['is_apaas_openshift_cookbook']['ose_major_version'].to_f >= 3.9 ? 'node-role.kubernetes.io/compute=true' : 'region=user'
 default['is_apaas_openshift_cookbook']['openshift_common_examples_base'] = '/usr/share/openshift/examples'
 default['is_apaas_openshift_cookbook']['openshift_common_hosted_base'] = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? '/etc/origin/hosted' : '/usr/share/openshift/hosted'
 default['is_apaas_openshift_cookbook']['openshift_hosted_type'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'enterprise' : 'origin'
@@ -119,7 +119,7 @@ default['is_apaas_openshift_cookbook']['openshift_docker_hosted_registry_image']
 default['is_apaas_openshift_cookbook']['openshift_docker_hosted_router_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/ose-\${component}:\${version}' : 'openshift/origin-\${component}:\${version}'
 default['is_apaas_openshift_cookbook']['openshift_docker_node_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/node' : 'openshift/node'
 default['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/openvswitch' : 'openshift/openvswitch'
-default['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/rhel7/etcd' : 'registry.fedoraproject.org/f27/etcd'
+default['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/rhel7/etcd' : 'registry.fedoraproject.org/latest/etcd'
 default['is_apaas_openshift_cookbook']['openshift_master_config_dir'] = "#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master"
 default['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] = '0.0.0.0'
 default['is_apaas_openshift_cookbook']['openshift_master_auditconfig'] = { 'enable' => false }
@@ -146,6 +146,7 @@ default['is_apaas_openshift_cookbook']['openshift_master_deserialization_cache_s
 default['is_apaas_openshift_cookbook']['openshift_master_pod_eviction_timeout'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_message'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_template'] = ''
+default['is_apaas_openshift_cookbook']['openshift_master_logout_url'] = nil
 default['is_apaas_openshift_cookbook']['openshift_master_router_subdomain'] = 'cloudapps.domain.local'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_cluster_network_cidr'] = '10.128.0.0/14'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_host_subnet_length'] = '9'

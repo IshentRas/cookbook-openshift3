@@ -29,7 +29,7 @@ if node['is_apaas_openshift_cookbook']['control_upgrade']
     include_recipe "is_apaas_openshift_cookbook::upgrade_control_plane#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}" if is_master_server || is_etcd_server
     include_recipe "is_apaas_openshift_cookbook::upgrade_node#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}" if is_node_server && !is_master_server
   rescue Chef::Exceptions::RecipeNotFound
-    Chef::Log.error("The variable control_upgrade_version \'#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}\' is not a valid target (14,15,36,37)")
+    Chef::Log.error("The variable control_upgrade_version \'#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}\' is not a valid target (14,15,36,37,39)")
   end
 end
 

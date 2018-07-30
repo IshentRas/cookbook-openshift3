@@ -20,12 +20,13 @@ authConfig:
 apiLevels:
 - v1
 apiVersion: v1
+<% unless @ose_major_version.split('.')[1].to_i >= 9 %>
 assetConfig:
 <%= render "custom_assetConfig.erb" , :local => false -%>
   <% if @ose_major_version.split('.')[1].to_i >= 7 %>
   extensionScripts:
     - /etc/origin/master/openshift-ansible-catalog-console.js
-  <% end %>
+  <%- end -%>
   logoutURL: ""
   masterPublicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_public_api_url'] %>
   publicURL: <%= node['is_apaas_openshift_cookbook']['openshift_master_console_url'] %>/
@@ -41,13 +42,14 @@ assetConfig:
     requestTimeoutSeconds: 0
 <% unless node['is_apaas_openshift_cookbook']['openshift_master_min_tls_version'].empty? %>
     minTLSVersion: <%= node['is_apaas_openshift_cookbook']['openshift_master_min_tls_version'] %>
-<% end -%>
+<%- end -%>
 <% unless node['is_apaas_openshift_cookbook']['openshift_master_cipher_suites'].empty? %>
     cipherSuites:
 <% node['is_apaas_openshift_cookbook']['openshift_master_cipher_suites'].each do |cipher_suite| %>
     - <%= cipher_suite %>
 <%- end -%>
-<% end -%>
+<%- end -%>
+<%- end -%>
 auditConfig:
   enabled: <%= node['is_apaas_openshift_cookbook']['openshift_master_auditconfig']['enable'] %>
 <% if node['is_apaas_openshift_cookbook']['openshift_master_auditconfig'].has_key?('audit-file') %>

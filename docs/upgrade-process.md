@@ -89,6 +89,8 @@ The node phase includes upgrading:
 
 [x] 3.6 to 3.7
 
+[x] 3.7 to 3.9
+
 *Cluster upgrades cannot span more than one minor version at a time, so if your
 cluster is at a version earlier than the targeted one, you must first upgrade
 incrementally (e.g., 1.4 to 1.5, then 1.5 to 3.6...)*
@@ -131,37 +133,11 @@ Feel free to override those so as to match your environment:
 
 ##### Origin Deployment
 
-| NAME | CUV | Default value |
-| ---------------- | ------------------------------- | ------------------ |
-| upgrade_ose_major_version |  14  | `"1.4"`    |
-| upgrade_ose_version | 14 | `"1.4.1-1.el7"` |
-| upgrade_openshift_docker_image_version | 14 | `"v1.4.1"`  |
-| upgrade_ose_major_version |  15  | `"1.5"`    |
-| upgrade_ose_version | 15 | `"1.5.1-1.el7"` |
-| upgrade_openshift_docker_image_version | 15 | `"v1.5.1"`  |
-| upgrade_ose_major_version |  36 | `"3.6"`    |
-| upgrade_ose_version | 36 | `"3.6.1-1.0.008f2d5"` |
-| upgrade_openshift_docker_image_version | 36 | `"v3.6.1"`  |
-| upgrade_ose_major_version |  37 | `"3.7"`    |
-| upgrade_ose_version | 37 | `"3.7.1-2.el7"` |
-| upgrade_openshift_docker_image_version | 37 | `"v3.7.2"`  |
+For version details, see attributes/upgrade.rb
 
 ##### Enterprise Deployment
 
-| NAME | CUV | Default value | 
-| ---------------- | ------------------------------- | ------------------ | 
-| upgrade_ose_major_version |  14  | `"3.4"`    |
-| upgrade_ose_version | 14 | `"3.4.1.44.38-1.git.0.d04b8d5.el7"` |
-| upgrade_openshift_docker_image_version | 14 | `"v3.4.1.44.38"`  | 
-| upgrade_ose_major_version |  15  | `"3.5"`    |
-| upgrade_ose_version | 15 | `"3.5.5.31.47-1.git.0.25d535c.el7"` |
-| upgrade_openshift_docker_image_version | 15 | `"v3.5.5.31.47"`  |
-| upgrade_ose_major_version |  36 | `"3.6"`    |
-| upgrade_ose_version | 36 | `"3.6.173.0.63-1.git.0.855ea8b.el7"` |
-| upgrade_openshift_docker_image_version | 36 | `"v3.6.173.0.63"`  |
-| upgrade_ose_major_version |  37 | `"3.7"`    |
-| upgrade_ose_version | 37 | `"3.7.23-1.git.0.8edc154.el7"` |
-| upgrade_openshift_docker_image_version | 37 | `"v3.7.23"`  |
+For version details, see attributes/upgrade.rb
 
 ##### Please Note
 

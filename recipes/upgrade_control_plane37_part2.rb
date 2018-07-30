@@ -91,36 +91,16 @@ end
 
 if is_master_server && is_first_master
 
-  execute 'Wait for API to be ready' do
-    command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
-    retries 120
-    retry_delay 1
-  end
-
   log 'Reconcile Cluster Roles & Cluster Role Bindings [STARTED]' do
     level :info
   end
 
-  execute 'Remove shared-resource-viewer protection before upgrade' do
-    command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} \
-            --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-            annotate role shared-resource-viewer openshift.io/reconcile-protect- -n openshift"
-  end
-
-  execute 'Reconcile Security Context Constraints' do
-    command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
-            --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-            policy reconcile-sccs --confirm --additive-only=true"
-  end
-
-  execute 'Migrate storage post policy reconciliation Post upgrade' do
-    command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
-            --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-            migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
-  end
-
   execute 'Delete key for upgrade all storage' do
     command "ETCDCTL_API=3 /usr/bin/etcdctl --cert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 del /migration/storage"
+  end
+
+  log 'Reconcile Cluster Roles & Cluster Role Bindings [COMPLETED]' do
+    level :info
   end
 end
 
@@ -128,10 +108,6 @@ if is_master_server
   log 'Cycle all controller services to force new leader election mode' do
     level :info
     notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately
-  end
-
-  log 'Reconcile Cluster Roles & Cluster Role Bindings [COMPLETED]' do
-    level :info
   end
 end
 

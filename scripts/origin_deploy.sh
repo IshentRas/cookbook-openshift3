@@ -9,7 +9,7 @@ cat << BASH
 
 BASH
 IP_DETECT=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-FQDN_DETECT=$( [[ $(hostname -d)  == "" ]] && echo $(hostame -s) || echo "$(hostname -s).$(hostname -d)" )
+FQDN_DETECT=$( [[ $(hostname -d)  == "" ]] && echo $(hostname -s) || echo "$(hostname -s).$(hostname -d)" )
 read -p "Please enter the FQDN of the server (Auto Detect): $FQDN_DETECT" FQDN
 read -p "Please enter the IP of the server (Auto Detect): $IP_DETECT" IP
 

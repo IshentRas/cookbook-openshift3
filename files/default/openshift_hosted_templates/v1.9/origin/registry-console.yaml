@@ -100,15 +100,15 @@ objects:
     redirectURIs:
       - "${COCKPIT_KUBE_URL}"
 parameters:
-  - description: 'Specify "registry/repository" prefix for container image; e.g. for "registry.access.redhat.com/openshift3/registry-console:latest", set prefix "registry.access.redhat.com/openshift3/"'
+  - description: 'Specify "registry/namespace" prefix for container image; e.g. for "registry.example.com/cockpit/kubernetes:latest", set prefix "registry.example.com/cockpit/"'
     name: IMAGE_PREFIX
-    value: "registry.access.redhat.com/openshift3/"
-  - description: 'Specify component name for container image; e.g. for "registry.access.redhat.com/openshift3/registry-console:latest", use base name "registry-console"'
+    value: "cockpit/"
+  - description: 'Specify component name for container image; e.g. for "registry.example.com/cockpit/kubernetes:latest", use base name "kubernetes"'
     name: IMAGE_BASENAME
-    value: "registry-console"
-  - description: 'Specify image version; e.g. for "registry.access.redhat.com/openshift3/registry-console:v3.6", set version "v3.6"'
+    value: "kubernetes"
+  - description: 'Specify image version; e.g. for "cockpit/kubernetes:latest", set version "latest"'
     name: IMAGE_VERSION
-    value: "v3.6"
+    value: latest
   - description: "The public URL for the Openshift OAuth Provider, e.g. https://openshift.example.com:8443"
     name: OPENSHIFT_OAUTH_PROVIDER_URL
     required: true

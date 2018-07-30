@@ -157,9 +157,23 @@ module OpenShiftHelper
       end
     end
 
-    def removing_etcd_leader?
-      etcd_leader = Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C https://#{first_etcd['ipaddress']}:2379 member list | awk '/isLeader=true/ {print substr($2,6,100)}'").run_command.stdout.strip
-      remove_etcd_servers.any? { |remove_server_etcd| remove_server_etcd['fqdn'] == etcd_leader.to_s }
+    def removing_etcd?
+      etcd_servers.any? { |item| remove_etcd_servers.include? item }
+    end
+
+    def check_master_upgrade?(first_etcd, version)
+      if version.to_i < 36
+        ::Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 ls /migration/#{version}/#{node['fqdn']}").run_command.error?
+      elsif version.to_i == 36
+        config_options = YAML.load_file("#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/master-config.yaml")
+        if config_options['kubernetesMasterConfig']['apiServerArguments'].key?('storage-backend')
+          ::Mixlib::ShellOut.new("test `ETCDCTL_API=3 /usr/bin/etcdctl --cert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/#{version}/#{node['fqdn']} --print-value-only` == 'ok'").run_command.error?
+        else
+          ::Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 ls /migration/#{version}/#{node['fqdn']}").run_command.error?
+        end
+      else
+        ::Mixlib::ShellOut.new("test `ETCDCTL_API=3 /usr/bin/etcdctl --cert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/#{version}/#{node['fqdn']} --print-value-only` == 'ok'").run_command.error?
+      end
     end
 
     protected

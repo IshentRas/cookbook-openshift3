@@ -1,7 +1,7 @@
 OPTIONS=--loglevel=<%= node['is_apaas_openshift_cookbook']['openshift_master_debug_level'] %> --listen=https://<%= node['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] %>:<%= node['is_apaas_openshift_cookbook']['openshift_master_api_port'] %> --master=<%= node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url'] %>
 CONFIG_FILE=<%= node['is_apaas_openshift_cookbook']['openshift_master_config_file'] %>
 <% if node['is_apaas_openshift_cookbook']['openshift_push_via_dns'] %>
-OPENSHIFT_DEFAULT_REGISTRY=docker-registry.default.svc.cluster.local:5000
+OPENSHIFT_DEFAULT_REGISTRY=docker-registry.default.svc:5000
 <% end -%>
 <% if node['is_apaas_openshift_cookbook']['deploy_containerized'] %>
 IMAGE_VERSION=<%= node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] %>

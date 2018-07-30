@@ -139,10 +139,11 @@ action :delete do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION rolebinding logging-elasticsearch-view-role \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
+      environment 'ACTION' => 'delete'
     end
 
     execute 'Delete logging configmaps' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} delete configmap logging-elasticsearch logging-curator logging-fluentd \
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION configmap logging-elasticsearch logging-curator logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'

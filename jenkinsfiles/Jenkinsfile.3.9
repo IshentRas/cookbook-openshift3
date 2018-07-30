@@ -1,0 +1,44 @@
+#!groovy
+
+
+try {
+  properties([parameters([
+    string(name: 'BRANCH_NAME',                                  defaultValue: env.BRANCH_NAME,                                description: 'Branch to build'),
+    string(name: 'builddir',                                     defaultValue: 'is_apaas_openshift_cookbook-test-' + env.BUILD_NUMBER, description: 'Build directory'),
+    string(name: 'OSE_VERSIONS',                                 defaultValue: '3.9',                                          description: 'OSE versions to build, separated by spaces'),
+    string(name: 'CHEF_IPTABLES_COOKBOOK_VERSION',               defaultValue: 'latest',                                       description: 'IPtables cookbook version, eg 1.0.0'),
+    string(name: 'CHEF_SELINUX_COOKBOOK_VERSION',                defaultValue: 'latest',                                       description: 'SELinux cookbook version, eg 0.7.2'),
+    string(name: 'CHEF_YUM_COOKBOOK_VERSION',                    defaultValue: 'latest',                                       description: 'yum cookbook version, eg 3.6.1'),
+    string(name: 'CHEF_COMPAT_RESOURCE_COOKBOOK_VERSION',        defaultValue: 'latest',                                       description: 'compat_resource cookbook version'),
+    string(name: 'CHEF_INJECT_COMPAT_RESOURCE_COOKBOOK_VERSION', defaultValue: 'false',                                        description: 'Whether to inject compat_resource cookbook version (eg true for some envs)'),
+    string(name: 'CHEF_DEPLOY_METHODS',                          defaultValue: 'solo server',                                  description: 'Which deployment methods to use (server and/or solo)'),
+    string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'true false',                                   description: 'If "true", deploy containerized, "true false" for both'),
+    string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
+    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_separate_etcd',                description: 'which cluster configs to test')
+  ])])
+  node {
+    stage('setupenv') {
+      sh 'mkdir -p ' + builddir
+      dir(builddir) {
+        ////when in source...
+        checkout([$class: 'GitSCM', branches: [[name: '*/' + env.BRANCH_NAME]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/IshentRas/is_apaas_openshift_cookbook']]])
+      }
+    }
+    stage('shutit_tests') {
+      dir(builddir) {
+        sh('yes | /space/git/work/bin/destroy_vms.sh || true')
+        sh 'cd /space/jenkins_cache/shutit-openshift-cluster && git pull && git submodule update && git clean -f && cd /space/jenkins_cache'
+        dir('shutit-openshift-cluster') {
+          withEnv(["SHUTIT=/usr/local/bin/shutit"]) {
+            sh 'cp -r /space/jenkins_cache/shutit-openshift-cluster/* . && ./run_tests.sh --interactive 0'
+          }
+        }
+        sh('yes | /space/git/work/bin/destroy_vms.sh || true')
+      }
+    }
+    mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/''', cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: '3.9 Build OK', to: 'ian.miell@gmail.com, william17.burton@gmail.com, julien.perville@perfect-memory.com'
+  }
+} catch(err) {
+  mail bcc: '', body: '''See: https://jenkins.meirionconsulting.com/''' + err, cc: '', from: 'is_apaas_openshift_cookbook@jenkins.meirionconsulting.com', replyTo: '', subject: '3.9 Build Failure', to: 'ian.miell@gmail.com'
+  throw(err)
+}
