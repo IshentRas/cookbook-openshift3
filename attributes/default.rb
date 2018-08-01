@@ -113,6 +113,7 @@ default['is_apaas_openshift_cookbook']['openshift_docker_secure'] = false
 default['is_apaas_openshift_cookbook']['openshift_docker_insecure_registry_arg'] = []
 default['is_apaas_openshift_cookbook']['openshift_docker_add_registry_arg'] = []
 default['is_apaas_openshift_cookbook']['openshift_docker_block_registry_arg'] = []
+default['is_apaas_openshift_cookbook']['openshift_docker_network_options'] = ''
 default['is_apaas_openshift_cookbook']['openshift_docker_insecure_registries'] = node['is_apaas_openshift_cookbook']['openshift_hosted_registry_insecure'] ? [node['is_apaas_openshift_cookbook']['openshift_common_portal_net']] + node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registry_arg'] : node['is_apaas_openshift_cookbook']['openshift_docker_insecure_registry_arg']
 default['is_apaas_openshift_cookbook']['openshift_docker_master_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/ose' : 'openshift/origin'
 default['is_apaas_openshift_cookbook']['openshift_docker_hosted_registry_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/ose-\${component}:\${version}' : 'openshift/origin-\${component}:\${version}'

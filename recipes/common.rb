@@ -86,6 +86,13 @@ directory node['is_apaas_openshift_cookbook']['openshift_data_dir'] do
   only_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] && (is_master_server || is_node_server) }
 end
 
+directory node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] do
+  owner 'root'
+  group 'root'
+  mode '0750'
+  only_if { is_master_server || is_node_server }
+end
+
 include_recipe 'is_apaas_openshift_cookbook::certificate_server' if is_certificate_server
 include_recipe 'is_apaas_openshift_cookbook::etcd_removal' if is_remove_etcd_server
 include_recipe 'is_apaas_openshift_cookbook::cloud_provider'

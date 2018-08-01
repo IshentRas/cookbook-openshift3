@@ -32,6 +32,11 @@ if is_node_server || node['is_apaas_openshift_cookbook']['deploy_containerized']
     source 'docker-storage.erb'
   end
 
+  template '/etc/sysconfig/docker-network' do
+    source 'service_docker-network.sysconfig.erb'
+    notifies :restart, 'service[docker]', :immediately unless ::Mixlib::ShellOut.new('systemctl is-enabled docker').run_command.error?
+  end
+
   template '/etc/sysconfig/docker' do
     source 'service_docker.sysconfig.erb'
     notifies :restart, 'service[docker]', :immediately

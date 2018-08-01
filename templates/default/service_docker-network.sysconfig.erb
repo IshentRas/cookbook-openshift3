@@ -1,0 +1,6 @@
+# /etc/sysconfig/docker-network
+<%- if node['is_apaas_openshift_cookbook']['openshift_docker_network_options'].empty? -%>
+DOCKER_NETWORK_OPTIONS=
+<%- else -%>
+DOCKER_NETWORK_OPTIONS='<%= node['is_apaas_openshift_cookbook']['openshift_docker_network_options'] %>'
+<%- end -%>

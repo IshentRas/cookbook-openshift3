@@ -804,7 +804,7 @@ In general, override attributes in the environment should be used when changing 
 
   **You can remove all members in once!!!**
   
-  **Make sure the ETCD LEADER is not part of the remove_etcd_servers group!!! If it the case the removal operation will be skipped.**
+  **Make sure the ETCD set that you wish to keep is not part of the remove_etcd_servers group!!! If it the case the removal operation will be skipped.**
 
 
 ```json
@@ -838,11 +838,7 @@ Here is a simple example of a addition/removal for the ETCD cluster:
 
 2. Part2: Adding new etcd members (etcd4, etcd5 and etcd6)
 
-3. Part3 a: Trying to remove etcd1, etcd2 and etcd3 with etcd1 ETCD LEADER
-
-4. Part3 b: Move the leadership to new set of etcds (etcd4, etcd5 or etcd6)
-
-5. Part4: Remove old members (etcd1, etcd2 and etcd3)
+3. Part3: Remove etcd1, etcd2 and etcd3
 
 [![Simple Example](https://asciinema.org/a/194110.png)](https://asciinema.org/a/194110)
 

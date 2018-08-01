@@ -122,14 +122,6 @@ execute 'Extract master certificates to Master folder' do
   action :nothing
 end
 
-Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:key)$/).uniq.each do |key|
-  file key do
-    owner 'root'
-    group 'root'
-    mode '0600'
-  end
-end
-
 execute 'Create the policy file' do
   command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} create-bootstrap-policy-file --filename=#{node['is_apaas_openshift_cookbook']['openshift_master_policy']}"
   creates node['is_apaas_openshift_cookbook']['openshift_master_policy']
@@ -263,6 +255,27 @@ end
 
 systemd_unit 'atomic-openshift-master' do
   action %i(disable mask)
+end
+
+ruby_block 'Adjust permissions for certificate and key files' do
+  block do
+    run_context = Chef::RunContext.new(Chef::Node.new, {}, Chef::EventDispatch::Dispatcher.new)
+    Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:key)$/).uniq.each do |key|
+      file = Chef::Resource::File.new(key, run_context)
+      file.owner 'root'
+      file.group 'root'
+      file.mode '0600'
+      file.run_action(:create)
+    end
+
+    Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:crt)$/).uniq.each do |key|
+      file = Chef::Resource::File.new(key, run_context)
+      file.owner 'root'
+      file.group 'root'
+      file.mode '0640'
+      file.run_action(:create)
+    end
+  end
 end
 
 ruby_block 'Restart Master services if valid certificate (Upgrade ETCD CA)' do

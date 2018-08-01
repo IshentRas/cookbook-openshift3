@@ -1,6 +1,14 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.77
+### Bug
+- CRT and KEY files permissions were wrong (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/252)
+- Adjust the permission for OCP main directory
+
+### Improvement
+- Adjust the docker network options via openshift_docker_network_options
+
 ## v2.0.76
 ### Improvement
 - Improve logic for adding or removing ETCD servers from ETCD cluster (Read README)
