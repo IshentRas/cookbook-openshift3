@@ -181,6 +181,8 @@ action :create do
                        'logging_36'
                      when 7
                        'logging_37'
+                     when 9
+                       'logging_39'
                      else
                        'logging_legacy'
                      end

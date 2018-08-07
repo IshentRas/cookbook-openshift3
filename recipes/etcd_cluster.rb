@@ -108,9 +108,10 @@ if is_etcd_server || is_new_etcd_server
     end
   end
 
-  execute 'Fix ETCD directory permissions' do
-    command "chmod 755 #{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}"
-    only_if "[[ $(stat -c %a #{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}) -ne 755 ]]"
+  directory node['is_apaas_openshift_cookbook']['etcd_conf_dir'] do
+    owner 'etcd'
+    group 'etcd'
+    mode '0700'
   end
 
   template "#{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}/etcd.conf" do

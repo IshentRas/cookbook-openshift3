@@ -228,7 +228,7 @@ execute 'Activate services for Master API on all masters' do
 end
 
 execute 'Wait for API to become available' do
-  command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+  command "[[ $(curl --silent --tlsv1.2 --max-time 2 #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
   retries 120
   retry_delay 1
 end
@@ -257,7 +257,7 @@ systemd_unit 'atomic-openshift-master' do
   action %i(disable mask)
 end
 
-ruby_block 'Adjust permissions for certificate and key files' do
+ruby_block 'Adjust permissions for certificate and key files on Master servers' do
   block do
     run_context = Chef::RunContext.new(Chef::Node.new, {}, Chef::EventDispatch::Dispatcher.new)
     Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:key)$/).uniq.each do |key|

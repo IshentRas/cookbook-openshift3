@@ -216,7 +216,6 @@ if is_node_server
       variables(
         ose_major_version: ose_major_version,
         openshift_node_dnsmasq_log_queries: helper.get_nodevar('openshift_node_dnsmasq_log_queries'),
-        openshift_node_dnsmasq_cache_size: helper.get_nodevar('openshift_node_dnsmasq_cache_size'),
         openshift_node_dnsmasq_maxcachettl: helper.get_nodevar('openshift_node_dnsmasq_maxcachettl'),
         openshift_node_dnsmasq_interface: helper.get_nodevar('openshift_node_dnsmasq_interface'),
         openshift_node_dnsmasq_bind_interface: helper.get_nodevar('openshift_node_dnsmasq_bind_interface')
@@ -290,11 +289,32 @@ if is_node_server
   end
 
   execute 'Wait for API to become available before starting Node component' do
-    command "[[ $(curl --silent ${MASTER_URL}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/ca.crt) =~ \"ok\" ]]"
+    command "[[ $(curl --silent --tlsv1.2 --max-time 2 ${MASTER_URL}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/ca.crt) =~ \"ok\" ]]"
     environment 'MASTER_URL' => node['is_apaas_openshift_cookbook']['openshift_HA'] ? node['is_apaas_openshift_cookbook']['openshift_master_api_url'] : "https://#{first_master['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
     retries 120
     retry_delay 1
     notifies :start, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] && node['is_apaas_openshift_cookbook']['deploy_containerized']
     notifies :restart, 'service[Restart Node]', :immediately if node['is_apaas_openshift_cookbook']['upgrade'] && node['is_apaas_openshift_cookbook']['deploy_containerized']
+  end
+
+  ruby_block 'Adjust permissions for certificate and key files on Node servers' do
+    block do
+      run_context = Chef::RunContext.new(Chef::Node.new, {}, Chef::EventDispatch::Dispatcher.new)
+      Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/*").grep(/\.(?:key)$/).uniq.each do |key|
+        file = Chef::Resource::File.new(key, run_context)
+        file.owner 'root'
+        file.group 'root'
+        file.mode '0600'
+        file.run_action(:create)
+      end
+
+      Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/*").grep(/\.(?:crt)$/).uniq.each do |key|
+        file = Chef::Resource::File.new(key, run_context)
+        file.owner 'root'
+        file.group 'root'
+        file.mode '0640'
+        file.run_action(:create)
+      end
+    end
   end
 end

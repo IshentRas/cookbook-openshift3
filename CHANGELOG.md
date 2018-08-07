@@ -1,6 +1,14 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.78
+### Bug
+- CRT and KEY files permissions were wrong (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/253 //github.com/IshentRas/is_apaas_openshift_cookbook/issues/254)
+- Adjust the permission for OCP node main directory and ETCD
+
+### Improvement
+- Update metrics and logging to 3.9
+
 ## v2.0.77
 ### Bug
 - CRT and KEY files permissions were wrong (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/252)

@@ -184,7 +184,6 @@ default['is_apaas_openshift_cookbook']['openshift_node_config_dir'] = "#{node['i
 default['is_apaas_openshift_cookbook']['openshift_node_config_file'] = "#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/node-config.yaml"
 default['is_apaas_openshift_cookbook']['openshift_node_debug_level'] = '2'
 default['is_apaas_openshift_cookbook']['openshift_node_dnsmasq_log_queries'] = false
-default['is_apaas_openshift_cookbook']['openshift_node_dnsmasq_cache_size'] = 150
 default['is_apaas_openshift_cookbook']['openshift_node_dnsmasq_maxcachettl'] = 1
 default['is_apaas_openshift_cookbook']['openshift_node_dnsmasq_interface'] = false
 default['is_apaas_openshift_cookbook']['openshift_node_dnsmasq_bind_interface'] = 'eth0'

@@ -2,8 +2,8 @@ default['is_apaas_openshift_cookbook']['openshift_hosted_logging_flag'] = '/usr/
 default['is_apaas_openshift_cookbook']['openshift_logging_install_eventrouter'] = false
 default['is_apaas_openshift_cookbook']['openshift_logging_image_prefix'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/openshift3/' : 'docker.io/openshift/origin-'
 default['is_apaas_openshift_cookbook']['openshift_logging_proxy_image_prefix'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/openshift3/' : 'docker.io/openshift/'
-default['is_apaas_openshift_cookbook']['openshift_logging_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.7' : 'v3.7.1'
-default['is_apaas_openshift_cookbook']['openshift_logging_proxy_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.7' : 'v1.0.0'
+default['is_apaas_openshift_cookbook']['openshift_logging_image_version'] = 'v3.9'
+default['is_apaas_openshift_cookbook']['openshift_logging_proxy_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.9' : 'v1.1.0'
 default['is_apaas_openshift_cookbook']['openshift_logging_install_logging'] = true
 
 default['is_apaas_openshift_cookbook']['openshift_logging_use_ops'] = false
@@ -12,8 +12,8 @@ default['is_apaas_openshift_cookbook']['openshift_logging_master_public_url'] = 
 default['is_apaas_openshift_cookbook']['openshift_logging_namespace'] = 'logging'
 
 default['is_apaas_openshift_cookbook']['openshift_logging_curator_default_days'] = 30
-default['is_apaas_openshift_cookbook']['openshift_logging_curator_run_hour'] = 0
-default['is_apaas_openshift_cookbook']['openshift_logging_curator_run_minute'] = 0
+default['is_apaas_openshift_cookbook']['openshift_logging_curator_run_hour'] = 3
+default['is_apaas_openshift_cookbook']['openshift_logging_curator_run_minute'] = 30
 default['is_apaas_openshift_cookbook']['openshift_logging_curator_run_timezone'] = 'UTC'
 default['is_apaas_openshift_cookbook']['openshift_logging_curator_script_log_level'] = 'INFO'
 default['is_apaas_openshift_cookbook']['openshift_logging_curator_log_level'] = 'ERROR'

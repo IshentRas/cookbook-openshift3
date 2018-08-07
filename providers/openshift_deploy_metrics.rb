@@ -123,7 +123,11 @@ end
 action :create do
   converge_by "Deploying Metrics on #{node['fqdn']}" do
     ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
-    FOLDER_METRICS = ose_major_version.split('.')[1].to_i < 6 ? 'metrics_legacy' : 'metrics_36'
+    FOLDER_METRICS = if ose_major_version.split('.')[1].to_i < 6
+                       'metrics_legacy'
+                     elsif ose_major_version.split('.')[1].to_i >= 6
+                       "metrics_3#{ose_major_version.split('.')[1]}"
+                     end
     CERT_FOLDER = node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] + '/metrics'
 
     directory FOLDER.to_s do
@@ -296,7 +300,12 @@ action :create do
     template 'Generate cassandra replication controller' do
       path "#{FOLDER}/templates/hawkular-cassandra-1-rc.yaml"
       source "#{FOLDER_METRICS}/hawkular_cassandra_rc.yaml.erb"
-      variables(ose_major_version: ose_major_version)
+      variables(
+        ose_major_version: ose_major_version,
+        fsgroup: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace #{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} -o 'go-template={{range $key,$value := .metadata.annotations}}{{$key}}: {{$value}}{{\"\\n\"}}{{end}}' --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | awk '/sa.scc.supplemental-groups/ {split($2,a,\"/\"); print a[1]}'").run_command.stdout.strip,
+        selinux_level: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace #{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} -o 'go-template={{range $key,$value := .metadata.annotations}}{{$key}}: {{$value}}{{\"\\n\"}}{{end}}' --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | awk '/sa.scc.mcs/ { print $2}'").run_command.stdout.strip,
+        run_as_uid: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get namespace #{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} -o 'go-template={{range $key,$value := .metadata.annotations}}{{$key}}: {{$value}}{{\"\\n\"}}{{end}}' --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig | awk '/sa.scc.uid-range/ {split($2,a,\"/\"); print a[1]}'").run_command.stdout.strip
+      )
       sensitive true
     end
 
