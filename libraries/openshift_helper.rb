@@ -96,6 +96,10 @@ module OpenShiftHelper
       on_certificate_server? || on_etcd_server? || on_master_server?
     end
 
+    def should_be_configured?
+      on_control_plane_server? || on_node_server?
+    end
+
     def remove_dir(path)
       FileUtils.rm_rf(Dir.glob(path))
     end

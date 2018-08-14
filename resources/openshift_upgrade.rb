@@ -41,6 +41,35 @@ action :reconcile_cluster_roles do
   end
 
   case new_resource.target_version.to_i
+  when 14
+    execute 'Reconcile Cluster Roles' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-cluster-roles --additive-only=true --confirm"
+    end
+
+    execute 'Reconcile Cluster Role Bindings' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-cluster-role-bindings \
+              --exclude-groups=system:authenticated \
+              --exclude-groups=system:authenticated:oauth \
+              --exclude-groups=system:unauthenticated \
+              --exclude-users=system:anonymous \
+              --additive-only=true --confirm"
+    end
+
+    execute 'Reconcile Jenkins Pipeline Role Bindings' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-cluster-role-bindings system:build-strategy-jenkinspipeline --confirm"
+    end
+
+    execute 'Reconcile Security Context Constraints' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-sccs --confirm --additive-only=true"
+    end
   when 15
     execute 'Reconcile Cluster Roles' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
@@ -131,6 +160,30 @@ action :reconcile_cluster_roles do
     end
 
     execute 'Migrate storage post policy reconciliation Post upgrade' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    end
+  when 38
+    execute 'Reconcile Security Context Constraints (3.8)' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-sccs --confirm --additive-only=true"
+    end
+
+    execute 'Migrate storage post policy reconciliation Post upgrade (3.8)' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    end
+  when 39
+    execute 'Reconcile Security Context Constraints (3.9)' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              policy reconcile-sccs --confirm --additive-only=true"
+    end
+
+    execute 'Migrate storage post policy reconciliation Post upgrade (3.9)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"

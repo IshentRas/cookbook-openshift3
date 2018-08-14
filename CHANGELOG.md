@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.81
+### Improvement
+- Restrict cookbook run only to control plane and node servers
+
 ## v2.0.78
 ### Bug
 - CRT and KEY files permissions were wrong (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/253 //github.com/IshentRas/is_apaas_openshift_cookbook/issues/254)

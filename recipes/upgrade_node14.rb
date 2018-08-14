@@ -4,10 +4,6 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-# This must be run before any upgrade takes place.
-# It creates the service signer certs (and any others) if they were not in
-# existence previously.
-
 Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['is_apaas_openshift_cookbook']['control_upgrade_flag']}") unless ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
 if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
@@ -38,12 +34,6 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
     include_recipe 'is_apaas_openshift_cookbook::node'
     include_recipe 'is_apaas_openshift_cookbook::docker'
     include_recipe 'is_apaas_openshift_cookbook::excluder'
-
-    file 'Remove obsolete docker-sdn-ovs.conf' do
-      path '/etc/systemd/system/docker.service.d/docker-sdn-ovs.conf'
-      action :delete
-      notifies :run, 'execute[daemon-reload]', :immediately
-    end
 
     log 'Node services' do
       level :info
