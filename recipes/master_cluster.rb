@@ -268,7 +268,7 @@ ruby_block 'Adjust permissions for certificate and key files on Master servers' 
       file.run_action(:create)
     end
 
-    Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:crt)$/).uniq.each do |key|
+    Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/*").grep(/\.(?:crt|json)$/).uniq.each do |key|
       file = Chef::Resource::File.new(key, run_context)
       file.owner 'root'
       file.group 'root'

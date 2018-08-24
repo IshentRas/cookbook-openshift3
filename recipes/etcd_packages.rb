@@ -24,6 +24,7 @@ end
 if is_certificate_server || (is_master_server && !is_etcd_server)
   yum_package 'Install ETCD for certificate/master servers' do
     package_name 'etcd'
+    version node['is_apaas_openshift_cookbook']['upgrade'] ? (node['is_apaas_openshift_cookbook']['upgrade_etcd_version'] unless node['is_apaas_openshift_cookbook']['upgrade_etcd_version'].nil?) : (node['is_apaas_openshift_cookbook']['etcd_version'] unless node['is_apaas_openshift_cookbook']['etcd_version'].nil?)
   end
 end
 

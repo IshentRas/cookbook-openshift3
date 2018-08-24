@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.82
+### Bug
+- Restrict permission for policy and scheduler (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/257)
+- Add version control for etcd in certificate server
+
 ## v2.0.81
 ### Improvement
 - Restrict cookbook run only to control plane and node servers
