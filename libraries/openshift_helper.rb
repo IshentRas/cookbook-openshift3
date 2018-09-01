@@ -224,7 +224,7 @@ module OpenShiftHelper
       cert = OpenSSL::X509::Certificate.new(File.read(cert_path))
       cert.verify(ca.public_key)
     rescue OpenSSL::X509::CertificateError, Errno::ENOENT
-      return false
+      false
     end
   end
 end

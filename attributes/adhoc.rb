@@ -3,6 +3,7 @@ default['is_apaas_openshift_cookbook']['openshift_adhoc_reboot_node'] = false
 default['is_apaas_openshift_cookbook']['adhoc_redeploy_certificates'] = false
 default['is_apaas_openshift_cookbook']['adhoc_redeploy_etcd_ca'] = false
 default['is_apaas_openshift_cookbook']['adhoc_redeploy_cluster_ca'] = false
+default['is_apaas_openshift_cookbook']['adhoc_migrate_etcd_flag'] = '/to_be_migrated_etcd'
 
 default['is_apaas_openshift_cookbook']['redeploy_etcd_ca_control_flag'] = '/to_be_replaced_ca_etcd'
 default['is_apaas_openshift_cookbook']['redeploy_etcd_certs_control_flag'] = '/to_be_replaced_certs'

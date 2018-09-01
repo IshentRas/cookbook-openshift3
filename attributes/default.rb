@@ -43,7 +43,7 @@ default['is_apaas_openshift_cookbook']['ose_version'] = nil
 default['is_apaas_openshift_cookbook']['persistent_storage'] = []
 default['is_apaas_openshift_cookbook']['openshift_deployment_type'] = 'enterprise'
 default['is_apaas_openshift_cookbook']['ose_major_version'] = '3.9'
-default['is_apaas_openshift_cookbook']['openshift_push_via_dns'] = node['is_apaas_openshift_cookbook']['ose_major_version'].to_f >= 3.6 ? true : false
+default['is_apaas_openshift_cookbook']['openshift_push_via_dns'] = (node['is_apaas_openshift_cookbook']['ose_major_version'].to_f >= 3.6)
 default['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'v3.9' : 'v3.9.0'
 default['is_apaas_openshift_cookbook']['upgrade'] = false
 default['is_apaas_openshift_cookbook']['deploy_containerized'] = false
@@ -162,9 +162,8 @@ default['is_apaas_openshift_cookbook']['openshift_master_min_tls_version'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_cipher_suites'] = []
 default['is_apaas_openshift_cookbook']['openshift_master_ingress_ip_network_cidr'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_public_api_url'] = "https://#{node['is_apaas_openshift_cookbook']['openshift_common_public_hostname']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
-default['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url'] = "https://#{node['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
+default['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url'] = "https://localhost:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
 default['is_apaas_openshift_cookbook']['openshift_master_api_url'] = "https://#{node['is_apaas_openshift_cookbook']['openshift_common_api_hostname']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
-default['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url'] = "https://#{node['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
 default['is_apaas_openshift_cookbook']['openshift_master_loopback_context_name'] = "current-context: default/#{node['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}/system:openshift-master".tr('.', '-')
 default['is_apaas_openshift_cookbook']['openshift_master_console_url'] = "https://#{node['is_apaas_openshift_cookbook']['openshift_common_public_hostname']}:#{node['is_apaas_openshift_cookbook']['openshift_master_console_port']}/console"
 default['is_apaas_openshift_cookbook']['openshift_master_policy'] = "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/policy.json"
@@ -194,6 +193,7 @@ default['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_custom'] = {
 default['is_apaas_openshift_cookbook']['openshift_node_iptables_sync_period'] = '30s'
 default['is_apaas_openshift_cookbook']['openshift_node_port_range'] = ''
 default['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] = '1450'
+default['is_apaas_openshift_cookbook']['openshift_node_disable_swap_on_host'] = true
 # Deprecated options (Use openshift_node_kubelet_args_custom instead)
 default['is_apaas_openshift_cookbook']['openshift_node_max_pod'] = ''
 default['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] = false

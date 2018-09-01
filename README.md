@@ -13,8 +13,8 @@ Requirements
 
 ## Openshift Version ##
 
-* Support OSE version from 3.4+
-* Support Origin version from 1.4+
+* Support OSE version from 1.5+
+* Support Origin version from 1.5+
 * Default the installation to 3.9
 
 **Highly recommended**: 
@@ -23,7 +23,7 @@ Explicitly set `node['is_apaas_openshift_cookbook']['ose_version']`, `node['is_a
 and ideally `node['is_apaas_openshift_cookbook']['docker_version']` to be safe when a major version is released on the
 CentOS PaaS repository; 
 
-This cookbook does support upgrade between major versions (Read doc)
+This cookbook does support upgrade between major versions (Read doc).
 
 ## New Features!
 
@@ -116,9 +116,10 @@ Variables:
 Test Matrix
 ===========
 
-| Platform   | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 | OSE 1.4.1 | OSE 1.3.3 | OSE 1.2.2 |
-| --------   | --------- | --------- | --------- | --------- | --------- | --------- | --------- |
-| centos 7.4 | PREVIEW   | PASS      | PASS      | PASS      | PASS      | Not supported      | Not supported |
+| Platform   | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 | OSE <= 1.4.x |
+| --------   | --------- | --------- | --------- | --------- | ------------ |
+| centos 7.4 "cluster native" | PASS   | PASS      | PASS      | PASS      | Not supported |
+| centos 7.4 "standalone" | Not supported   | Not supported      | PASS      | PASS      | Not supported |
 
 Override Attributes
 ===================
@@ -226,6 +227,7 @@ Any option can be set, as long as they are supported by the current [docker log 
   }
 }
 ```
+
 * `node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_metrics']`
 
 Any option can be set, as long as they are supported by the current [Metrics deployer template](https://docs.openshift.com/container-platform/latest/install_config/cluster_metrics.html#metrics-ansible-variables).
@@ -233,24 +235,54 @@ Any option can be set, as long as they are supported by the current [Metrics dep
 Full list of attributes can be found [here](https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/attributes/metrics.rb).
 
 We only support 1 cassandra POD.
-Once the metrics is deployed, it creates a flag (openshift_hosted_metrics_flag) on the first master to avoid having CHEF re-creating the resources over and over.
+Once the metrics addon is deployed, it creates a flag (openshift_hosted_metrics_flag) on the first master to avoid having CHEF re-creating the resources over and over.
 
 Example of options for deploying metrics:
 ```json
 {
   "openshift_hosted_cluster_metrics": true,
   "openshift_metrics_heapster_requests_memory": "1Gi",
-  "openshift_metrics_image_version": "v1.5.1",
+  "openshift_metrics_image_version": "v3.9",
   "openshift_metrics_cassandra_storage_type": "dynamic",
   "openshift_metrics_hawkular_user_write_access": false,
   "....."
 }
 ```
+
 Example of removing metrics components:
 ```json
 {
   "openshift_hosted_cluster_metrics": true,
   "openshift_metrics_install_metrics": false,
+  "....."
+}
+```
+
+* `node['is_apaas_openshift_cookbook']['openshift_hosted_cluster_logging']`
+
+Any option can be set, as long as they are supported by the current [Logging deployer template](https://docs.openshift.com/container-platform/latest/install_config/aggregate_logging.html#aggregate-logging-ansible-variables).
+
+Full list of attributes can be found [here](https://raw.githubusercontent.com/IshentRas/is_apaas_openshift_cookbook/master/attributes/logging.rb).
+
+We only support 1 elasticsearch POD.
+Once the logging addon is deployed, it creates a flag (openshift_hosted_logging_flag) on the first master to avoid having CHEF re-creating the resources over and over.
+
+Example of options for deploying logging:
+```json
+{
+  "openshift_hosted_cluster_logging": true,
+  "openshift_logging_es_memory_limit": "1Gi",
+  "openshift_logging_kibana_memory_limit": "512Mi",
+  "openshift_logging_image_version": "v3.9",
+  "....."
+}
+```
+
+Example of removing metrics components:
+```json
+{
+  "openshift_hosted_cluster_logging": true,
+  "openshift_logging_install_logging": false,
   "....."
 }
 ```
@@ -441,7 +473,7 @@ If OpenShift Container Platform administrators would like to control the level o
 
 ## Cloud Providers Integration
 
-Cloud providers integration requires passing some sensetive credentials to OpenShift. This cookbook uses encrypted data bags as the safest way to achieve this. Thus you should have: 
+Cloud providers integration requires passing some sensitive credentials to OpenShift. This cookbook uses encrypted data bags as the safest way to achieve this. Thus you should have:
 
 - running Chef Server
 - encrypted data bags with cloud providers' credentials

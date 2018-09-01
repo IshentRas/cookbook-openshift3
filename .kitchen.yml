@@ -4,16 +4,16 @@ driver:
   customize:
     cpus: 2
     memory: 1536
+    audio: none # https://github.com/hashicorp/vagrant/issues/9524#issuecomment-389084986
 
 provisioner:
   name: chef_zero
+  product_name: chef
+  product_version: 13.10.4
   environments_path: test/environments
   roles_path: test/roles
   client_rb:
     solo: false
-
-driver_config:
-  require_chef_omnibus: 13.6.4
 
 verifier:
   name: inspec
@@ -52,7 +52,7 @@ openshift3-shared-attributes: &SHARED
     claim:
       namespace: default
   registry_persistent_volume: registry-storage
-  openshift_hosted_router_options: '--expose-metrics --metrics-image=prom/haproxy-exporter:v0.7.1'
+  openshift_hosted_router_options: '--stats-password=xyzzy'
   openshift_hosted_metrics_parameters:
     HAWKULAR_METRICS_HOSTNAME: metrics.10.0.2.15.nip.io
     METRIC_DURATION: "30"
@@ -66,6 +66,20 @@ openshift3-shared-attributes: &SHARED
   node_servers: *SERVERS
 
 suites:
+  - name: cluster-native-ose39
+    run_list:
+    - role[openshift3-base-ose39]
+    verifier:
+      inspec_tests:
+      - test/inspec/cluster-native
+      - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: true
+        openshift_cluster_name: test-cluster.domain.local
+        etcd_servers: *SERVERS
+
   - name: cluster-native-ose37
     run_list:
       - role[openshift3-base-ose37]

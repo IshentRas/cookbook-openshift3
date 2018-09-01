@@ -16,8 +16,8 @@ describe command("oc get dc/router -n default --template '{{.spec.template.spec.
   its('stdout') { should match(/region:infra/) }
 end
 
-# oc adm router was passed the custom option, resulting in metrics being exposed
-describe command(%[oc get dc/router -n default -o jsonpath='{ .spec.template.spec.containers[?(@.name == "metrics-exporter")].name }']) do
+# oc adm router was passed the custom option, resulting in a custom password being set in the DC
+describe command(%[oc get dc/router -n default -o jsonpath='{ .spec.template.spec.containers[*].env[?(@.name=="STATS_PASSWORD")].value }']) do
   its('exit_status') { should eq 0 }
-  its('stdout') { should match(/metrics-exporter/) }
+  its('stdout') { should match(/xyzzy/) }
 end

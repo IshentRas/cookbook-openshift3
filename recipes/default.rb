@@ -8,6 +8,7 @@ server_info = OpenShiftHelper::NodeHelper.new(node)
 should_be_configured = server_info.should_be_configured?
 is_etcd_server = server_info.on_etcd_server?
 is_master_server = server_info.on_master_server?
+is_control_plane_server = server_info.on_control_plane_server?
 is_node_server = server_info.on_node_server?
 is_certificate_server = server_info.on_certificate_server?
 
@@ -37,6 +38,11 @@ if should_be_configured
 
   if node['is_apaas_openshift_cookbook']['asynchronous_upgrade']
     include_recipe 'is_apaas_openshift_cookbook::disable_excluder'
+  end
+
+  if is_control_plane_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_migrate_etcd_flag'])
+    include_recipe 'is_apaas_openshift_cookbook::adhoc_migrate_etcd'
+    return
   end
 
   include_recipe 'is_apaas_openshift_cookbook::validate'

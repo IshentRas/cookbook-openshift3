@@ -1,6 +1,14 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.83
+### Bug
+- Fix MISC etcd migration
+- Fix incorrect openshift_master_loopback_api_url (was not proxy safe)
+
+### Improvement
+- Make SWAP disabling on nodes optional (but enabled by default).
+
 ## v2.0.82
 ### Bug
 - Restrict permission for policy and scheduler (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/257)

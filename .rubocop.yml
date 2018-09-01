@@ -22,5 +22,8 @@ Style/PercentLiteralDelimiters:
     "%w": ()
     "%W": ()
 
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
 Lint/AmbiguousBlockAssociation:
   Enabled: false

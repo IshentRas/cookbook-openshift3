@@ -12,12 +12,17 @@ is_first_master = server_info.on_first_master?
 is_first_etcd = server_info.on_first_etcd?
 certificate_server = server_info.certificate_server
 is_certificate_server = server_info.on_certificate_server?
+is_control_plane_server = server_info.on_control_plane_server?
 etcd_servers = server_info.etcd_servers
 
 include_recipe 'is_apaas_openshift_cookbook::services'
 
 if is_etcd_server
   return if ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/.migrated")
+  if ::Dir.glob("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/*.snap").empty?
+    Chef::Log.error('Before the migration can proceed the etcd member must write down at least one snapshot under /var/lib/etcd/member/snap directory')
+    return
+  end
 end
 
 if is_first_etcd
@@ -34,6 +39,7 @@ if is_first_etcd
 
   execute 'Starting ETCD Migration' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 set /migration/etcd pre"
+    action :nothing
   end
 end
 
@@ -49,7 +55,7 @@ end
 if is_etcd_server
   execute 'Checking flag for migration (ETCD)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 get /migration/etcd | grep -w pre"
-    retries 30
+    retries 60
     retry_delay 2
     notifies :run, 'execute[Generate etcd backup before migration]', :immediately
   end
@@ -75,7 +81,7 @@ end
 
 if is_first_etcd
   execute 'Migrate etcd data' do
-    command "ETCDCTL_API=3 /usr/bin/etcdctl migrate --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} > #{Chef::Config[:file_cache_path]}/etcd_migration1"
+    command "ETCDCTL_API=3 /usr/bin/etcdctl migrate --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} &> #{Chef::Config[:file_cache_path]}/etcd_migration1"
   end
 
   execute 'Check the etcd v2 data are correctly migrated' do
@@ -127,6 +133,11 @@ if is_first_etcd
     only_if { etcd_servers.size == 1 }
   end
 
+  execute 'Set ETCD ready' do
+    command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 set /migration/etcd-cluster ok"
+    only_if { etcd_servers.size > 1 }
+  end
+
   file "#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/.migrated" do
     action :create_if_missing
   end
@@ -140,6 +151,12 @@ unless etcd_servers.size == 1
       owner 'apache'
       group 'apache'
       recursive true
+    end
+
+    execute 'Checking flag for migration (Certificate Server)' do
+      command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C https://#{first_etcd['ipaddress']}:2379 get /migration/etcd-cluster | grep -w ok"
+      retries 120
+      retry_delay 5
     end
 
     etcd_servers.reject { |etcdservers| etcdservers['fqdn'] == first_etcd['fqdn'] }.each do |etcd|
@@ -174,7 +191,7 @@ unless etcd_servers.size == 1
       source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"
       action :create_if_missing
       notifies :run, 'execute[daemon-reload]', :immediately
-      retries 60
+      retries 120
       retry_delay 5
     end
 
@@ -186,7 +203,7 @@ unless etcd_servers.size == 1
 
     execute 'Check cluster health' do
       command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
-      retries 60
+      retries 120
       retry_delay 5
     end
 
@@ -223,8 +240,8 @@ end
 if is_first_master
   execute 'Checking flag for migration (Master)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 get /migration/etcd | grep -w ok"
-    retries 60
-    retry_delay 2
+    retries 120
+    retry_delay 5
     notifies :run, 'bash[Add TTLs on the first master]', :immediately
   end
 
@@ -253,8 +270,8 @@ end
 if is_master_server
   execute 'Checking flag for clearing migration (Master)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 get /migration/etcd | grep -w final"
-    retries 60
-    retry_delay 2
+    retries 120
+    retry_delay 5
   end
 
   config_options = YAML.load_file("#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/master-config.yaml")
@@ -275,8 +292,11 @@ if is_master_server
 
   log 'ETCD migration [COMPLETED]' do
     level :info
-    action :nothing
-    notifies :start, 'service[atomic-openshift-master-api]', :immediately
-    notifies :start, 'service[atomic-openshift-master-controllers]', :immediately
+  end
+end
+
+if is_control_plane_server
+  file node['is_apaas_openshift_cookbook']['adhoc_migrate_etcd_flag'] do
+    action :delete
   end
 end
