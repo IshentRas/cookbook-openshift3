@@ -107,7 +107,7 @@ if is_certificate_server
     end
 
     certs = case ose_major_version.split('.')[1].to_i
-            when 5..9
+            when 5..10
               node['cookbook-openshift3']['openshift_master_certs'] + %w(service-signer.crt service-signer.key)
             else
               node['cookbook-openshift3']['openshift_master_certs']

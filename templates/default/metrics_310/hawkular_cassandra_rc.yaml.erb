@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hawkular-cassandra-1
+  labels:
+    metrics-infra: hawkular-cassandra
+    name: hawkular-cassandra
+    type: hawkular-cassandra
+spec:
+  selector:
+    name: hawkular-cassandra-1
+  replicas: 0
+  template:
+    version: v1
+    metadata:
+      labels:
+        metrics-infra: hawkular-cassandra
+        name: hawkular-cassandra-1
+        type: hawkular-cassandra
+    spec:
+      serviceAccount: cassandra
+      securityContext:
+        fsGroup: <%= @fsgroup %>
+        seLinuxOptions:
+          level: "<%= @selinux_level %>"
+        supplementalGroups:
+        - <%= node['cookbook-openshift3']['openshift_metrics_cassandra_storage_group'] %>
+<% unless node['cookbook-openshift3']['openshift_metrics_cassandra_nodeselector'].empty? -%>
+      nodeSelector:
+<% node['cookbook-openshift3']['openshift_metrics_cassandra_nodeselector'].each_pair do |k, v| %>
+        <%= k %>: "<%= v %>"
+<%- end -%>
+<%- end -%>
+      containers:
+      - image: "<%= node['cookbook-openshift3']['openshift_metrics_image_prefix'] %>metrics-cassandra:<%= node['cookbook-openshift3']['openshift_metrics_image_version'] %>"
+        imagePullPolicy: Always
+        name: hawkular-cassandra-1
+        ports:
+        - name: cql-port
+          containerPort: 9042
+        - name: thift-port
+          containerPort: 9160
+        - name: tcp-port
+          containerPort: 7000
+        - name: ssl-port
+          containerPort: 7001
+        command:
+        - "/opt/apache-cassandra/bin/cassandra-docker.sh"
+        - "--cluster_name=hawkular-metrics"
+        - "--data_volume=/cassandra_data"
+        - "--internode_encryption=all"
+        - "--require_node_auth=true"
+        - "--enable_client_encryption=true"
+        - "--require_client_auth=true"
+        env:
+        - name: CASSANDRA_MASTER
+          value: "true"
+        - name: CASSANDRA_DATA_VOLUME
+          value: "/cassandra_data"
+        - name: JVM_OPTS
+          value: "-Dcassandra.commitlog.ignorereplayerrors=true"
+        - name: ENABLE_PROMETHEUS_ENDPOINT
+          value: "True"
+        - name: TRUSTSTORE_NODES_AUTHORITIES
+          value: "/hawkular-cassandra-certs/tls.peer.truststore.crt"
+        - name: TRUSTSTORE_CLIENT_AUTHORITIES
+          value: "/hawkular-cassandra-certs/tls.client.truststore.crt"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        - name: CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+              divisor: 1m
+        volumeMounts:
+        - name: cassandra-data
+          mountPath: "/cassandra_data"
+        - name: hawkular-cassandra-certs
+          mountPath: "/hawkular-cassandra-certs"
+        securityContext:
+          runAsUser: "<%= @run_as_uid %>"
+        readinessProbe:
+          exec:
+            command:
+            - "/opt/apache-cassandra/bin/cassandra-docker-ready.sh"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/opt/apache-cassandra/bin/cassandra-prestop.sh"
+          postStart:
+            exec:
+              command:
+              - "/opt/apache-cassandra/bin/cassandra-poststart.sh"
+      terminationGracePeriodSeconds: 1800
+      volumes:
+      - name: cassandra-data
+<% if node['cookbook-openshift3']['openshift_metrics_cassandra_storage_type'] == 'emptydir' -%>
+        emptyDir: {}
+<%- else -%>
+        persistentVolumeClaim:
+          claimName: "<%= node['cookbook-openshift3']['openshift_metrics_cassandra_pvc_prefix'] %>"
+<%- end -%>
+      - name: hawkular-cassandra-certs
+        secret:
+          secretName: hawkular-cassandra-certs

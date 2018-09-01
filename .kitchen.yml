@@ -66,6 +66,20 @@ openshift3-shared-attributes: &SHARED
   node_servers: *SERVERS
 
 suites:
+  - name: cluster-native-ose310
+    run_list:
+    - role[openshift3-base-ose310]
+    verifier:
+      inspec_tests:
+      - test/inspec/cluster-native
+      - test/inspec/shared
+    attributes:
+      cookbook-openshift3:
+        << : *SHARED
+        openshift_HA: true
+        openshift_cluster_name: test-cluster.domain.local
+        etcd_servers: *SERVERS
+
   - name: cluster-native-ose39
     run_list:
     - role[openshift3-base-ose39]

@@ -176,15 +176,10 @@ end
 action :create do
   converge_by "Deploying Logging on #{node['fqdn']}" do
     ose_major_version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'] : node['cookbook-openshift3']['ose_major_version']
-    FOLDER_LOGGING = case ose_major_version.split('.')[1].to_i
-                     when 6
-                       'logging_36'
-                     when 7
-                       'logging_37'
-                     when 9
-                       'logging_39'
-                     else
+    FOLDER_LOGGING = if ose_major_version.split('.')[1].to_i < 6
                        'logging_legacy'
+                     elsif ose_major_version.split('.')[1].to_i >= 6
+                       "logging_3#{ose_major_version.split('.')[1]}"
                      end
     CERT_FOLDER = node['cookbook-openshift3']['openshift_common_base_dir'] + '/logging'
     OAUTH_SECRET = random_password(64)

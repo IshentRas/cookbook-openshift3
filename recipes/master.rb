@@ -8,7 +8,7 @@ server_info = OpenShiftHelper::NodeHelper.new(node)
 etcd_servers = server_info.etcd_servers
 is_master_server = server_info.on_master_server?
 
-version = node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'][1..-1].sub(/^3/, '1').to_f.round(1) : node['cookbook-openshift3']['ose_major_version'].sub(/^3/, '1').to_f.round(1)
+version = "1.#{node['cookbook-openshift3']['deploy_containerized'] == true ? node['cookbook-openshift3']['openshift_docker_image_version'][1..-1].split('.')[1].to_i : node['cookbook-openshift3']['ose_major_version'].split('.')[1].to_i}"
 
 include_recipe 'cookbook-openshift3::etcd_cluster' if etcd_servers.any?
 

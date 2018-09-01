@@ -1,0 +1,147 @@
+apiVersion: "v1"
+kind: "DeploymentConfig"
+metadata:
+  name: "<%= @deploy_name %>"
+  labels:
+    provider: openshift
+    component: "<%= @component %>"
+    logging-infra: "<%= @logging_component %>"
+spec:
+  replicas: 0
+  selector:
+    provider: openshift
+    component: "<%= @component %>"
+    logging-infra: "<%= @logging_component %>"
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: "<%= @deploy_name %>"
+      labels:
+        logging-infra: "<%= @logging_component %>"
+        provider: openshift
+        component: "<%= @component %>"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: logging-infra
+                  operator: In
+                  values:
+                  - kibana
+              topologyKey: kubernetes.io/hostname
+      serviceAccountName: aggregated-logging-kibana
+<% unless node['cookbook-openshift3']['openshift_logging_kibana_nodeselector'].empty? -%>
+      nodeSelector:
+<% node['cookbook-openshift3']['openshift_logging_kibana_nodeselector'].each_pair do |k, v| %>
+        <%= k %>: "<%= v %>"
+<%- end -%>
+<%- end -%>
+      containers:
+        -
+          name: "kibana"
+          image: <%= @image %>
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+<% unless node['cookbook-openshift3']['openshift_logging_kibana_cpu_limit'].empty? -%>
+              cpu: "<%= node['cookbook-openshift3']['openshift_logging_kibana_cpu_limit'] %>"
+<% end -%>
+              memory: "<%= node['cookbook-openshift3']['openshift_logging_kibana_memory_limit'] %>"
+          env:
+            - name: "ES_HOST"
+              value: "<%= @es_host %>"
+            - name: "ES_PORT"
+              value: "<%= @es_port %>"
+            -
+              name: "KIBANA_MEMORY_LIMIT"
+              valueFrom:
+                resourceFieldRef:
+                  containerName: kibana
+                  resource: limits.memory
+          volumeMounts:
+            - name: kibana
+              mountPath: /etc/kibana/keys
+              readOnly: true
+        -
+          name: "kibana-proxy"
+          image: <%= @proxy_image %>
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+<% unless node['cookbook-openshift3']['openshift_logging_kibana_proxy_cpu_limit'].empty? -%>
+              cpu: "<%= node['cookbook-openshift3']['openshift_logging_kibana_proxy_cpu_limit'] %>"
+<% end -%>
+              memory: "<%= node['cookbook-openshift3']['openshift_logging_kibana_proxy_memory_limit'] %>"
+          ports:
+            -
+              name: "oaproxy"
+              containerPort: 3000
+          env:
+            -
+             name: "OAP_BACKEND_URL"
+             value: "http://localhost:5601"
+            -
+             name: "OAP_AUTH_MODE"
+             value: "oauth2"
+            -
+             name: "OAP_TRANSFORM"
+             value: "user_header,token_header"
+            -
+             name: "OAP_OAUTH_ID"
+             value: kibana-proxy
+            -
+             name: "OAP_MASTER_URL"
+             value: <%= node['cookbook-openshift3']['openshift_logging_master_url'] %>
+            -
+             name: "OAP_PUBLIC_MASTER_URL"
+             value: <%= node['cookbook-openshift3']['openshift_logging_master_public_url'] %>
+            -
+             name: "OAP_LOGOUT_REDIRECT"
+             value: <%= node['cookbook-openshift3']['openshift_logging_master_public_url'] + '/console/logout' %>
+            -
+             name: "OAP_MASTER_CA_FILE"
+             value: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            -
+             name: "OAP_DEBUG"
+             value: "<%= node['cookbook-openshift3']['openshift_logging_kibana_proxy_debug'] %>"
+            -
+             name: "OAP_OAUTH_SECRET_FILE"
+             value: "/secret/oauth-secret"
+            -
+             name: "OAP_SERVER_CERT_FILE"
+             value: "/secret/server-cert"
+            -
+             name: "OAP_SERVER_KEY_FILE"
+             value: "/secret/server-key"
+            -
+             name: "OAP_SERVER_TLS_FILE"
+             value: "/secret/server-tls.json"
+            -
+             name: "OAP_SESSION_SECRET_FILE"
+             value: "/secret/session-secret"
+            -
+             name: "OCP_AUTH_PROXY_MEMORY_LIMIT"
+             valueFrom:
+               resourceFieldRef:
+                 containerName: kibana-proxy
+                 resource: limits.memory
+          volumeMounts:
+            - name: kibana-proxy
+              mountPath: /secret
+              readOnly: true
+      volumes:
+        - name: kibana
+          secret:
+            secretName: logging-kibana
+        - name: kibana-proxy
+          secret:
+            secretName: logging-kibana-proxy

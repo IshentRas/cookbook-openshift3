@@ -1,0 +1,29 @@
+{
+  "name": "openshift3-base",
+  "description": "Openshift3 Common Base Role",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+
+  },
+  "override_attributes": {
+    "cookbook-openshift3": {
+      "openshift_deployment_type": "origin",
+      "ose_major_version": "3.10",
+      "ose_version": "3.10.0-1.el7.git.0.0c4577e",
+      "openshift_common_portal_net": "172.30.0.0/16",
+      "openshift_master_sdn_cluster_network_cidr": "10.128.0.0/14",
+      "openshift_master_sdn_host_subnet_length": 9,
+      "openshift_hosted_manage_router": true,
+      "openshift_hosted_manage_registry": true,
+      "openshift_hosted_cluster_metrics": true,
+      "openshift_hosted_cluster_logging": true,
+      "deploy_example": false,
+      "openshift_metrics_image_version": "v3.10",
+      "openshift_logging_image_version": "v3.10"
+    }
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[cookbook-openshift3::default]"
+  ]
+}
