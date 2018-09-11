@@ -123,6 +123,7 @@ default['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] = node['is_
 default['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/rhel7/etcd' : 'registry.fedoraproject.org/latest/etcd'
 default['is_apaas_openshift_cookbook']['openshift_master_config_dir'] = "#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master"
 default['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] = '0.0.0.0'
+default['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'] = {}
 default['is_apaas_openshift_cookbook']['openshift_master_auditconfig'] = { 'enable' => false }
 default['is_apaas_openshift_cookbook']['openshift_master_api_port'] = '8443'
 default['is_apaas_openshift_cookbook']['openshift_lb_port'] = '8443'

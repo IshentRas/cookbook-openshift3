@@ -564,6 +564,75 @@ and the following IAM policy attached to your *node* servers:
 }
 ```
 
+## Admission Controllers
+
+Admission control plug-ins intercept requests to the master API prior to persistence of a resource, but after the request is authenticated and authorised.
+
+To specify a customised Admission Plug-In use `node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config']`
+
+Following example is for enforcing the Image Policy
+
+```json
+{
+  "openshift_master_admission_plugin_config": {
+      "openshift.io/ImagePolicy": {
+          "configuration": {
+              "apiVersion": "v1",
+              "executionRules": [
+                  {
+                      "matchImageAnnotations": [
+                          {
+                              "key": "images.openshift.io/deny-execution",
+                              "value": "true"
+                          }
+                      ],
+                      "name": "execution-denied",
+                      "onResources": [
+                          {
+                              "resource": "pods"
+                          },
+                          {
+                              "resource": "builds"
+                          }
+                      ],
+                      "reject": true,
+                      "skipOnResolutionFailure": true
+                  },
+                  {
+                      "matchIntegratedRegistry": true,
+                      "name": "allow-images-from-internal-registry",
+                      "onResources": [
+                          {
+                              "resource": "pods"
+                          },
+                          {
+                              "resource": "builds"
+                          }
+                      ]
+                  },
+                  {
+                      "matchRegistries": [
+                          "docker.io"
+                      ],
+                      "name": "allow-images-from-dockerhub",
+                      "onResources": [
+                          {
+                              "resource": "pods"
+                          },
+                          {
+                              "resource": "builds"
+                          }
+                      ]
+                  }
+              ],
+              "kind": "ImagePolicyConfig",
+              "resolveImages": "AttemptRewrite"
+          }
+      }
+  }
+}
+```
+
 =====
 
 Include the default recipe in a CHEF role so as to ease the deployment. 
