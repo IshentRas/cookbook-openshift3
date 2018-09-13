@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.86
+### Improvement
+- (FIX) Give capability for specifing personalised Admission Plug-in (openshift_master_admission_plugin_config)
+- Patch any shard routers during upgrade
+
 ## v2.0.85
 ### Improvement
 - Give capability for specifing personalised Admission Plug-in (openshift_master_admission_plugin_config)

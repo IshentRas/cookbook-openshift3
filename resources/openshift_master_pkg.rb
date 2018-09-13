@@ -10,6 +10,7 @@ action :install do
   is_certificate_server = server_info.on_certificate_server?
   first_master = server_info.first_master
   docker_version = new_resource.docker_version.nil? ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : new_resource.docker_version
+  ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
 
   if node['is_apaas_openshift_cookbook']['deploy_containerized']
     docker_image node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] do
@@ -20,20 +21,30 @@ action :install do
     bash 'Add CLI to master(s)' do
       code <<-BASH
         docker create --name temp-cli ${DOCKER_IMAGE}:${DOCKER_TAG}
-        docker cp temp-cli:/usr/bin/oc /usr/local/bin/openshift
+        docker cp temp-cli:/usr/bin/${ORIGIN} /usr/local/bin/${ORIGIN}
         docker rm temp-cli
         BASH
       environment(
         'DOCKER_IMAGE' => node['is_apaas_openshift_cookbook']['openshift_docker_master_image'],
-        'DOCKER_TAG' => node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
+        'DOCKER_TAG' => node['is_apaas_openshift_cookbook']['openshift_docker_image_version'],
+        'ORIGIN' => ose_major_version.split('.')[1].to_i < 6 ? 'openshift' : 'oc'
       )
       not_if { ::File.exist?('/usr/local/bin/openshift') && !node['is_apaas_openshift_cookbook']['upgrade'] }
     end
 
-    %w(oadm oc kubectl).each do |client_symlink|
-      link "/usr/local/bin/#{client_symlink}" do
-        to '/usr/local/bin/openshift'
-        link_type :hard
+    if ose_major_version.split('.')[1].to_i < 6
+      %w(oadm oc kubectl).each do |client_symlink|
+        link "/usr/local/bin/#{client_symlink}" do
+          to '/usr/local/bin/openshift'
+          link_type :hard
+        end
+      end
+    else
+      %w(oadm kubectl).each do |client_symlink|
+        link "/usr/local/bin/#{client_symlink}" do
+          to '/usr/local/bin/oc'
+          link_type :hard
+        end
       end
     end
 

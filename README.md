@@ -13,8 +13,8 @@ Requirements
 
 ## Openshift Version ##
 
-* Support OSE version from 1.5+
-* Support Origin version from 1.5+
+* Support OSE version from 3.4+
+* Support Origin version from 1.4+
 * Default the installation to 3.9
 
 **Highly recommended**: 
@@ -64,8 +64,6 @@ In the following example, DNSMASQ will only be deployed on mynodeoverride.domain
 ```
 
 ### Supported version
-[x] 1.3 to 1.4
-
 [x] 1.4 to 1.5
 
 [x] 1.5 to 3.6
@@ -85,7 +83,7 @@ Variables:
 | NAME | PURPOSE | Default value | Mandatory |
 | ---------------- | ------------------------------- | ------------------ | ---------- |
 | control_upgrade | Execute an upgrade     | `false`    | `YES` |
-| control_upgrade_version | Target version (13,14,15,36,37,39)        |`""` |`YES`|
+| control_upgrade_version | Target version (14,15,36,37,39)        |`""` |`YES`|
 | control_upgrade_flag | Location of the control upgrade flag | `"/to_be_replaced"`  | `YES` |
 | upgrade_repos | Target YUM repo | `""` | `NO` |
 
@@ -343,9 +341,9 @@ Example of options for deploying router sharding:
       "selector": "region=shard2",
       "custom_router_file": "/folder/custom_template_forshard2",
       "env": [
-        "NAMESPACE_LABELS='dept != finance'",
+        "NAMESPACE_LABELS='dept != finance'"
       ]
-    },
+    }
   ],
   "openshift_common_service_accounts_additional": [
     { 
@@ -358,7 +356,6 @@ Example of options for deploying router sharding:
       "namespace": "custom-shard2", 
       "scc": ["hostnetwork"] 
     }
-
   ],
   "....."
 }

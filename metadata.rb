@@ -7,7 +7,7 @@ issues_url 'https://github.com/IshentRas/is_apaas_openshift_cookbook/issues'
 description 'Installs/Configures Openshift 3.x (>= 3.4)'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 chef_version '>= 12.4' if respond_to?(:chef_version)
-version '2.0.85'
+version '2.0.86'
 supports 'redhat', '>= 7.1'
 supports 'centos', '>= 7.1'
 
@@ -47,13 +47,11 @@ recipe 'is_apaas_openshift_cookbook::nodes_certificates', 'Configure certificate
 recipe 'is_apaas_openshift_cookbook::packages', 'Configure YUM repositories'
 recipe 'is_apaas_openshift_cookbook::services', 'Apply common services'
 recipe 'is_apaas_openshift_cookbook::upgrade_certificate_server', 'Control Upgrade for the certificate server (1.3 to 3.7)'
-recipe 'is_apaas_openshift_cookbook::upgrade_control_plane14', 'Control Upgrade from 1.3 to 1.4 (Control plane)'
 recipe 'is_apaas_openshift_cookbook::upgrade_control_plane15', 'Control Upgrade from 1.4 to 1.5 (Control plane)'
 recipe 'is_apaas_openshift_cookbook::upgrade_control_plane36', 'Control Upgrade from 1.5 to 3.6 (Control plane)'
 recipe 'is_apaas_openshift_cookbook::upgrade_control_plane37_part1', 'Control Upgrade from 3.6 to 3.7 (Control plane)'
 recipe 'is_apaas_openshift_cookbook::upgrade_control_plane37_part2', 'Control Upgrade from 3.6 to 3.7 (Control plane)'
 recipe 'is_apaas_openshift_cookbook::upgrade_control_plane37', 'Control Upgrade from 3.6 to 3.7 (Control plane)'
-recipe 'is_apaas_openshift_cookbook::upgrade_node14', 'Control Upgrade from 1.3 to 1.4 (Node only)'
 recipe 'is_apaas_openshift_cookbook::upgrade_node15', 'Control Upgrade from 1.4 to 1.5 (Node only)'
 recipe 'is_apaas_openshift_cookbook::upgrade_node36', 'Control Upgrade from 1.5 to 3.6 (Node only)'
 recipe 'is_apaas_openshift_cookbook::upgrade_node37', 'Control Upgrade from 3.6 to 3.7 (Node only)'

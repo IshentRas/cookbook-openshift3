@@ -81,8 +81,6 @@ The node phase includes upgrading:
 
 #### Supported Upgrade Versions
 
-[x] 1.3 to 1.4
-
 [x] 1.4 to 1.5
 
 [x] 1.5 to 3.6

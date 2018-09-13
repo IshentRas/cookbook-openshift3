@@ -8,10 +8,6 @@ if node['is_apaas_openshift_cookbook']['control_upgrade']
 
   if node['is_apaas_openshift_cookbook']['openshift_deployment_type'] == 'enterprise'
     case node['is_apaas_openshift_cookbook']['control_upgrade_version']
-    when '14'
-      default['is_apaas_openshift_cookbook']['upgrade_ose_major_version'] = '3.4'
-      default['is_apaas_openshift_cookbook']['upgrade_ose_version'] = '3.4.1.44.38-1.git.0.d04b8d5.el7'
-      default['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version'] = 'v3.4.1.44.38'
     when '15'
       default['is_apaas_openshift_cookbook']['upgrade_ose_major_version'] = '3.5'
       default['is_apaas_openshift_cookbook']['upgrade_ose_version'] = '3.5.5.31.66-1.git.0.b27a71b.el7'
@@ -31,10 +27,6 @@ if node['is_apaas_openshift_cookbook']['control_upgrade']
     end
   else
     case node['is_apaas_openshift_cookbook']['control_upgrade_version']
-    when '14'
-      default['is_apaas_openshift_cookbook']['upgrade_ose_major_version'] = '1.4'
-      default['is_apaas_openshift_cookbook']['upgrade_ose_version'] = '1.4.1-1.el7'
-      default['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version'] = 'v1.4.1'
     when '15'
       default['is_apaas_openshift_cookbook']['upgrade_ose_major_version'] = '1.5'
       default['is_apaas_openshift_cookbook']['upgrade_ose_version'] = '1.5.1-1.el7'

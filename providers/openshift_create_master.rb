@@ -6,7 +6,6 @@
 
 use_inline_resources
 require 'openssl'
-require 'json'
 
 provides :openshift_create_master if defined? provides
 
@@ -45,9 +44,9 @@ action :create do
     when 3..4
       admission_default = node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].empty? ? {} : node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config']
     when 5..6
-      admission_default = node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].empty? ? { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } } } : JSON.parse(node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'])
+      admission_default = node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].empty? ? { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } } } : node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].to_hash
     when 7..9
-      admission_default = node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].empty? ? { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } }, 'PodPreset' => { 'configuration' => { 'kind' => 'DefaultAdmissionConfig', 'apiVersion' => 'v1', 'disable' => false } } } : JSON.parse(node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config']).merge('PodPreset' => { 'configuration' => { 'kind' => 'DefaultAdmissionConfig', 'apiVersion' => 'v1', 'disable' => false } })
+      admission_default = node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].empty? ? { 'openshift.io/ImagePolicy' => { 'configuration' => { 'apiVersion' => 'v1', 'executionRules' => [{ 'matchImageAnnotations' => [{ 'key' => 'images.openshift.io/deny-execution', 'value' => 'true' }], 'name' => 'execution-denied', 'onResources' => [{ 'resource' => 'pods' }, { 'resource' => 'builds' }], 'reject' => true, 'skipOnResolutionFailure' => true }], 'kind' => 'ImagePolicyConfig' } }, 'PodPreset' => { 'configuration' => { 'kind' => 'DefaultAdmissionConfig', 'apiVersion' => 'v1', 'disable' => false } } } : node['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'].to_hash.merge('PodPreset' => { 'configuration' => { 'kind' => 'DefaultAdmissionConfig', 'apiVersion' => 'v1', 'disable' => false } })
     end
 
     if ::File.file?("#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/master-config.yaml") && node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i == 6
