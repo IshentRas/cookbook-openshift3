@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  annotations:
+    prometheus.io/scheme: https
+    prometheus.io/scrape: "true"
+    service.alpha.openshift.io/serving-cert-secret-name: controllermanager-ssl
+  name: controller-manager
+spec:
+  ports:
+  - name: secure
+    port: 443
+    protocol: TCP
+    targetPort: 6443
+  selector:
+    app: controller-manager
+  sessionAffinity: None

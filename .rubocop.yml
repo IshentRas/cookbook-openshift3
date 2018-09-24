@@ -1,3 +1,6 @@
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
 Metrics/ClassLength:
   Enabled: false
 
@@ -22,8 +25,8 @@ Style/PercentLiteralDelimiters:
     "%w": ()
     "%W": ()
 
-Style/TrailingCommaInHashLiteral:
-  Enabled: false
+# Style/TrailingCommaInHashLiteral:
+#   Enabled: false
 
 Lint/AmbiguousBlockAssociation:
   Enabled: false

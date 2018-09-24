@@ -41,6 +41,7 @@ action :create do
       end
 
       next unless pv.key?('claim')
+
       ruby_block "Create Persistent Claim: #{pv['name']}-claim" do
         block do
           pvc_template = YAML.load_file("#{Chef::Config[:file_cache_path]}/pvc_template.yaml")

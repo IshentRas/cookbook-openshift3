@@ -1,0 +1,51 @@
+allowDisabledDocker: false
+apiVersion: v1
+dnsBindAddress: 127.0.0.1:53
+dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
+dnsDomain: <%=node['is_apaas_openshift_cookbook']['osn_cluster_dns_domain'] %>
+dnsIP: 0.0.0.0
+dockerConfig:
+  execHandlerName: ""
+iptablesSyncPeriod: "<%= node['is_apaas_openshift_cookbook']['openshift_node_iptables_sync_period'] %>"
+imageConfig:
+  format: <%= node['is_apaas_openshift_cookbook']['openshift_common_registry_url'] %>
+  latest: <%= node['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] %>
+kind: NodeConfig
+kubeletArguments:
+  node-labels:
+    - <%= node['is_apaas_openshift_cookbook']['openshift_node_groups'] %>
+masterClientConnectionOverrides:
+  acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+  contentType: application/vnd.kubernetes.protobuf
+  burst: 200
+  qps: 100
+masterKubeConfig: system:node:<%= node['fqdn'].downcase %>.kubeconfig
+networkConfig:
+   mtu: <%= node['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] %>
+   networkPluginName: <%= node['is_apaas_openshift_cookbook']['openshift_common_sdn_network_plugin_name'] %>
+<% if node['is_apaas_openshift_cookbook']['openshift_set_node_ip'] -%>
+nodeIP: <%= node['is_apaas_openshift_cookbook']['openshift_common_ip'] %>
+<%- end -%>
+nodeName: <%= node['fqdn'] %>
+podManifestConfig:
+servingInfo:
+  bindAddress: 0.0.0.0:10250
+  certFile: server.crt
+  clientCA: ca.crt
+  keyFile: server.key
+<% if (defined?(node['is_apaas_openshift_cookbook']['openshift_node_min_tls_version'])).nil? %>
+  minTLSVersion: <%= node['is_apaas_openshift_cookbook']['openshift_node_min_tls_version'] %>
+<%- end -%>
+<% if (defined?(node['is_apaas_openshift_cookbook']['openshift_node_cipher_suites'])).nil? %>
+  cipherSuites:
+<% node['is_apaas_openshift_cookbook']['openshift_node_cipher_suites'].each do |cipher_suite| %>
+  - <%= cipher_suite %>
+<%- end -%>
+<%- end -%>
+volumeDirectory: <%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>/openshift.local.volumes
+proxyArguments:
+  proxy-mode:
+    - iptables
+volumeConfig:
+  localQuota:
+    perFSGroup: <%= node['is_apaas_openshift_cookbook']['openshift_node_local_quota_per_fsgroup'] %>

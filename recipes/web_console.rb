@@ -6,6 +6,7 @@
 
 server_info = OpenShiftHelper::NodeHelper.new(node)
 master_servers = server_info.master_servers
+oc_client = node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10 ? node['is_apaas_openshift_cookbook']['openshift_client_binary'] : node['is_apaas_openshift_cookbook']['openshift_common_client_binary']
 
 FOLDER = Chef::Config['file_cache_path'] + '/web_console'
 
@@ -37,9 +38,9 @@ template 'Generate the web console config to temp directory' do
 end
 
 execute 'Generate web console ConfigMap' do
-  command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap webconsole-config --from-file=webconsole-config.yaml=#{FOLDER}/console-config.yaml --dry-run -o yaml --config=#{FOLDER}/admin.kubeconfig | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
+  command "#{oc_client} create configmap webconsole-config --from-file=webconsole-config.yaml=#{FOLDER}/console-config.yaml --dry-run -o yaml --config=#{FOLDER}/admin.kubeconfig | #{oc_client} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
 end
 
 execute 'Generate the Deployment' do
-  command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} process -f #{FOLDER}/console-template.yaml --param IMAGE=#{node['is_apaas_openshift_cookbook']['openshift_web_console_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']} --param REPLICA_COUNT=#{master_servers.size} --config=#{FOLDER}/admin.kubeconfig | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
+  command "#{oc_client} process -f #{FOLDER}/console-template.yaml --param IMAGE=#{node['is_apaas_openshift_cookbook']['openshift_web_console_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']} --param REPLICA_COUNT=#{master_servers.size} --config=#{FOLDER}/admin.kubeconfig | #{oc_client} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
 end

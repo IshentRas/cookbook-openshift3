@@ -15,7 +15,7 @@ serial          = $dir/serial
 private_key     = $dir/ca.key
 crl_number      = $dir/crlnumber
 x509_extensions = etcd_v3_ca_client
-default_days    = 365
+default_days    = 1825
 default_md      = sha256
 preserve        = no
 name_opt        = ca_default
@@ -40,7 +40,7 @@ subjectKeyIdentifier   = hash
 [ etcd_v3_ca_server ]
 authorityKeyIdentifier = keyid,issuer:always
 basicConstraints       = critical,CA:FALSE
-extendedKeyUsage       = serverAuth
+extendedKeyUsage       = serverAuth,clientAuth
 keyUsage               = digitalSignature,keyEncipherment
 subjectKeyIdentifier   = hash
 

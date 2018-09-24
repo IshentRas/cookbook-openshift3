@@ -176,16 +176,12 @@ end
 action :create do
   converge_by "Deploying Logging on #{node['fqdn']}" do
     ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
-    FOLDER_LOGGING = case ose_major_version.split('.')[1].to_i
-                     when 6
-                       'logging_36'
-                     when 7
-                       'logging_37'
-                     when 9
-                       'logging_39'
-                     else
+    FOLDER_LOGGING = if ose_major_version.split('.')[1].to_i < 6
                        'logging_legacy'
+                     elsif ose_major_version.split('.')[1].to_i >= 6
+                       "logging_3#{ose_major_version.split('.')[1]}"
                      end
+
     CERT_FOLDER = node['is_apaas_openshift_cookbook']['openshift_common_base_dir'] + '/logging'
     OAUTH_SECRET = random_password(64)
 
@@ -372,6 +368,7 @@ action :create do
 
     %w(fluent.conf fluentd-throttle-config.yaml secure-forward.conf).each do |fluent|
       next if ose_major_version.split('.')[1].to_i >= 6 && fluent == 'fluent.conf'
+
       cookbook_file "#{FOLDER}/#{fluent}" do
         source "logging/#{fluent}"
       end
@@ -409,6 +406,7 @@ action :create do
         services = [{ 'metadata' => { 'name' => 'logging-es', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'es' }, 'ports' => [{ 'port' => 9200, 'targetPort' => 'restapi' }] }, { 'metadata' => { 'name' => 'logging-es-cluster', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'es' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9300 }] }, { 'metadata' => { 'name' => 'logging-kibana', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'kibana' }, 'ports' => [{ 'port' => 443, 'targetPort' => 'oaproxy' }] }, { 'metadata' => { 'name' => 'logging-es-ops', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'es-ops' }, 'ports' => [{ 'port' => 9200, 'targetPort' => 'restapi' }] }, { 'metadata' => { 'name' => 'logging-es-ops-cluster', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'es-ops' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9300 }] }, { 'metadata' => { 'name' => 'logging-kibana-ops', 'labels' => { 'logging-infra' => 'support' } }, 'selector' => { 'provider' => 'openshift', 'component' => 'kibana-ops' }, 'ports' => [{ 'port' => 443, 'targetPort' => 'oaproxy' }] }]
         services.each do |svc|
           next if !node['is_apaas_openshift_cookbook']['openshift_logging_use_ops'] && /-ops/ =~ svc['metadata']['name']
+
           generate_services(svc)
         end
       end
@@ -442,6 +440,7 @@ action :create do
         generate_rolebindings(rolebinding)
         routes.each do |route|
           next if !node['is_apaas_openshift_cookbook']['openshift_logging_use_ops'] && /-ops/ =~ route['metadata']['name']
+
           generate_routes(route)
         end
       end

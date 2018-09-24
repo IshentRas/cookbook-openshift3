@@ -1,0 +1,51 @@
+{
+    "kind": "Policy", 
+    "apiVersion": "v1", 
+    "predicates": [
+<% case node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i %>
+<% when 10 %>
+        {"name": "NoVolumeZoneConflict"},
+        {"name": "MaxEBSVolumeCount"},
+        {"name": "MaxGCEPDVolumeCount"},
+        {"name": "MaxAzureDiskVolumeCount"},
+        {"name": "MatchInterPodAffinity"},
+        {"name": "NoDiskConflict"},
+        {"name": "GeneralPredicates"},
+        {"name": "PodToleratesNodeTaints"},
+        {"name": "CheckNodeMemoryPressure"},
+        {"name": "CheckNodeDiskPressure"},
+        {"name": "CheckVolumeBinding"},
+<%- end -%>
+        {
+            "argument": {
+                "serviceAffinity": {
+                    "labels": [
+                        "region"
+                    ]
+                }
+            }, 
+            "name": "Region"
+        }
+    ], 
+    "priorities": [
+<% case node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i %>
+<% when 10 %>
+        {"name": "SelectorSpreadPriority", "weight": 1},
+        {"name": "InterPodAffinityPriority", "weight": 1},
+        {"name": "LeastRequestedPriority", "weight": 1},
+        {"name": "BalancedResourceAllocation", "weight": 1},
+        {"name": "NodePreferAvoidPodsPriority", "weight": 10000},
+        {"name": "NodeAffinityPriority", "weight": 1},
+        {"name": "TaintTolerationPriority", "weight": 1},
+<%- end -%>
+        {
+            "argument": {
+                "serviceAntiAffinity": {
+                    "label": "zone"
+                }
+            }, 
+            "name": "Zone", 
+            "weight": 2
+        }
+    ]
+}

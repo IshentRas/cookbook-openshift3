@@ -180,6 +180,19 @@ module OpenShiftHelper
       end
     end
 
+    def openshift_node_groups
+      if node_servers.any? { |server_node| server_node['fqdn'] == node['fqdn'] && server_node.key?('openshift_node_groups') }
+        node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }['openshift_node_groups']
+      else
+        'node-config-master' if on_master_server?
+        'node-config-compute' if on_node_server?
+      end
+    end
+
+    def check_pod_not_ready?(namespace, label, number)
+      ::Mixlib::ShellOut.new("[[ $(#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} get pod -l #{label} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig -n #{namespace} -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' | grep -o -w Ready | wc -w) -eq #{number.to_i} ]]").run_command.error?
+    end
+
     protected
 
     attr_reader :node
@@ -189,6 +202,7 @@ module OpenShiftHelper
   class UtilHelper
     def initialize(filepath)
       return ArgumentError, "File '#{filepath}' does not exist" unless File.exist?(filepath)
+
       @contents = File.open(filepath, &:read)
       @original_pathname = filepath
       @changes = false

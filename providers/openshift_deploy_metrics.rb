@@ -181,7 +181,7 @@ action :create do
 
       ruby_block "Generate #{component} certificate" do
         block do
-          ::File.open("#{CERT_FOLDER}/#{component}.pem", 'w+') { |f| f.puts ["#{CERT_FOLDER}/#{component}.key", "#{CERT_FOLDER}/#{component}.crt"].map { |s| IO.read(s) } }
+          open("#{CERT_FOLDER}/#{component}.pem", 'w+') { |f| f.puts ["#{CERT_FOLDER}/#{component}.key", "#{CERT_FOLDER}/#{component}.crt"].map { |s| IO.read(s) } }
         end
         not_if { ::File.exist?("#{CERT_FOLDER}/#{component}.pem") }
       end
@@ -295,6 +295,13 @@ action :create do
         random_word: random_password
       )
       sensitive true
+    end
+
+    template 'Generate hawkular-metrics schema job' do
+      path "#{FOLDER}/templates/hawkular_metrics_schema_job.yaml"
+      source "#{FOLDER_METRICS}/hawkular_metrics_schema_job.erb"
+      sensitive true
+      only_if { node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10 }
     end
 
     template 'Generate cassandra replication controller' do

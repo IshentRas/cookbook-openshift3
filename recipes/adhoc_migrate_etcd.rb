@@ -19,6 +19,7 @@ include_recipe 'is_apaas_openshift_cookbook::services'
 
 if is_etcd_server
   return if ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/.migrated")
+
   if ::Dir.glob("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/*.snap").empty?
     Chef::Log.error('Before the migration can proceed the etcd member must write down at least one snapshot under /var/lib/etcd/member/snap directory')
     return

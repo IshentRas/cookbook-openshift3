@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: apiserver
+spec:
+  ports:
+  - name: secure
+    port: 443
+    protocol: TCP
+    targetPort: 6443
+  selector:
+    app: apiserver
+  sessionAffinity: None

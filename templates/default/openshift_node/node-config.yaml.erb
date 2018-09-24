@@ -1,0 +1,55 @@
+kind: NodeConfig
+apiVersion: v1
+authConfig:
+  authenticationCacheSize: 1000
+  authenticationCacheTTL: 5m
+  authorizationCacheSize: 1000
+  authorizationCacheTTL: 5m
+dnsBindAddress: "127.0.0.1:53"
+dnsDomain: cluster.local
+dnsIP: 0.0.0.0
+dnsNameservers: null
+dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
+dockerConfig:
+  dockerShimRootDirectory: /var/lib/dockershim
+  dockerShimSocket: /var/run/dockershim.sock
+  execHandlerName: native
+enableUnidling: true
+imageConfig:
+  format: <%= node['is_apaas_openshift_cookbook']['openshift_common_registry_url'] %>
+  latest: <%= node['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] %>
+iptablesSyncPeriod: "<%= node['is_apaas_openshift_cookbook']['openshift_node_iptables_sync_period'] %>"
+kubeletArguments:
+  pod-manifest-path:
+  - /etc/origin/node/pods
+  bootstrap-kubeconfig:
+  - /etc/origin/node/bootstrap.kubeconfig
+  feature-gates:
+  - RotateKubeletClientCertificate=true,RotateKubeletServerCertificate=true
+  rotate-certificates:
+  - "true"
+  cert-dir:
+  - /etc/origin/node/certificates
+  node-labels:
+<% @node_labels.each do |label| %>
+    - <%= label %>
+<%- end -%>
+  enable-controller-attach-detach:
+  - 'true'
+masterClientConnectionOverrides:
+  acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+  burst: 40
+  contentType: application/vnd.kubernetes.protobuf
+  qps: 20
+masterKubeConfig: node.kubeconfig
+networkConfig:
+  mtu: <%= node['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] %>
+  networkPluginName: <%= node['is_apaas_openshift_cookbook']['openshift_common_sdn_network_plugin_name'] %>
+servingInfo:
+  bindAddress: 0.0.0.0:10250
+  bindNetwork: tcp4
+  clientCA: client-ca.crt
+volumeConfig:
+  localQuota:
+    perFSGroup: null
+volumeDirectory: <%= node['is_apaas_openshift_cookbook']['openshift_data_dir'] %>/openshift.local.volumes

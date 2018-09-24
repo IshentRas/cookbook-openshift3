@@ -15,7 +15,7 @@ Requirements
 
 * Support OSE version from 3.4+
 * Support Origin version from 1.4+
-* Default the installation to 3.9
+* Default the installation to 3.10
 
 **Highly recommended**: 
 
@@ -31,6 +31,7 @@ This cookbook does support upgrade between major versions (Read doc).
 - ETCD migration v2 to v3 (Mandatory before upgrading to 3.7)
 - Node vars override variables
 - Add or remove ETCD members from ETCD cluster
+- Early support for 3.10 (Work still ongoing)
 
 Supported Node Variables:
 
@@ -114,10 +115,10 @@ Variables:
 Test Matrix
 ===========
 
-| Platform   | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 | OSE <= 1.4.x |
-| --------   | --------- | --------- | --------- | --------- | ------------ |
-| centos 7.4 "cluster native" | PASS   | PASS      | PASS      | PASS      | Not supported |
-| centos 7.4 "standalone" | Not supported   | Not supported      | PASS      | PASS      | Not supported |
+| Platform   | OSE 3.10 | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 | OSE <= 1.4.x |
+| --------   | -------- | --------- | --------- | --------- | --------- | ------------ |
+| centos 7.4 "cluster native" | ONGOING | PASS   | PASS      | PASS      | PASS      | Not supported |
+| centos 7.4 "standalone" | Not supported | Not supported   | Not supported      | PASS      | PASS      | Not supported |
 
 Override Attributes
 ===================

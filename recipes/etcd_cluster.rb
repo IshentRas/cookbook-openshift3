@@ -60,7 +60,7 @@ if is_etcd_server || is_new_etcd_server
 
   remote_file "#{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}/ca.crt" do
     source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/ca.crt"
-    retries 60
+    retries ::Mixlib::ShellOut.new("systemctl is-enabled #{node['is_apaas_openshift_cookbook']['etcd_service_name']}").run_command.error? ? 180 : 60
     retry_delay 5
     sensitive true
     action :create_if_missing
