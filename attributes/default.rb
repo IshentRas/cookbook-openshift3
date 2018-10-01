@@ -256,7 +256,7 @@ default['is_apaas_openshift_cookbook']['etcd_remove_servers'] = []
 default['is_apaas_openshift_cookbook']['etcd_conf_dir'] = '/etc/etcd'
 default['is_apaas_openshift_cookbook']['legacy_etcd_ca_dir'] = "#{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}/ca"
 default['is_apaas_openshift_cookbook']['etcd_ca_dir'] = node['is_apaas_openshift_cookbook']['etcd_certs_generated_certs_dir']
-default['is_apaas_openshift_cookbook']['etcd_debug'] = 'False'
+default['is_apaas_openshift_cookbook']['etcd_debug'] = false
 default['is_apaas_openshift_cookbook']['etcd_generated_certs_dir'] = '/var/www/html/etcd/generated_certs'
 default['is_apaas_openshift_cookbook']['etcd_generated_ca_dir'] = '/var/www/html/etcd'
 default['is_apaas_openshift_cookbook']['etcd_generated_migrated_dir'] = '/var/www/html/etcd/migration'
@@ -275,6 +275,7 @@ default['is_apaas_openshift_cookbook']['etcd_ca_exts_peer'] = 'etcd_v3_ca_peer'
 default['is_apaas_openshift_cookbook']['etcd_ca_exts_server'] = 'etcd_v3_ca_server'
 
 default['is_apaas_openshift_cookbook']['etcd_initial_cluster_state'] = 'new'
+default['is_apaas_openshift_cookbook']['etcd_log_package_levels'] = ''
 default['is_apaas_openshift_cookbook']['etcd_initial_cluster_token'] = 'etcd-cluster-1'
 default['is_apaas_openshift_cookbook']['etcd_data_dir'] = '/var/lib/etcd'
 default['is_apaas_openshift_cookbook']['etcd_default_days'] = '1825'
@@ -312,7 +313,7 @@ default['is_apaas_openshift_cookbook']['openshift_node_local_quota_per_fsgroup']
 default['is_apaas_openshift_cookbook']['openshift_node_env_vars'] = {}
 default['is_apaas_openshift_cookbook']['openshift_node_groups'] = [{ 'name' => 'node-config-master', 'labels' => ['node-role.kubernetes.io/master=true'] }, { 'name' => 'node-config-infra', 'labels' => ['node-role.kubernetes.io/infra=true'] }, { 'name' => 'node-config-compute', 'labels' => ['node-role.kubernetes.io/compute=true'] }, { 'name' => 'node-config-master-infra', 'labels' => ['node-role.kubernetes.io/infra=true,node-role.kubernetes.io/master=true'] }, { 'name' => 'node-config-all-in-one', 'labels' => ['node-role.kubernetes.io/infra=true,node-role.kubernetes.io/master=true,node-role.kubernetes.io/compute=true'] }]
 default['is_apaas_openshift_cookbook']['openshift_client_binary'] = '/usr/bin/oc'
-default['is_apaas_openshift_cookbook']['openshift_etcd_static_pod'] = false
+default['is_apaas_openshift_cookbook']['openshift_etcd_static_pod'] = true
 default['is_apaas_openshift_cookbook']['openshift_core_api_list'] = %w(apps.openshift.io authorization.openshift.io build.openshift.io image.openshift.io network.openshift.io oauth.openshift.io project.openshift.io quota.openshift.io route.openshift.io security.openshift.io template.openshift.io user.openshift.io)
 default['is_apaas_openshift_cookbook']['openshift_master_csr_sa'] = 'node-bootstrapper'
 default['is_apaas_openshift_cookbook']['openshift_master_csr_namespace'] = 'openshift-infra'

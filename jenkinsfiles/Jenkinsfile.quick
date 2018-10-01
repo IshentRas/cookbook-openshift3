@@ -5,7 +5,7 @@ try {
   properties([parameters([
     string(name: 'BRANCH_NAME',                                  defaultValue: env.BRANCH_NAME,                                description: 'Branch to build'),
     string(name: 'builddir',                                     defaultValue: 'is_apaas_openshift_cookbook-test-' + env.BUILD_NUMBER, description: 'Build directory'),
-    string(name: 'OSE_VERSIONS',                                 defaultValue: '3.7',                                          description: 'OSE versions to build, separated by spaces'),
+    string(name: 'OSE_VERSIONS',                                 defaultValue: '3.9',                                          description: 'OSE versions to build, separated by spaces'),
     string(name: 'CHEF_IPTABLES_COOKBOOK_VERSION',               defaultValue: 'latest',                                       description: 'IPtables cookbook version, eg 1.0.0'),
     string(name: 'CHEF_SELINUX_COOKBOOK_VERSION',                defaultValue: 'latest',                                       description: 'SELinux cookbook version, eg 0.7.2'),
     string(name: 'CHEF_YUM_COOKBOOK_VERSION',                    defaultValue: 'latest',                                       description: 'yum cookbook version, eg 3.6.1'),

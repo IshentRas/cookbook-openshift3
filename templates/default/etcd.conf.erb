@@ -16,36 +16,34 @@ ETCD_INITIAL_CLUSTER_STATE=<%= @initial_cluster_state %>
 ETCD_INITIAL_CLUSTER_TOKEN=<%= node['is_apaas_openshift_cookbook']['etcd_initial_cluster_token'] %>
 #ETCD_DISCOVERY=""
 #ETCD_DISCOVERY_SRV=""
-#ETCD_DISCOVERY_FALLBACK="proxy"
+#ETCD_DISCOVERY_FALLBACK=proxy
 #ETCD_DISCOVERY_PROXY=""
 ETCD_ADVERTISE_CLIENT_URLS=https://<%= @etcd_servers.find{ |etcd| etcd['fqdn'] == node['fqdn']}['ipaddress'] %>:<%= node['is_apaas_openshift_cookbook']['etcd_client_port'] %>
-#ETCD_STRICT_RECONFIG_CHECK="false"
-#ETCD_AUTO_COMPACTION_RETENTION="0"
-#ETCD_ENABLE_V2="true"
+#ETCD_STRICT_RECONFIG_CHECK=false
+#ETCD_AUTO_COMPACTION_RETENTION=0
+#ETCD_ENABLE_V2=true
 ETCD_QUOTA_BACKEND_BYTES=<%= node['is_apaas_openshift_cookbook']['etcd_quota_backend_bytes'] %>
 #[proxy]
-#ETCD_PROXY="off"
+#ETCD_PROXY=off
 
 #[security]
 ETCD_TRUSTED_CA_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_ca_cert'] %>
-ETCD_CLIENT_CERT_AUTH="true"
+ETCD_CLIENT_CERT_AUTH=true
 ETCD_CERT_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_cert_file'] %>
 ETCD_KEY_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_cert_key'] %>
-#ETCD_AUTO_TLS="false"
+#ETCD_AUTO_TLS=false
 ETCD_PEER_TRUSTED_CA_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_ca_cert'] %>
-ETCD_PEER_CLIENT_CERT_AUTH="true"
+ETCD_PEER_CLIENT_CERT_AUTH=true
 ETCD_PEER_CERT_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_peer_file'] %>
 ETCD_PEER_KEY_FILE=<%= node['is_apaas_openshift_cookbook']['etcd_peer_key'] %>
-#ETCD_PEER_AUTO_TLS="false"
+#ETCD_PEER_AUTO_TLS=false
 
 #[logging]
-ETCD_DEBUG="<%= node['is_apaas_openshift_cookbook']['etcd_debug'] %>"
-<% if !(defined?(node['is_apaas_openshift_cookbook']['etcd_log_package_levels'])).nil? %>
-ETCD_LOG_PACKAGE_LEVELS="<%= node['is_apaas_openshift_cookbook']['etcd_log_package_levels'] %>"
-<% end -%>
+ETCD_DEBUG=<%= node['is_apaas_openshift_cookbook']['etcd_debug'] %>
+ETCD_LOG_PACKAGE_LEVELS=<%= node['is_apaas_openshift_cookbook']['etcd_log_package_levels'] %>
 #[profiling]
-#ETCD_ENABLE_PPROF="false"
-#ETCD_METRICS="basic"
+#ETCD_ENABLE_PPROF=false
+#ETCD_METRICS=basic
 #
 #[auth]
-#ETCD_AUTH_TOKEN="simple"
+#ETCD_AUTH_TOKEN=simple

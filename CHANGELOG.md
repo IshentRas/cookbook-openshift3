@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.90
+### Bug
+- Fix logic when checking API availability
+- Fix issue when disabling firewalld service for the 1st time
+
 ## v2.0.88
 ### Improvement
 - Add logic for waiting up to 15 minutes when first time creating etcd server

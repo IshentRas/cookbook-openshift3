@@ -17,6 +17,11 @@ include_recipe 'is_apaas_openshift_cookbook::docker'
 include_recipe 'iptables::default'
 include_recipe 'selinux_policy::default'
 
+service 'firewalld' do
+  action %i(stop disable)
+  notifies :run, 'execute[rebuild-iptables]', :immediately
+end
+
 iptables_rule 'firewall_jump_rule' do
   action :enable
 end
@@ -55,10 +60,6 @@ if !lb_servers.nil? && lb_servers.find { |lb| lb['fqdn'] == node['fqdn'] }
     notifies :run, 'execute[daemon-reload]', :immediately
     notifies :restart, 'service[haproxy]', :immediately
   end
-end
-
-service 'firewalld' do
-  action %i(stop disable)
 end
 
 package 'deltarpm' do

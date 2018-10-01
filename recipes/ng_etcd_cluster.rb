@@ -57,7 +57,7 @@ if is_etcd_server || is_new_etcd_server
       source 'etcd/etcd.yaml.erb'
       variables(
         etcd_image: "#{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}:#{docker_version}",
-        etcd_url: "#{etcd_ipaddress}:#{node['is_apaas_openshift_cookbook']['etcd_client_port']}"
+        etcd_url: "https://#{etcd_ipaddress}:#{node['is_apaas_openshift_cookbook']['etcd_client_port']}"
       )
       mode '0600'
       owner user_id

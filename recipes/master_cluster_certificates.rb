@@ -113,6 +113,12 @@ if is_certificate_server
               node['is_apaas_openshift_cookbook']['openshift_master_certs']
             end
 
+    remote_file "#{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/ca.serial.txt" do
+      source "file://#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca.serial.txt"
+      only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca.serial.txt") }
+      mode '0644'
+    end
+
     certs.grep(/\.(?:crt|kubeconfig)$/).uniq.each do |master_certificate|
       remote_file "#{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/#{master_certificate}" do
         source "file://#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/#{master_certificate}"

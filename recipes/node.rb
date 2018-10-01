@@ -100,7 +100,7 @@ if is_node_server
   template '/etc/sysconfig/atomic-openshift-node' do
     source 'service_node.sysconfig.erb'
     variables(sysconfig_vars)
-    notifies :restart, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade']
+    notifies :restart, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] || Mixlib::ShellOut.new('systemctl is-enabled atomic-openshift-node').run_command.error?
   end
 
   package 'atomic-openshift-node' do
@@ -280,8 +280,8 @@ if is_node_server
       kubelet_args: node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_default'].merge(node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_custom'])
     )
     notifies :run, 'execute[daemon-reload]', :immediately
-    notifies :restart, 'service[Restart Node]', :immediately
     notifies :enable, 'systemd_unit[atomic-openshift-node]', :immediately
+    notifies :restart, 'service[Restart Node]', :immediately
   end
 
   selinux_policy_boolean 'virt_use_nfs' do
@@ -289,8 +289,8 @@ if is_node_server
   end
 
   execute 'Wait for API to become available before starting Node component' do
-    command "[[ $(curl --silent --tlsv1.2 --max-time 2 ${MASTER_URL}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/ca.crt) =~ \"ok\" ]]"
-    environment 'MASTER_URL' => node['is_apaas_openshift_cookbook']['openshift_HA'] ? node['is_apaas_openshift_cookbook']['openshift_master_api_url'] : "https://#{node['is_apaas_openshift_cookbook']['openshift_common_api_hostname']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']}"
+    command '[[ $(curl --silent --tlsv1.2 --max-time 2 -k ${MASTER_URL}/healthz/ready) =~ "ok" ]]'
+    environment 'MASTER_URL' => node['is_apaas_openshift_cookbook']['openshift_master_api_url']
     retries 120
     retry_delay 1
     notifies :start, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] && node['is_apaas_openshift_cookbook']['deploy_containerized']

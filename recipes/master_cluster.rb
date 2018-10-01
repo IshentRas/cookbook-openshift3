@@ -91,14 +91,6 @@ remote_file "Retrieve ETCD CA cert from Certificate Server[#{certificate_server[
   action :create_if_missing
 end
 
-# %w(client.crt client.key).each do |certificate_type|
-#   file "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/#{node['is_apaas_openshift_cookbook']['master_etcd_cert_prefix']}#{certificate_type}" do
-#     owner 'root'
-#     group 'root'
-#     mode '0600'
-#   end
-# end
-
 remote_file "Retrieve master certificates from Certificate Server[#{certificate_server['fqdn']}]" do
   path "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/openshift-#{node['fqdn']}.tgz.enc"
   source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz.enc"
@@ -228,7 +220,7 @@ execute 'Activate services for Master API on all masters' do
 end
 
 execute 'Wait for API to become available' do
-  command "[[ $(curl --silent --tlsv1.2 --max-time 2 #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+  command "[[ $(curl --silent --tlsv1.2 --max-time 2 #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
   retries 120
   retry_delay 1
 end

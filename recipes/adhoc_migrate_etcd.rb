@@ -186,7 +186,9 @@ unless etcd_servers.size == 1
 
     template "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d/override.conf" do
       source 'etcd-override.conf.erb'
+      variables(path_bin: node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'].include?('coreos') ? '/usr/local/bin/etcd' : '/usr/bin/etcd')
     end
+
     remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
       path "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d/etcd-dropin"
       source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"

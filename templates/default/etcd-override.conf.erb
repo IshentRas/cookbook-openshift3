@@ -1,7 +1,7 @@
 <% if node['is_apaas_openshift_cookbook']['deploy_containerized'] %>
 [Service]
 ExecStart=
-ExecStart=/usr/bin/docker run --name <%= node['is_apaas_openshift_cookbook']['etcd_service_name'] %> --rm -v /var/lib/etcd:/var/lib/etcd:z -v <%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>:<%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>:ro --env-file=<%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>/etcd.conf --env-file=/etc/systemd/system/<%= node['is_apaas_openshift_cookbook']['etcd_service_name'] %>.service.d/etcd-dropin --net=host --entrypoint=/usr/bin/etcd <%= node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] %>
+ExecStart=/usr/bin/docker run --name <%= node['is_apaas_openshift_cookbook']['etcd_service_name'] %> --rm -v /var/lib/etcd:/var/lib/etcd:z -v <%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>:<%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>:ro --env-file=<%= node['is_apaas_openshift_cookbook']['etcd_conf_dir'] %>/etcd.conf --env-file=/etc/systemd/system/<%= node['is_apaas_openshift_cookbook']['etcd_service_name'] %>.service.d/etcd-dropin --net=host --entrypoint=<%= @path_bin %> <%= node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] %>
 <% else -%>
 [Service]
 EnvironmentFile=-/etc/systemd/system/<%= node['is_apaas_openshift_cookbook']['etcd_service_name'] %>.service.d/etcd-dropin

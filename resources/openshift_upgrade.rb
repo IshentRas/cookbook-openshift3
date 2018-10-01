@@ -35,7 +35,7 @@ end
 
 action :reconcile_cluster_roles do
   execute 'Wait for API to be ready' do
-    command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+    command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
     retries 120
     retry_delay 1
   end

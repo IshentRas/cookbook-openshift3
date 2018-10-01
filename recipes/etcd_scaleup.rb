@@ -12,6 +12,7 @@ certificate_server = server_info.certificate_server
 is_new_etcd_server = server_info.on_new_etcd_server?
 is_certificate_server = server_info.on_certificate_server?
 etcds = etcd_servers.map { |srv| "https://#{srv['ipaddress']}:2379" }.join(',')
+path_bin = node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'].include?('coreos') ? '/usr/local/bin/etcd' : '/usr/bin/etcd'
 
 unless new_etcd_servers.empty?
   if is_certificate_server
@@ -56,6 +57,7 @@ unless new_etcd_servers.empty?
     unless ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/.joined")
       template "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d/override.conf" do
         source 'etcd-override.conf.erb'
+        variables(path_bin: path_bin)
       end
 
       remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do

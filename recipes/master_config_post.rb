@@ -12,7 +12,7 @@ ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] 
 service_accounts = node['is_apaas_openshift_cookbook']['openshift_common_service_accounts_additional'].any? ? node['is_apaas_openshift_cookbook']['openshift_common_service_accounts'] + node['is_apaas_openshift_cookbook']['openshift_common_service_accounts_additional'] : node['is_apaas_openshift_cookbook']['openshift_common_service_accounts']
 
 execute 'Check Master API' do
-  command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+  command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
   retries 120
   retry_delay 1
 end
