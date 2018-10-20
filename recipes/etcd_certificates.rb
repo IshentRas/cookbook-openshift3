@@ -123,27 +123,13 @@ if is_certificate_server
     end
   end
 
-  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/ca.crt" do
-    owner 'root'
-    group 'root'
-    source "file://#{node['is_apaas_openshift_cookbook']['etcd_ca_dir']}/ca.crt"
-    mode '0644'
-    sensitive true
-  end
-
-  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.key" do
-    owner 'root'
-    group 'root'
-    source "file://#{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_servers.first['fqdn']}/peer.key"
-    mode '0644'
-    sensitive true
-  end
-
-  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.crt" do
-    owner 'root'
-    group 'root'
-    source "file://#{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_servers.first['fqdn']}/peer.crt"
-    mode '0644'
-    sensitive true
-  end
+	%w[ ca.crt peer.key peer.crt].each do |file|
+    remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/#{file}" do
+      owner 'root'
+      group 'root'
+      source "file://#{node['is_apaas_openshift_cookbook']['etcd_ca_dir']}/#{file}"
+      mode '0644'
+      sensitive true
+    end
+	end
 end

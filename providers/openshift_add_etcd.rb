@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-use_inline_resources
 provides :openshift_add_etcd if defined? provides
 
 def whyrun_supported?

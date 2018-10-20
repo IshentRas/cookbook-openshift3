@@ -28,7 +28,7 @@ if node['is_apaas_openshift_cookbook']['deploy_containerized']
     not_if { ::File.exist?('/usr/local/bin/openshift') && !node['is_apaas_openshift_cookbook']['upgrade'] }
   end
 
-  %w(oadm oc kubectl).each do |client_symlink|
+  %w[oadm oc kubectl].each do |client_symlink|
     link "/usr/local/bin/#{client_symlink}" do
       to '/usr/local/bin/openshift'
       link_type :hard

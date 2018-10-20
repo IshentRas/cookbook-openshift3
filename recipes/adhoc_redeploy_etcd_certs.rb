@@ -38,7 +38,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['redeploy_etcd_certs_control
         group 'apache'
       end
 
-      %w(server peer).each do |etcd_certificates|
+      %w[server peer].each do |etcd_certificates|
         execute "ETCD Create the #{etcd_certificates} csr for #{etcd_master['fqdn']}" do
           command "openssl req -new -keyout #{etcd_certificates}.key -config #{node['is_apaas_openshift_cookbook']['etcd_openssl_conf']} -out #{etcd_certificates}.csr -reqexts #{node['is_apaas_openshift_cookbook']['etcd_req_ext']} -batch -nodes -subj /CN=#{etcd_master['fqdn']}"
           environment 'SAN' => "IP:#{etcd_master['ipaddress']}"
@@ -139,7 +139,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['redeploy_etcd_certs_control
       action :nothing
     end
 
-    %w(cert peer).each do |certificate_type|
+    %w[cert peer].each do |certificate_type|
       file node['is_apaas_openshift_cookbook']['etcd_' + certificate_type + '_file'.to_s] do
         owner 'etcd'
         group 'etcd'
@@ -207,7 +207,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['redeploy_etcd_certs_control
       sensitive true
     end
 
-    %w(client.crt client.key).each do |certificate_type|
+    %w[client.crt client.key].each do |certificate_type|
       file "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/#{node['is_apaas_openshift_cookbook']['master_etcd_cert_prefix']}#{certificate_type}" do
         owner 'root'
         group 'root'

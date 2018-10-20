@@ -7,7 +7,7 @@
 provides :openshift_add_etcd
 resource_name :openshift_add_etcd
 
-actions %i(add_node remove_node)
+actions %i[add_node remove_node]
 
 default_action :add_node
 
