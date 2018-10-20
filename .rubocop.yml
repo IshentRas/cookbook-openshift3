@@ -17,16 +17,7 @@ Metrics/AbcSize:
   Enabled: false
 
 Style/FormatStringToken:
-  Enabled: false
-
-Style/PercentLiteralDelimiters:
-  PreferredDelimiters:
-    "%i": ()
-    "%w": ()
-    "%W": ()
-
-# Style/TrailingCommaInHashLiteral:
-#   Enabled: false
-
+  EnforcedStyle: template
+ 
 Lint/AmbiguousBlockAssociation:
   Enabled: false

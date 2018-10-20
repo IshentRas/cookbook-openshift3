@@ -14,7 +14,7 @@ try {
     string(name: 'CHEF_DEPLOY_METHODS',                          defaultValue: 'server solo',                                  description: 'Which deployment methods to use (server and/or solo)'),
     string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'false true',                                   description: 'If "true", deploy containerized, "true false" for both'),
     string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
-    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_colocated_etcd',               description: 'which cluster configs to test'),
+    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_basic',                        description: 'which cluster configs to test'),
     string(name: 'do_upgrade_14_15',                             defaultValue: 'true',                                         description: 'whether to upgrade from 1.4 to 1.5'),
     string(name: 'do_upgrade_15_36',                             defaultValue: 'true',                                         description: 'whether to upgrade from 1.5 to 3.6'),
     string(name: 'do_upgrade_36_37',                             defaultValue: 'false',                                        description: 'whether to upgrade from 3.6 to 3.7'),

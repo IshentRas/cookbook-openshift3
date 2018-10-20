@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-use_inline_resources
 provides :openshift_deploy_router if defined? provides
 
 def whyrun_supported?
@@ -52,7 +51,7 @@ action :create do
       not_if "#{oc_client} get secret router-certs -n $namespace_router --no-headers"
     end
 
-    deploy_options = %w(--selector=${selector_router} -n ${namespace_router}) + Array(new_resource.deployer_options)
+    deploy_options = %w[--selector=${selector_router} -n ${namespace_router}] + Array(new_resource.deployer_options)
     execute 'Deploy Hosted Router' do
       command "#{oc_client} adm router #{deploy_options.join(' ')} --images=#{node['is_apaas_openshift_cookbook']['openshift_docker_hosted_router_image']} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig || true"
       environment(

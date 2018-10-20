@@ -21,7 +21,7 @@ iptables_rule 'firewall_jump_rule' do
 end
 
 service 'firewalld' do
-  action %i(stop disable)
+  action %i[stop disable]
 end
 
 package 'deltarpm' do

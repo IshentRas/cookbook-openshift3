@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.91
+### Improvement
+- Give capability for recovering ETCD cluster
+- ETCD Snapshot tuning (etcd_snapshot_count)
+
 ## v2.0.90
 ### Bug
 - Fix logic when checking API availability

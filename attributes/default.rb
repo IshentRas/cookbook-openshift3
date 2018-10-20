@@ -10,7 +10,7 @@ originrepos = [
   { 'name' => 'centos-openshift-origin36', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin36/', 'gpgcheck' => false },
   { 'name' => 'centos-openshift-origin37', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin37/', 'gpgcheck' => false },
   { 'name' => 'centos-openshift-origin39', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin39/', 'gpgcheck' => false },
-  { 'name' => 'centos-openshift-origin310', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin/', 'gpgcheck' => false }, # hack
+  { 'name' => 'centos-openshift-origin310', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin310/', 'gpgcheck' => false }, # hack
 ].freeze
 server_info = OpenShiftHelper::NodeHelper.new(node)
 
@@ -70,20 +70,20 @@ default['is_apaas_openshift_cookbook']['docker_redhat_registry'] = true
 default['is_apaas_openshift_cookbook']['openshift_docker_add_redhat_registry'] = node['is_apaas_openshift_cookbook']['docker_redhat_registry'] == true ? '--add-registry registry.access.redhat.com' : ''
 default['is_apaas_openshift_cookbook']['install_method'] = 'yum'
 default['is_apaas_openshift_cookbook']['httpd_xfer_port'] = '9999'
-default['is_apaas_openshift_cookbook']['core_packages'] = %w(libselinux-python wget vim-enhanced net-tools bind-utils git bash-completion dnsmasq yum-utils ntp logrotate httpd-tools bind-utils firewalld openssl iproute python-dbus yum-utils cockpit-ws cockpit-system cockpit-bridge cockpit-docker atomic)
+default['is_apaas_openshift_cookbook']['core_packages'] = %w[libselinux-python wget vim-enhanced net-tools bind-utils git bash-completion dnsmasq yum-utils ntp logrotate httpd-tools bind-utils firewalld openssl iproute python-dbus yum-utils cockpit-ws cockpit-system cockpit-bridge cockpit-docker atomic]
 default['is_apaas_openshift_cookbook']['osn_cluster_dns_domain'] = 'cluster.local'
 default['is_apaas_openshift_cookbook']['osn_cluster_dns_ip'] = node['ipaddress']
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_certificate'] = %w(firewall_certificate)
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master'] = %w(firewall_master)
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master_cluster'] = %w(firewall_master_cluster)
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_node'] = %w(firewall_node)
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_certificate'] = %w[firewall_certificate]
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master'] = %w[firewall_master]
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_master_cluster'] = %w[firewall_master_cluster]
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_node'] = %w[firewall_node]
 default['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_node'] = []
 default['is_apaas_openshift_cookbook']['enabled_firewall_additional_rules_master'] = []
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_etcd'] = %w(firewall_etcd)
-default['is_apaas_openshift_cookbook']['enabled_firewall_rules_lb'] = %w(firewall_lb)
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_etcd'] = %w[firewall_etcd]
+default['is_apaas_openshift_cookbook']['enabled_firewall_rules_lb'] = %w[firewall_lb]
 default['is_apaas_openshift_cookbook']['openshift_service_type'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'atomic-openshift' : 'origin'
 default['is_apaas_openshift_cookbook']['registry_persistent_volume'] = ''
-default['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? %w() : originrepos.find_all { |x| x['name'] =~ /origin#{node['is_apaas_openshift_cookbook']['ose_major_version'].tr('.', '')}/ }
+default['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? %w[] : originrepos.find_all { |x| x['name'] =~ /origin#{node['is_apaas_openshift_cookbook']['ose_major_version'].tr('.', '')}/ }
 default['is_apaas_openshift_cookbook']['openshift_http_proxy'] = ''
 default['is_apaas_openshift_cookbook']['openshift_https_proxy'] = ''
 default['is_apaas_openshift_cookbook']['openshift_no_proxy'] = ''
@@ -134,9 +134,9 @@ default['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config
 default['is_apaas_openshift_cookbook']['openshift_master_auditconfig'] = { 'enable' => false }
 default['is_apaas_openshift_cookbook']['openshift_master_api_port'] = '8443'
 default['is_apaas_openshift_cookbook']['openshift_lb_port'] = '8443'
-default['is_apaas_openshift_cookbook']['openshift_master_certs'] = %w(admin.crt admin.key admin.kubeconfig master.kubelet-client.crt master.kubelet-client.key ca.crt ca.key ca.serial.txt ca-bundle.crt serviceaccounts.private.key serviceaccounts.public.key master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key openshift-registry.crt openshift-registry.key openshift-registry.kubeconfig openshift-router.crt openshift-router.key openshift-router.kubeconfig service-signer.crt service-signer.key)
-default['is_apaas_openshift_cookbook']['ng_openshift_master_certs'] = %w(admin.crt admin.key admin.kubeconfig aggregator-front-proxy.crt aggregator-front-proxy.key aggregator-front-proxy.kubeconfig front-proxy-ca.crt front-proxy-ca.key master.kubelet-client.crt master.kubelet-client.key master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key ca-bundle.crt ca.crt ca.key client-ca-bundle.crt serviceaccounts.private.key serviceaccounts.public.key)
-default['is_apaas_openshift_cookbook']['openshift_master_renew_certs'] = %w(admin.crt admin.key admin.kubeconfig master.kubelet-client.crt master.kubelet-client.key openshift-registry.crt openshift-registry.key openshift-registry.kubeconfig openshift-router.crt openshift-router.key openshift-router.kubeconfig master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key openshift-master.crt openshift-master.key openshift-master.kubeconfig master.server.crt master.server.key etcd.server.crt etcd.server.key)
+default['is_apaas_openshift_cookbook']['openshift_master_certs'] = %w[admin.crt admin.key admin.kubeconfig master.kubelet-client.crt master.kubelet-client.key ca.crt ca.key ca.serial.txt ca-bundle.crt serviceaccounts.private.key serviceaccounts.public.key master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key openshift-registry.crt openshift-registry.key openshift-registry.kubeconfig openshift-router.crt openshift-router.key openshift-router.kubeconfig service-signer.crt service-signer.key]
+default['is_apaas_openshift_cookbook']['ng_openshift_master_certs'] = %w[admin.crt admin.key admin.kubeconfig aggregator-front-proxy.crt aggregator-front-proxy.key aggregator-front-proxy.kubeconfig front-proxy-ca.crt front-proxy-ca.key master.kubelet-client.crt master.kubelet-client.key master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key ca-bundle.crt ca.crt ca.key client-ca-bundle.crt serviceaccounts.private.key serviceaccounts.public.key]
+default['is_apaas_openshift_cookbook']['openshift_master_renew_certs'] = %w[admin.crt admin.key admin.kubeconfig master.kubelet-client.crt master.kubelet-client.key openshift-registry.crt openshift-registry.key openshift-registry.kubeconfig openshift-router.crt openshift-router.key openshift-router.kubeconfig master.proxy-client.crt master.proxy-client.key service-signer.crt service-signer.key openshift-master.crt openshift-master.key openshift-master.kubeconfig master.server.crt master.server.key etcd.server.crt etcd.server.key]
 default['is_apaas_openshift_cookbook']['openshift_master_console_port'] = '8443'
 default['is_apaas_openshift_cookbook']['openshift_master_controllers_port'] = '8444'
 default['is_apaas_openshift_cookbook']['openshift_master_controller_lease_ttl'] = '30'
@@ -182,9 +182,9 @@ default['is_apaas_openshift_cookbook']['openshift_master_api_systemd'] = '/usr/l
 default['is_apaas_openshift_cookbook']['openshift_master_controllers_sysconfig'] = '/etc/sysconfig/atomic-openshift-master-controllers'
 default['is_apaas_openshift_cookbook']['openshift_master_controllers_systemd'] = '/usr/lib/systemd/system/atomic-openshift-master-controllers.service'
 default['is_apaas_openshift_cookbook']['openshift_master_ca_certificate'] = { 'data_bag_name' => nil, 'data_bag_item_name' => nil, 'secret_file' => nil }
-default['is_apaas_openshift_cookbook']['openshift_master_named_certificates'] = %w()
+default['is_apaas_openshift_cookbook']['openshift_master_named_certificates'] = %w[]
 default['is_apaas_openshift_cookbook']['openshift_master_scheduler_conf'] = "#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/scheduler.json"
-default['is_apaas_openshift_cookbook']['openshift_master_managed_names_additional'] = %w()
+default['is_apaas_openshift_cookbook']['openshift_master_managed_names_additional'] = %w[]
 default['is_apaas_openshift_cookbook']['openshift_master_retain_events'] = nil
 default['is_apaas_openshift_cookbook']['openshift_master_api_server_args_custom'] = {}
 default['is_apaas_openshift_cookbook']['openshift_master_controller_args_custom'] = {}
@@ -259,7 +259,9 @@ default['is_apaas_openshift_cookbook']['etcd_ca_dir'] = node['is_apaas_openshift
 default['is_apaas_openshift_cookbook']['etcd_debug'] = false
 default['is_apaas_openshift_cookbook']['etcd_generated_certs_dir'] = '/var/www/html/etcd/generated_certs'
 default['is_apaas_openshift_cookbook']['etcd_generated_ca_dir'] = '/var/www/html/etcd'
+default['is_apaas_openshift_cookbook']['etcd_certificate_dir'] = '/var/www/html/etcd_certificate_server'
 default['is_apaas_openshift_cookbook']['etcd_generated_migrated_dir'] = '/var/www/html/etcd/migration'
+default['is_apaas_openshift_cookbook']['etcd_generated_recovery_dir'] = '/var/www/html/etcd/recovery'
 default['is_apaas_openshift_cookbook']['etcd_generated_scaleup_dir'] = '/var/www/html/etcd/scaleup'
 default['is_apaas_openshift_cookbook']['etcd_generated_remove_dir'] = '/var/www/html/etcd/removal'
 default['is_apaas_openshift_cookbook']['etcd_ca_cert'] = "#{node['is_apaas_openshift_cookbook']['etcd_conf_dir']}/ca.crt"
@@ -278,12 +280,13 @@ default['is_apaas_openshift_cookbook']['etcd_initial_cluster_state'] = 'new'
 default['is_apaas_openshift_cookbook']['etcd_log_package_levels'] = ''
 default['is_apaas_openshift_cookbook']['etcd_initial_cluster_token'] = 'etcd-cluster-1'
 default['is_apaas_openshift_cookbook']['etcd_data_dir'] = '/var/lib/etcd'
+default['is_apaas_openshift_cookbook']['etcd_snapshot_count'] = ''
 default['is_apaas_openshift_cookbook']['etcd_default_days'] = '1825'
 
 default['is_apaas_openshift_cookbook']['etcd_client_port'] = '2379'
 default['is_apaas_openshift_cookbook']['etcd_peer_port'] = '2380'
 
-default['is_apaas_openshift_cookbook']['docker_dns_search_option'] = %w()
+default['is_apaas_openshift_cookbook']['docker_dns_search_option'] = %w[]
 
 default['is_apaas_openshift_cookbook']['switch_off_provider_notify_version'] = '12.4.1'
 
@@ -314,10 +317,10 @@ default['is_apaas_openshift_cookbook']['openshift_node_env_vars'] = {}
 default['is_apaas_openshift_cookbook']['openshift_node_groups'] = [{ 'name' => 'node-config-master', 'labels' => ['node-role.kubernetes.io/master=true'] }, { 'name' => 'node-config-infra', 'labels' => ['node-role.kubernetes.io/infra=true'] }, { 'name' => 'node-config-compute', 'labels' => ['node-role.kubernetes.io/compute=true'] }, { 'name' => 'node-config-master-infra', 'labels' => ['node-role.kubernetes.io/infra=true,node-role.kubernetes.io/master=true'] }, { 'name' => 'node-config-all-in-one', 'labels' => ['node-role.kubernetes.io/infra=true,node-role.kubernetes.io/master=true,node-role.kubernetes.io/compute=true'] }]
 default['is_apaas_openshift_cookbook']['openshift_client_binary'] = '/usr/bin/oc'
 default['is_apaas_openshift_cookbook']['openshift_etcd_static_pod'] = true
-default['is_apaas_openshift_cookbook']['openshift_core_api_list'] = %w(apps.openshift.io authorization.openshift.io build.openshift.io image.openshift.io network.openshift.io oauth.openshift.io project.openshift.io quota.openshift.io route.openshift.io security.openshift.io template.openshift.io user.openshift.io)
+default['is_apaas_openshift_cookbook']['openshift_core_api_list'] = %w[apps.openshift.io authorization.openshift.io build.openshift.io image.openshift.io network.openshift.io oauth.openshift.io project.openshift.io quota.openshift.io route.openshift.io security.openshift.io template.openshift.io user.openshift.io]
 default['is_apaas_openshift_cookbook']['openshift_master_csr_sa'] = 'node-bootstrapper'
 default['is_apaas_openshift_cookbook']['openshift_master_csr_namespace'] = 'openshift-infra'
-default['is_apaas_openshift_cookbook']['image_streams'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? %w(image-streams-rhel7.json dotnet_imagestreams.json) : %w(image-streams-centos7.json dotnet_imagestreams_centos.json)
+default['is_apaas_openshift_cookbook']['image_streams'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? %w[image-streams-rhel7.json dotnet_imagestreams.json] : %w[image-streams-centos7.json dotnet_imagestreams_centos.json]
 default['is_apaas_openshift_cookbook']['openshift_service_catalog_async_bindings_enabled'] = true
 default['is_apaas_openshift_cookbook']['openshift_service_catalog_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/openshift3/ose-service-catalog' : 'docker.io/openshift/origin-service-catalog'
 default['is_apaas_openshift_cookbook']['template_service_broker_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/openshift3/ose-template-service-broker' : 'docker.io/openshift/origin-template-service-broker'

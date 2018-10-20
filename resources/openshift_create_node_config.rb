@@ -88,7 +88,8 @@ action :create_sync do
     end
 
     execute 'Temporary fix until we fix "oc apply" for image stream tags (sync)' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} delete -n openshift-node istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} $ACTION -n openshift-node istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      environment 'ACTION' => 'delete'
     end
 
     ruby_block 'Apply the config for sync node config reconcilation' do
@@ -122,7 +123,8 @@ action :create_sdn do
     end
 
     execute 'Temporary fix until we fix "oc apply" for image stream tags (sdn)' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} delete -n openshift-sdn istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} $ACTION -n openshift-sdn istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      environment 'ACTION' => 'delete'
     end
 
     ruby_block 'Apply the config for sdn node config' do
@@ -156,7 +158,8 @@ action :create_bootstrap_controller do
     end
 
     execute 'Temporary fix until we fix "oc apply" for image stream tags (autoapprover)' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} delete -n openshift-infra istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} $ACTION -n openshift-infra istag node:v3.10 --ignore-not-found --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      environment 'ACTION' => 'delete'
     end
 
     ruby_block 'Apply the config for autoapprover node config' do

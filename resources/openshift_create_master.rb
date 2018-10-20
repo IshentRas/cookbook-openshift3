@@ -7,7 +7,7 @@
 provides :openshift_create_master
 resource_name :openshift_create_master
 
-actions %i(create create_ng)
+actions %i[create create_ng]
 
 default_action :create
 

@@ -18,7 +18,7 @@ include_recipe 'iptables::default'
 include_recipe 'selinux_policy::default'
 
 service 'firewalld' do
-  action %i(stop disable)
+  action %i[stop disable]
   notifies :run, 'execute[rebuild-iptables]', :immediately
 end
 
@@ -66,7 +66,9 @@ package 'deltarpm' do
   retries 3
 end
 
-yum_package node['is_apaas_openshift_cookbook']['core_packages']
+yum_package node['is_apaas_openshift_cookbook']['core_packages'] do
+  only_if { is_master_server || is_node_server }
+end
 
 package 'httpd' do
   notifies :run, 'ruby_block[Change HTTPD port xfer]', :immediately

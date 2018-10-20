@@ -2,4 +2,4 @@ grep -r "#{node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]}" a
 grep -r "\ node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]" attributes providers recipes -l | xargs sed -i "s/\ node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\]/\ 'atomic-openshift'/g"
 grep -r "<%= node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\] %>" templates -l | xargs sed -i "s/<%= node\['is_apaas_openshift_cookbook'\]\['openshift_service_type'\] %>/atomic-openshift/g"
 grep is_apaas_openshift_cookbook -R -l | grep -v '^\.' | xargs sed 's/is_apaas_openshift_cookbook/is_apaas_openshift_cookbook/g' -i
-docker run -t --rm --volume "$PWD:/app:Z" --workdir /app chef/chefdk:1.6.1 rubocop -a
+docker run -t --rm --volume "$PWD:/app:Z" --workdir /app chef/chefdk:2.5.3 rubocop -a

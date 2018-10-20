@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-use_inline_resources
 provides :openshift_deploy_metrics if defined? provides
 
 def whyrun_supported?
@@ -107,7 +106,7 @@ action :delete do
       environment 'ACTION' => 'delete'
     end
 
-    %W(#{CERT_FOLDER} #{FOLDER}).each do |dir|
+    %W[#{CERT_FOLDER} #{FOLDER}].each do |dir|
       directory dir do
         recursive true
         action :delete
@@ -166,7 +165,7 @@ action :create do
       not_if { ::File.exist?("#{CERT_FOLDER}/ca.crt") }
     end
 
-    %w(hawkular-metrics hawkular-cassandra heapster).each do |component|
+    %w[hawkular-metrics hawkular-cassandra heapster].each do |component|
       execute "Generate #{component} keys" do
         command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-server-cert \
                 --config=#{FOLDER}/admin.kubeconfig \
@@ -207,7 +206,7 @@ action :create do
       end
     end
 
-    %w(hawkular-metrics hawkular-jgroups-keystore).each do |component|
+    %w[hawkular-metrics hawkular-jgroups-keystore].each do |component|
       file "Generate random password for the #{component} truststore" do
         path "#{CERT_FOLDER}/#{component}.pwd"
         content random_password
@@ -253,7 +252,7 @@ action :create do
       end
     end
 
-    metric_components = { 'serviceaccounts' => [{ 'metadata' => { 'name' => 'hawkular', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'hawkular-metrics-secrets' }] }, { 'metadata' => { 'name' => 'cassandra', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'hawkular-cassandra-secrets' }] }, { 'metadata' => { 'name' => 'heapster', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'heapster-secrets' }, { 'name' => 'hawkular-metrics-certificate' }, { 'name' => 'hawkular-metrics-account' }] }], 'services' => [{ 'metadata' => { 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics', 'name' => 'hawkular-metrics' } }, 'selector' => { 'name' => 'hawkular-metrics' }, 'ports' => [{ 'port' => 443, 'targetPort' => 'https-endpoint' }] }, { 'metadata' => { 'name' => 'hawkular-cassandra', 'labels' => { 'metrics-infra' => 'hawkular-cassandra', 'name' => 'hawkular-cassandra' } }, 'selector' => { 'type' => 'hawkular-cassandra' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9042, 'targetPort' => 'cql-port' }, { 'name' => 'thrift-port', 'port' => 9160, 'targetPort' => 'thrift-port' }, { 'name' => 'tcp-port', 'port' => 7000, 'targetPort' => 'tcp-port' }, { 'name' => 'ssl-port', 'port' => 7001, 'targetPort' => 'ssl-port' }] }, { 'metadata' => { 'name' => 'hawkular-cassandra-nodes', 'labels' => { 'metrics-infra' => 'hawkular-cassandra-nodes', 'name' => 'hawkular-cassandra-nodes' } }, 'selector' => { 'type' => 'hawkular-cassandra' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9042, 'targetPort' => 'cql-port' }, { 'name' => 'thrift-port', 'port' => 9160, 'targetPort' => 'thrift-port' }, { 'name' => 'tcp-port', 'port' => 7000, 'targetPort' => 'tcp-port' }, { 'name' => 'ssl-port', 'port' => 7001, 'targetPort' => 'ssl-port' }], 'headless' => true }, { 'metadata' => { 'name' => 'heapster', 'labels' => { 'metrics-infra' => 'heapster', 'name' => 'heapster' }, 'annotations' => { 'service.alpha.openshift.io/serving-cert-secret-name' => 'heapster-certs' } }, 'selector' => { 'name' => 'heapster' }, 'ports' => [{ 'port' => 80, 'targetPort' => 'http-endpoint' }] }], 'rolebindings' => [{ 'metadata' => { 'name' => 'hawkular-view', 'labels' => { 'metrics-infra' => 'hawkular' } }, 'rolerefs' => { 'name' => 'view' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }] }, { 'metadata' => { 'name' => 'hawkular-namespace-watcher', 'labels' => { 'metrics-infra' => 'hawkular' } }, 'rolerefs' => { 'name' => 'hawkular-metrics', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }, { 'metadata' => { 'name' => 'heapster-cluster-reader', 'labels' => { 'metrics-infra' => 'heapster' } }, 'rolerefs' => { 'name' => 'cluster-reader', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'heapster', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }], 'roles' => [{ 'metadata' => { 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics' } }, 'rules' => [{ 'apiGroups' => [''], 'resources' => ['namespaces'], 'verbs' => %w(list get watch) }], 'cluster' => true }] }
+    metric_components = { 'serviceaccounts' => [{ 'metadata' => { 'name' => 'hawkular', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'hawkular-metrics-secrets' }] }, { 'metadata' => { 'name' => 'cassandra', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'hawkular-cassandra-secrets' }] }, { 'metadata' => { 'name' => 'heapster', 'labels' => { 'metrics-infra' => 'support' } }, 'secrets' => [{ 'name' => 'heapster-secrets' }, { 'name' => 'hawkular-metrics-certificate' }, { 'name' => 'hawkular-metrics-account' }] }], 'services' => [{ 'metadata' => { 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics', 'name' => 'hawkular-metrics' } }, 'selector' => { 'name' => 'hawkular-metrics' }, 'ports' => [{ 'port' => 443, 'targetPort' => 'https-endpoint' }] }, { 'metadata' => { 'name' => 'hawkular-cassandra', 'labels' => { 'metrics-infra' => 'hawkular-cassandra', 'name' => 'hawkular-cassandra' } }, 'selector' => { 'type' => 'hawkular-cassandra' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9042, 'targetPort' => 'cql-port' }, { 'name' => 'thrift-port', 'port' => 9160, 'targetPort' => 'thrift-port' }, { 'name' => 'tcp-port', 'port' => 7000, 'targetPort' => 'tcp-port' }, { 'name' => 'ssl-port', 'port' => 7001, 'targetPort' => 'ssl-port' }] }, { 'metadata' => { 'name' => 'hawkular-cassandra-nodes', 'labels' => { 'metrics-infra' => 'hawkular-cassandra-nodes', 'name' => 'hawkular-cassandra-nodes' } }, 'selector' => { 'type' => 'hawkular-cassandra' }, 'ports' => [{ 'name' => 'cql-port', 'port' => 9042, 'targetPort' => 'cql-port' }, { 'name' => 'thrift-port', 'port' => 9160, 'targetPort' => 'thrift-port' }, { 'name' => 'tcp-port', 'port' => 7000, 'targetPort' => 'tcp-port' }, { 'name' => 'ssl-port', 'port' => 7001, 'targetPort' => 'ssl-port' }], 'headless' => true }, { 'metadata' => { 'name' => 'heapster', 'labels' => { 'metrics-infra' => 'heapster', 'name' => 'heapster' }, 'annotations' => { 'service.alpha.openshift.io/serving-cert-secret-name' => 'heapster-certs' } }, 'selector' => { 'name' => 'heapster' }, 'ports' => [{ 'port' => 80, 'targetPort' => 'http-endpoint' }] }], 'rolebindings' => [{ 'metadata' => { 'name' => 'hawkular-view', 'labels' => { 'metrics-infra' => 'hawkular' } }, 'rolerefs' => { 'name' => 'view' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }] }, { 'metadata' => { 'name' => 'hawkular-namespace-watcher', 'labels' => { 'metrics-infra' => 'hawkular' } }, 'rolerefs' => { 'name' => 'hawkular-metrics', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'hawkular', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }, { 'metadata' => { 'name' => 'heapster-cluster-reader', 'labels' => { 'metrics-infra' => 'heapster' } }, 'rolerefs' => { 'name' => 'cluster-reader', 'kind' => 'ClusterRole' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'heapster', 'namespace' => node['is_apaas_openshift_cookbook']['openshift_metrics_project'] }], 'cluster' => true }], 'roles' => [{ 'metadata' => { 'name' => 'hawkular-metrics', 'labels' => { 'metrics-infra' => 'hawkular-metrics' } }, 'rules' => [{ 'apiGroups' => [''], 'resources' => ['namespaces'], 'verbs' => %w[list get watch] }], 'cluster' => true }] }
 
     ruby_block 'Create Resources for Metrics' do
       block do

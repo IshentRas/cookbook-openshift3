@@ -33,14 +33,14 @@ action :install do
     end
 
     if ose_major_version.split('.')[1].to_i < 6
-      %w(oadm oc kubectl).each do |client_symlink|
+      %w[oadm oc kubectl].each do |client_symlink|
         link "/usr/local/bin/#{client_symlink}" do
           to '/usr/local/bin/openshift'
           link_type :hard
         end
       end
     else
-      %w(oadm kubectl).each do |client_symlink|
+      %w[oadm kubectl].each do |client_symlink|
         link "/usr/local/bin/#{client_symlink}" do
           to '/usr/local/bin/oc'
           link_type :hard

@@ -8,7 +8,7 @@ server_info = OpenShiftHelper::NodeHelper.new(node)
 node_servers = server_info.node_servers
 is_master_server = server_info.on_master_server?
 
-%W(/var/www/html/node #{node['is_apaas_openshift_cookbook']['openshift_node_generated_configs_dir']}).each do |path|
+%W[/var/www/html/node #{node['is_apaas_openshift_cookbook']['openshift_node_generated_configs_dir']}].each do |path|
   directory path do
     owner 'apache'
     group 'apache'

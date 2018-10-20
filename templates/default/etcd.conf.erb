@@ -1,7 +1,11 @@
 ETCD_NAME=<%= node['fqdn'] %>
 ETCD_LISTEN_PEER_URLS=https://<%= @etcd_servers.find{ |etcd| etcd['fqdn'] == node['fqdn']}['ipaddress'] %>:<%= node['is_apaas_openshift_cookbook']['etcd_peer_port'] %>
 ETCD_DATA_DIR=<%= node['is_apaas_openshift_cookbook']['etcd_data_dir'] %>
+<%- if node['is_apaas_openshift_cookbook']['etcd_snapshot_count'].empty? -%>
 #ETCD_SNAPSHOT_COUNTER=10000
+<%- else -%>
+ETCD_SNAPSHOT_COUNT=<%= node['is_apaas_openshift_cookbook']['etcd_snapshot_count'] %>
+<%- end -%>
 ETCD_HEARTBEAT_INTERVAL=500
 ETCD_ELECTION_TIMEOUT=2500
 ETCD_LISTEN_CLIENT_URLS=https://<%= @etcd_servers.find{ |etcd| etcd['fqdn'] == node['fqdn']}['ipaddress'] %>:<%= node['is_apaas_openshift_cookbook']['etcd_client_port'] %>

@@ -255,7 +255,7 @@ if is_node_server
 
     # ignore_failure in case this fails/is not necessary
     service 'dnsmasq' do
-      action %i(enable start)
+      action %i[enable start]
       ignore_failure true
     end
 

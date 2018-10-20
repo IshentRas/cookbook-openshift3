@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-use_inline_resources
 provides :openshift_deploy_logging if defined? provides
 
 def whyrun_supported?
@@ -260,7 +259,7 @@ action :create do
       source 'logging/server-tls.json'
     end
 
-    %w(ca.db ca.crl.srl).each do |ca_help|
+    %w[ca.db ca.crl.srl].each do |ca_help|
       file "Initialise #{ca_help}" do
         path "#{CERT_FOLDER}/#{ca_help}"
         content ''
@@ -268,7 +267,7 @@ action :create do
       end
     end
 
-    %w(system.logging.fluentd system.logging.kibana system.logging.curator system.admin).each do |component|
+    %w[system.logging.fluentd system.logging.kibana system.logging.curator system.admin].each do |component|
       execute "Creating cert req for #{component}" do
         command "openssl req -out #{CERT_FOLDER}/#{component}.csr -new -newkey rsa:2048 -keyout #{CERT_FOLDER}/#{component}.key -subj \"/CN=#{component}/OU=OpenShift/O=Logging\" -days 712 -nodes"
         creates "#{CERT_FOLDER}/#{component}.csr"
@@ -280,7 +279,7 @@ action :create do
       end
     end
 
-    %w(ca.crt ca.key ca.serial.txt ca.crl.srl ca.db).each do |signing|
+    %w[ca.crt ca.key ca.serial.txt ca.crl.srl ca.db].each do |signing|
       remote_file "#{FOLDER}/#{signing}" do
         source "file://#{CERT_FOLDER}/#{signing}"
         sensitive true
@@ -296,7 +295,7 @@ action :create do
       not_if { ::File.exist?("#{CERT_FOLDER}/elasticsearch.jks") || ::File.exist?("#{CERT_FOLDER}/logging-es.jks") || ::File.exist?("#{CERT_FOLDER}/system.admin.jks") || ::File.exist?("#{CERT_FOLDER}/truststore.jks") }
     end
 
-    %w(elasticsearch.jks logging-es.jks system.admin.jks truststore.jks).each do |jks|
+    %w[elasticsearch.jks logging-es.jks system.admin.jks truststore.jks].each do |jks|
       remote_file "#{CERT_FOLDER}/#{jks}" do
         source "file://#{FOLDER}/#{jks}"
         sensitive true
@@ -304,7 +303,7 @@ action :create do
       end
     end
 
-    %w(kibana curator fluentd).each do |component|
+    %w[kibana curator fluentd].each do |component|
       ruby_block "Generating secrets for logging #{component}" do
         block do
           [{ 'metadata' => { 'name' => "logging-#{component}" }, 'data' => { 'ca' => encode_file("#{CERT_FOLDER}/ca.crt"), 'key' => encode_file("#{CERT_FOLDER}/system.logging.#{component}.key"), 'cert' => encode_file("#{CERT_FOLDER}/system.logging.#{component}.crt") } }].each do |secret|
@@ -366,7 +365,7 @@ action :create do
               --from-file=config.yaml=#{FOLDER}/curator.yml -o yaml --dry-run > #{FOLDER}/templates/logging-curator-configmap.yaml"
     end
 
-    %w(fluent.conf fluentd-throttle-config.yaml secure-forward.conf).each do |fluent|
+    %w[fluent.conf fluentd-throttle-config.yaml secure-forward.conf].each do |fluent|
       next if ose_major_version.split('.')[1].to_i >= 6 && fluent == 'fluent.conf'
 
       cookbook_file "#{FOLDER}/#{fluent}" do
@@ -378,7 +377,7 @@ action :create do
       source "#{FOLDER_LOGGING}/fluent.conf.erb"
       sensitive true
       variables(
-        deploy_type: %w(hosted secure-aggregator secure-host).include?(node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_deployment_type']) ? true : false,
+        deploy_type: %w[hosted secure-aggregator secure-host].include?(node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_deployment_type']) ? true : false,
         openshift_logging_fluentd_shared_key: random_password(128)
       )
       only_if { ose_major_version.split('.')[1].to_i >= 6 }
@@ -392,7 +391,7 @@ action :create do
  			        --from-file=secure-forward.conf=#{FOLDER}/secure-forward.conf -o yaml --dry-run > #{FOLDER}/templates/logging-fluentd-configmap.yaml"
     end
 
-    %w(elasticsearch kibana fluentd curator).each do |serviceaccount|
+    %w[elasticsearch kibana fluentd curator].each do |serviceaccount|
       ruby_block "Create Service Account for #{serviceaccount}" do
         block do
           sa = { 'metadata' => { 'name' => "aggregated-logging-#{serviceaccount}" } }
@@ -433,7 +432,7 @@ action :create do
 
     ruby_block 'Generate ClusterRole/RoleBinding/Route' do
       block do
-        role = { 'metadata' => { 'name' => 'rolebinding-reader' }, 'rules' => [{ 'resources' => ['clusterrolebindings'], 'verbs' => %w(get) }], 'cluster' => true }
+        role = { 'metadata' => { 'name' => 'rolebinding-reader' }, 'rules' => [{ 'resources' => ['clusterrolebindings'], 'verbs' => %w[get] }], 'cluster' => true }
         rolebinding = { 'metadata' => { 'name' => 'logging-elasticsearch-view-role' }, 'rolerefs' => { 'name' => 'view' }, 'subjects' => [{ 'kind' => 'ServiceAccount', 'name' => 'aggregated-logging-elasticsearch' }] }
         routes = [{ 'metadata' => { 'name' => 'logging-kibana', 'labels' => { 'component' => 'support', 'logging-infra' => 'support', 'provider' => 'openshift' } }, 'spec' => { 'host' => node['is_apaas_openshift_cookbook']['openshift_logging_kibana_hostname'], 'to' => { 'kind' => 'Service', 'name' => 'logging-kibana' }, 'tls' => { 'termination' => 'reencrypt', 'caCertificate' => ::File.read("#{FOLDER}/ca.crt"), 'destinationCACertificate' => ::File.read("#{FOLDER}/ca.crt"), 'insecureEdgeTerminationPolicy' => ose_major_version.split('.')[1].to_i >= 5 ? node['is_apaas_openshift_cookbook']['openshift_logging_kibana_edge_term_policy'] : '' } } }, { 'metadata' => { 'name' => 'logging-kibana-ops', 'labels' => { 'component' => 'support', 'logging-infra' => 'support', 'provider' => 'openshift' } }, 'spec' => { 'host' => node['is_apaas_openshift_cookbook']['openshift_logging_kibana_ops_hostname'], 'to' => { 'kind' => 'Service', 'name' => 'logging-kibana-ops' }, 'tls' => { 'termination' => 'reencrypt', 'caCertificate' => ::File.read("#{FOLDER}/ca.crt"), 'destinationCACertificate' => ::File.read("#{FOLDER}/ca.crt"), 'insecureEdgeTerminationPolicy' => ose_major_version.split('.')[1].to_i >= 5 ? node['is_apaas_openshift_cookbook']['openshift_logging_kibana_edge_term_policy'] : '' } } }]
         generate_roles(role)
@@ -455,7 +454,7 @@ action :create do
           cookie_secret: Base64.strict_encode64(random_password(16)),
           basic_auth_passwd: random_password(16),
           deploy_name: "logging-es-#{DC_CHARS.sort_by { rand }.join[0...8]}",
-          deploy_type: %w(data-master master data-client).include?(node['is_apaas_openshift_cookbook']['openshift_logging_elasticsearch_deployment_type']) ? 'true' : false,
+          deploy_type: %w[data-master master data-client].include?(node['is_apaas_openshift_cookbook']['openshift_logging_elasticsearch_deployment_type']) ? 'true' : false,
           logging_component: 'elasticsearch',
           deploy_name_prefix: 'logging-es',
           image: "#{node['is_apaas_openshift_cookbook']['openshift_logging_image_prefix']}logging-elasticsearch:#{node['is_apaas_openshift_cookbook']['openshift_logging_image_version']}",

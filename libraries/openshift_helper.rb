@@ -49,7 +49,7 @@ module OpenShiftHelper
         when 0
           first_master
         else
-          Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_certificate_server_duty")[0][0]
+          Chef::Search::Query.new.search('node', "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_certificate_server_duty")[0][0]
         end
       else
         node['is_apaas_openshift_cookbook']['certificate_server'] == {} ? first_master : node['is_apaas_openshift_cookbook']['certificate_server']
@@ -158,6 +158,14 @@ module OpenShiftHelper
       else
         current_version = Mixlib::ShellOut.new('repoquery --plugins --installed --qf \'%{version}\' docker').run_command.stdout.strip
         current_version.split('.')[1].to_i >= 12
+      end
+    end
+
+    def checketcd_healthy?
+      if on_certificate_server?
+        ::Mixlib::ShellOut.new("[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt --endpoints #{etcd_servers.map { |srv| "https://#{srv['ipaddress']}:2379" }.join(',')} cluster-health | grep -c 'got healthy') -ne #{etcd_servers.size} ]]").run_command.error?
+      else
+        ::Mixlib::ShellOut.new("/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 cluster-health | grep -w 'cluster is healthy'").run_command.error?
       end
     end
 

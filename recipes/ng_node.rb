@@ -28,7 +28,7 @@ node['is_apaas_openshift_cookbook']['enabled_firewall_rules_node'].each do |rule
   end
 end
 
-yum_package %w(NetworkManager dnsmasq)
+yum_package %w[NetworkManager dnsmasq]
 
 ruby_block 'Enforce running NM_CONTROLLED on host' do
   block do
@@ -63,7 +63,7 @@ cookbook_file '/etc/systemd/system/dnsmasq.service.d/override.conf' do
 end
 
 service 'dnsmasq' do
-  action %i(enable start)
+  action %i[enable start]
 end
 
 if helper.get_nodevar('custom_origin-dns')
@@ -177,9 +177,9 @@ ruby_block 'Configure Node Environment Variables' do
   not_if { node['is_apaas_openshift_cookbook']['openshift_node_env_vars'].empty? }
 end
 
-yum_package %w(nfs-utils glusterfs-fuse ceph-common iscsi-initiator-utils device-mapper-multipath)
+yum_package %w[nfs-utils glusterfs-fuse ceph-common iscsi-initiator-utils device-mapper-multipath]
 
-%w(virt_use_nfs virt_sandbox_use_nfs virt_use_fusefs virt_sandbox_use_fusefs).each do |selinux_activate|
+%w[virt_use_nfs virt_sandbox_use_nfs virt_use_fusefs virt_sandbox_use_fusefs].each do |selinux_activate|
   selinux_policy_boolean selinux_activate do
     value true
   end
@@ -193,7 +193,7 @@ ruby_block 'Update the sysconfig to have necessary variables' do
   end
 end
 
-%w(/root/openshift_bootstrap /var/lib/origin/openshift.local.config /var/lib/origin/openshift.local.config/node /etc/docker/certs.d/docker-registry.default.svc:5000).each do |bootstrapping_dir|
+%w[/root/openshift_bootstrap /var/lib/origin/openshift.local.config /var/lib/origin/openshift.local.config/node /etc/docker/certs.d/docker-registry.default.svc:5000].each do |bootstrapping_dir|
   directory bootstrapping_dir
 end
 
@@ -201,7 +201,7 @@ link '/etc/docker/certs.d/docker-registry.default.svc:5000/node-client-ca.crt' d
   to "#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/client-ca.crt"
 end
 
-%W(#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/pods #{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/certificates).each do |required_dir|
+%W[#{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/pods #{node['is_apaas_openshift_cookbook']['openshift_node_config_dir']}/certificates].each do |required_dir|
   directory required_dir do
     owner 'root'
     group 'root'

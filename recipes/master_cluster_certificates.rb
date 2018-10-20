@@ -18,7 +18,7 @@ else
 end
 
 if is_certificate_server
-  %W(/var/www/html/master #{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}).each do |path|
+  %W[/var/www/html/master #{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}].each do |path|
     directory path do
       mode '0755'
       owner 'apache'
@@ -108,7 +108,7 @@ if is_certificate_server
 
     certs = case ose_major_version.split('.')[1].to_i
             when 5..9
-              node['is_apaas_openshift_cookbook']['openshift_master_certs'] + %w(service-signer.crt service-signer.key)
+              node['is_apaas_openshift_cookbook']['openshift_master_certs'] + %w[service-signer.crt service-signer.key]
             else
               node['is_apaas_openshift_cookbook']['openshift_master_certs']
             end
@@ -137,7 +137,7 @@ if is_certificate_server
       end
     end
 
-    %w(client.crt client.key).each do |remove_etcd_certificate|
+    %w[client.crt client.key].each do |remove_etcd_certificate|
       file "#{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']}/#{node['is_apaas_openshift_cookbook']['master_etcd_cert_prefix']}#{remove_etcd_certificate}" do
         action :delete
       end

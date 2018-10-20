@@ -14,13 +14,13 @@ try {
     string(name: 'CHEF_DEPLOY_METHODS',                          defaultValue: 'server solo',                                  description: 'Which deployment methods to use (server and/or solo)'),
     string(name: 'CHEF_DEPLOY_CONTAINERIZED',                    defaultValue: 'true false',                                   description: 'If "true", deploy containerized, "true false" to do both'),
     string(name: 'LOG_LEVEL',                                    defaultValue: 'debug',                                        description: 'shutit log level (debug, info, warning, critical)'),
-    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_colocated_etcd',               description: 'which cluster configs to test')
+    string(name: 'SHUTIT_CLUSTER_CONFIGS',                       defaultValue: 'test_multi_node_basic',                        description: 'which cluster configs to test')
   ])])
   node() {
     stage('shutit_tests') {
       sh 'mkdir -p ' + builddir
       dir(builddir) {
-        checkout([$class: 'GitSCM', branches: [[name: '*/' + env.BRANCH_NAME]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/IshentRas/is_apaas_openshift_cookbook']]])
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/IshentRas/is_apaas_openshift_cookbook']]])
         sh 'cd /space/jenkins_cache/shutit-openshift-cluster && git pull && git submodule update && git clean -f && cd /space/jenkins_cache'
         sh('yes | /space/git/work/bin/destroy_vms.sh || true')
         dir('shutit-openshift-cluster') {

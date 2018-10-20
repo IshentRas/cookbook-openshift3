@@ -18,3 +18,6 @@ default['is_apaas_openshift_cookbook']['adhoc_reset_control_flag'] = '/to_be_res
 default['is_apaas_openshift_cookbook']['adhoc_turn_off_openshift3_cookbook'] = '/to_be_replaced_turn_off_openshift3_cookbook'
 
 default['is_apaas_openshift_cookbook']['adhoc_redeploy_registry_certificates_flag'] = '/to_be_replaced_registry_certificates'
+
+default['is_apaas_openshift_cookbook']['adhoc_recovery_etcd_member'] = '/to_be_recoverd_etcd_member'
+default['is_apaas_openshift_cookbook']['adhoc_recovery_etcd_emergency'] = '/to_be_recoverd_etcd_emergency'

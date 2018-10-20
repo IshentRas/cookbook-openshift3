@@ -10,7 +10,7 @@ default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['Gi
 
 default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['GoogleIdentityProvider'] = { 'name' => 'google_auth', 'login' => true, 'challenge' => false, 'kind' => 'GoogleIdentityProvider', 'clientID' => 'google_client_id', 'clientSecret' => 'google_client_secret' }
 
-default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider'] = { 'name' => 'htpasswd_auth', 'login' => true, 'challenge' => true, 'kind' => 'HTPasswdPasswordIdentityProvider', 'filename' => "#{default['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/openshift-passwd" }
+default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['HTPasswdPasswordIdentityProvider'] = node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10 ? { 'name' => 'htpasswd_auth', 'login' => true, 'challenge' => true, 'kind' => 'HTPasswdPasswordIdentityProvider', 'filename' => "#{default['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/openshift-passwd" } : { 'name' => 'htpasswd_auth', 'login' => true, 'challenge' => true, 'kind' => 'HTPasswdPasswordIdentityProvider', 'filename' => "#{default['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/openshift-passwd" }
 
 default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['LDAPPasswordIdentityProvider'] = { 'name' => 'ldap_identity1', 'login' => true, 'challenge' => true, 'kind' => 'LDAPPasswordIdentityProvider', 'ldap_server' => 'ldap1.domain.local', 'ldap_bind_dn' => '', 'ldap_bind_password' => '', 'ldap_insecure' => true, 'ldap_base_ou' => 'OU=people,DC=domain,DC=local', 'ldap_preferred_username' => 'uid' }
 
@@ -20,7 +20,7 @@ default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['Op
 
 # See https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/115 - if you want clientCA as per below, you need to add it into your config.
 # default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['RequestHeaderIdentityProvider'] = { 'name' => 'header_provider_identify', 'login' => false, 'challenge' => false, 'kind' => 'RequestHeaderIdentityProvider', 'headers' => %w(X-Remote-User SSO-User), 'clientCA' => "#{default['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/ca.crt" }
-default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['RequestHeaderIdentityProvider'] = { 'name' => 'header_provider_identify', 'login' => false, 'challenge' => false, 'kind' => 'RequestHeaderIdentityProvider', 'headers' => %w(X-Remote-User SSO-User) }
+default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['RequestHeaderIdentityProvider'] = { 'name' => 'header_provider_identify', 'login' => false, 'challenge' => false, 'kind' => 'RequestHeaderIdentityProvider', 'headers' => %w[X-Remote-User SSO-User] }
 
 default['is_apaas_openshift_cookbook']['openshift_master_htpasswd'] = "#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/openshift-passwd"
 

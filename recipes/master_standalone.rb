@@ -96,5 +96,5 @@ openshift_create_master 'Create master configuration file' do
 end
 
 service 'atomic-openshift-master' do
-  action %i(start enable)
+  action %i[start enable]
 end

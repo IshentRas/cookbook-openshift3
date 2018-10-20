@@ -32,7 +32,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
       level :info
     end
 
-    %w(excluder docker-excluder).each do |pkg|
+    %w[excluder docker-excluder].each do |pkg|
       execute "Disable atomic-openshift-#{pkg} for Nodes" do
         command "atomic-openshift-#{pkg} enable"
       end

@@ -83,7 +83,7 @@ if is_certificate_server
     creates "#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/aggregator-front-proxy.kubeconfig"
   end
 
-  %w(aggregator-front-proxy.crt aggregator-front-proxy.key aggregator-front-proxy.kubeconfig).each do |aggregator|
+  %w[aggregator-front-proxy.crt aggregator-front-proxy.key aggregator-front-proxy.kubeconfig].each do |aggregator|
     remote_file "#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/#{aggregator}" do
       source "file://#{FOLDER}/#{aggregator}"
       not_if { File.exist? "#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/#{aggregator}" }

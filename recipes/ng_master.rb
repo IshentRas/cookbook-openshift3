@@ -228,7 +228,7 @@ if is_master_server
     group 'root'
   end
 
-  %w(bootstrap.kubeconfig node.kubeconfig).each do |bootstrap|
+  %w[bootstrap.kubeconfig node.kubeconfig].each do |bootstrap|
     remote_file "/etc/origin/node/#{bootstrap}" do
       source 'file:///etc/origin/master/admin.kubeconfig'
       owner 'root'
@@ -261,7 +261,7 @@ if is_master_server
     not_if { FileUtils.compare_file("#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig", '/root/.kube/config') }
   end
 
-  %w(api controllers etcd).each do |item|
+  %w[api controllers etcd].each do |item|
     next if item == 'etcd' && !node['is_apaas_openshift_cookbook']['openshift_etcd_static_pod']
 
     execute "Wait for control plane #{item} pod to appear" do

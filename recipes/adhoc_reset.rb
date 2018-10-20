@@ -4,7 +4,12 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-openshift_reset_host node['fqdn']
+server_info = OpenShiftHelper::NodeHelper.new(node)
+is_control_plane_server = server_info.on_control_plane_server?
+
+openshift_reset_host node['fqdn'] do
+  not_if { is_control_plane_server }
+end
 
 file node['is_apaas_openshift_cookbook']['adhoc_reset_control_flag'] do
   action :delete

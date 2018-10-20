@@ -28,7 +28,20 @@ if is_certificate_server || (is_master_server && !is_etcd_server)
   end
 end
 
-cookbook_file '/etc/profile.d/etcdctl.sh' do
-  source 'etcdctl.sh'
-  mode '0755'
+if is_certificate_server
+  template '/etc/profile.d/etcdcheck.sh' do
+    source 'etcdctl.sh.erb'
+    mode '0755'
+    variables(
+      etcd_endpoint: etcd_servers.map { |srv| "https://#{srv['ipaddress']}:2379" }.join(','),
+      etcd_crt: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.crt",
+      etcd_key: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.key",
+      etcd_ca: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/ca.crt"
+    )
+  end
+else
+  cookbook_file '/etc/profile.d/etcdctl.sh' do
+    source 'etcdctl.sh'
+    mode '0755'
+  end
 end

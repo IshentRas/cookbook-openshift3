@@ -7,7 +7,7 @@
 provides :openshift_deploy_registry
 resource_name :openshift_deploy_registry
 
-actions %i(create redeploy_certificate)
+actions %i[create redeploy_certificate]
 
 default_action :create
 

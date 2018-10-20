@@ -24,7 +24,15 @@ if is_certificate_server
     recursive true
   end
 
-  %w(certs crl fragments).each do |etcd_ca_sub_dir|
+  directory node['is_apaas_openshift_cookbook']['etcd_certificate_dir'] do
+    owner 'root'
+    group 'root'
+    mode '0755'
+    action :create
+    recursive true
+  end
+
+  %w[certs crl fragments].each do |etcd_ca_sub_dir|
     directory "#{node['is_apaas_openshift_cookbook']['etcd_ca_dir']}/#{etcd_ca_sub_dir}" do
       owner 'root'
       group 'root'
@@ -57,7 +65,7 @@ if is_certificate_server
     creates "#{node['is_apaas_openshift_cookbook']['etcd_ca_dir']}/ca.crt"
   end
 
-  %W(/var/www/html/etcd #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}).each do |path|
+  %W[/var/www/html/etcd #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}].each do |path|
     directory path do
       mode '0755'
       owner 'apache'
@@ -88,7 +96,7 @@ if is_certificate_server
       group 'apache'
     end
 
-    %w(server peer).each do |etcd_certificates|
+    %w[server peer].each do |etcd_certificates|
       execute "ETCD Create the #{etcd_certificates} csr for #{etcd_master['fqdn']}" do
         command "openssl req -new -keyout #{etcd_certificates}.key -config #{node['is_apaas_openshift_cookbook']['etcd_openssl_conf']} -out #{etcd_certificates}.csr -reqexts #{node['is_apaas_openshift_cookbook']['etcd_req_ext']} -batch -nodes -subj /CN=#{etcd_master['fqdn']}"
         environment 'SAN' => "IP:#{etcd_master['ipaddress']}, DNS:#{etcd_master['fqdn']}"
@@ -113,5 +121,29 @@ if is_certificate_server
       command "openssl enc -aes-256-cbc -in #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_master['fqdn']}.tgz -out #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_master['fqdn']}.tgz.enc -k '#{encrypted_file_password}' && chown -R apache:apache #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_master['fqdn']}.tgz.enc"
       creates "#{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_master['fqdn']}.tgz.enc"
     end
+  end
+
+  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/ca.crt" do
+    owner 'root'
+    group 'root'
+    source "file://#{node['is_apaas_openshift_cookbook']['etcd_ca_dir']}/ca.crt"
+    mode '0644'
+    sensitive true
+  end
+
+  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.key" do
+    owner 'root'
+    group 'root'
+    source "file://#{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_servers.first['fqdn']}/peer.key"
+    mode '0644'
+    sensitive true
+  end
+
+  remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.crt" do
+    owner 'root'
+    group 'root'
+    source "file://#{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{etcd_servers.first['fqdn']}/peer.crt"
+    mode '0644'
+    sensitive true
   end
 end
