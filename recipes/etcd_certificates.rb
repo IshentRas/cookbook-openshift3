@@ -123,7 +123,7 @@ if is_certificate_server
     end
   end
 
-	%w[ ca.crt peer.key peer.crt].each do |file|
+  %w[ca.crt peer.key peer.crt].eacho do |file|
     remote_file "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/#{file}" do
       owner 'root'
       group 'root'
@@ -131,5 +131,5 @@ if is_certificate_server
       mode '0644'
       sensitive true
     end
-	end
+  end
 end
