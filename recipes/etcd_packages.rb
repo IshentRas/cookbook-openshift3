@@ -29,14 +29,15 @@ if is_certificate_server || (is_master_server && !is_etcd_server)
 end
 
 if is_certificate_server
-  template '/etc/profile.d/etcdcheck.sh' do
+  template '/usr/local/bin/etcdcheck' do
     source 'etcdctl.sh.erb'
     mode '0755'
     variables(
       etcd_endpoint: etcd_servers.map { |srv| "https://#{srv['ipaddress']}:2379" }.join(','),
       etcd_crt: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.crt",
       etcd_key: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/peer.key",
-      etcd_ca: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/ca.crt"
+      etcd_ca: "#{node['is_apaas_openshift_cookbook']['etcd_certificate_dir']}/ca.crt",
+      ose_major_version: node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
     )
   end
 else
