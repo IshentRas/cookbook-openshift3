@@ -26,11 +26,11 @@ if should_be_configured
 
   include_recipe 'is_apaas_openshift_cookbook::ca_bundle_fix'
 
+  include_recipe 'is_apaas_openshift_cookbook::services'
+
   if ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_reset_control_flag'])
     include_recipe 'is_apaas_openshift_cookbook::adhoc_reset'
   end
-
-  include_recipe 'is_apaas_openshift_cookbook::services'
 
   if node['is_apaas_openshift_cookbook']['control_upgrade']
     begin

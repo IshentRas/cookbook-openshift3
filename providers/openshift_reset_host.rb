@@ -15,21 +15,46 @@ action :reset do
     helper = OpenShiftHelper::NodeHelper.new(node)
     is_node_server = helper.on_node_server?
 
-    systemd_unit 'docker' do
+    service 'docker' do
       action :nothing
       retry_delay 2
       retries 5
     end
 
-    %w[atomic-openshift-node openvswitch atomic-openshift-master atomic-openshift-master-api atomic-openshift-master-controllers etcd etcd_container haproxy].each do |svc|
-      systemd_unit svc do
-        action %i[stop disable]
-        ignore_failure true
-      end
+    service 'atomic-openshift-node' do
+      action :nothing
     end
 
-    Mixlib::ShellOut.new('systemctl reset-failed').run_command
-    Mixlib::ShellOut.new('systemctl daemon-reload').run_command
+    service 'etcd' do
+      action :nothing
+    end
+
+    service 'etcd-container' do
+      action :nothing
+    end
+
+    ruby_block 'Refresh SystemD services' do
+      block do
+        Mixlib::ShellOut.new('systemctl reset-failed').run_command
+        Mixlib::ShellOut.new('systemctl daemon-reload').run_command
+      end
+      notifies :stop, 'service[atomic-openshift-node]', :before
+      notifies :disable, 'service[atomic-openshift-node]', :before
+      notifies :stop, 'service[atomic-openshift-master]', :before
+      notifies :disable, 'service[atomic-openshift-master]', :before
+      notifies :stop, 'service[atomic-openshift-master-api]', :before
+      notifies :disable, 'service[atomic-openshift-master-api]', :before
+      notifies :stop, 'service[atomic-openshift-master-controllers]', :before
+      notifies :disable, 'service[atomic-openshift-master-controllers]', :before
+      notifies :stop, 'service[etcd]', :before
+      notifies :disable, 'service[etcd]', :before
+      notifies :stop, 'service[etcd-container]', :before if node['is_apaas_openshift_cookbook']['deploy_containerized']
+      notifies :disable, 'service[etcd-container]', :before if node['is_apaas_openshift_cookbook']['deploy_containerized']
+      notifies :stop, 'service[openvswitch]', :before
+      notifies :disable, 'service[openvswitch]', :before
+      notifies :stop, 'service[haproxy]', :before
+      notifies :disable, 'service[haproxy]', :before
+    end
 
     execute 'Remove br0 interface' do
       command 'ovs-vsctl del-br br0 || true'
