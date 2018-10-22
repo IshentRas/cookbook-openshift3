@@ -21,7 +21,7 @@ if is_certificate_server
 
   include_recipe 'is_apaas_openshift_cookbook::etcd_packages'
   include_recipe 'is_apaas_openshift_cookbook::etcd_certificates' if node['is_apaas_openshift_cookbook']['openshift_HA']
-  include_recipe 'is_apaas_openshift_cookbook::etcd_recovery' if ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_recovery_etcd_member'])
+  include_recipe 'is_apaas_openshift_cookbook::etcd_recovery' if ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_recovery_etcd_certificate_server'])
   include_recipe 'is_apaas_openshift_cookbook::etcd_scaleup' unless new_etcd_servers.empty?
   include_recipe 'is_apaas_openshift_cookbook::etcd_removal' unless remove_etcd_servers.empty?
   include_recipe 'is_apaas_openshift_cookbook::master_cluster_ca'

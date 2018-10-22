@@ -40,9 +40,9 @@ if is_certificate_server
       ose_major_version: node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
     )
   end
-else
-  cookbook_file '/etc/profile.d/etcdctl.sh' do
-    source 'etcdctl.sh'
-    mode '0755'
-  end
+end
+
+cookbook_file '/etc/profile.d/etcdctl.sh' do
+  source 'etcdctl.sh'
+  mode '0755'
 end
