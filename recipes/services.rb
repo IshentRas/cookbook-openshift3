@@ -63,7 +63,7 @@ service 'Restart Node' do
   retry_delay 5
 end
 
-systemd_unit 'atomic-openshift-node' do
+service 'atomic-openshift-node' do
   action :nothing
 end
 

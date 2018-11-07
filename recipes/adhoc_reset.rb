@@ -11,6 +11,8 @@ openshift_reset_host node['fqdn'] do
   not_if { is_control_plane_server }
 end
 
+include_recipe 'is_apaas_openshift_cookbook::docker'
+
 file node['is_apaas_openshift_cookbook']['adhoc_reset_control_flag'] do
   action :delete
 end

@@ -245,7 +245,7 @@ execute 'Activate services for Master CONTROLLERS on all masters' do
   only_if { first_master['fqdn'] != node['fqdn'] }
 end
 
-systemd_unit 'atomic-openshift-master' do
+service 'atomic-openshift-master' do
   action %i[disable mask]
 end
 

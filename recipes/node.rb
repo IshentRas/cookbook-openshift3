@@ -280,7 +280,7 @@ if is_node_server
       kubelet_args: node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_default'].merge(node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_custom'])
     )
     notifies :run, 'execute[daemon-reload]', :immediately
-    notifies :enable, 'systemd_unit[atomic-openshift-node]', :immediately
+    notifies :enable, 'service[atomic-openshift-node]', :immediately
     notifies :restart, 'service[Restart Node]', :immediately
   end
 

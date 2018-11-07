@@ -15,6 +15,10 @@ action :reset do
     helper = OpenShiftHelper::NodeHelper.new(node)
     is_node_server = helper.on_node_server?
 
+    package 'container-selinux' do
+      action :nothing
+    end
+
     service 'docker' do
       action :nothing
       retry_delay 2
@@ -106,7 +110,7 @@ action :reset do
 
     Mixlib::ShellOut.new('systemctl daemon-reload').run_command
 
-    systemd_unit 'iptables' do
+    service 'iptables' do
       action :restart
     end
 
@@ -121,18 +125,18 @@ action :reset do
         block do
           helper.remove_dir('/var/lib/docker/*')
         end
-        notifies :stop, 'systemd_unit[docker]', :before
+        notifies :stop, 'service[docker]', :before
       end
 
       execute 'Resetting docker storage' do
         command '/usr/bin/docker-storage-setup --reset'
+        notifies :remove, 'package[container-selinux]', :immediately
       end
 
       ruby_block 'Reload SystemD Daemon services' do
         block do
           Mixlib::ShellOut.new('systemctl daemon-reload').run_command
         end
-        notifies :start, 'systemd_unit[docker]', :immediately
       end
     end
   end

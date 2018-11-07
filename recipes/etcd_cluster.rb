@@ -54,7 +54,7 @@ if is_etcd_server || is_new_etcd_server
       notifies :restart, 'service[etcd-service]', :immediately if node['is_apaas_openshift_cookbook']['upgrade']
     end
 
-    systemd_unit 'etcd' do
+    service 'etcd' do
       action :mask
     end
   end
