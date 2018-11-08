@@ -9,7 +9,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
 chef_version '>= 13' if respond_to?(:chef_version)
 
-version '2.0.96'
+version '2.0.98'
 supports 'redhat', '>= 7.1'
 supports 'centos', '>= 7.1'
 

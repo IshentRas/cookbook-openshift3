@@ -15,10 +15,6 @@ action :reset do
     helper = OpenShiftHelper::NodeHelper.new(node)
     is_node_server = helper.on_node_server?
 
-    package 'container-selinux' do
-      action :nothing
-    end
-
     service 'docker' do
       action :nothing
       retry_delay 2
@@ -110,10 +106,6 @@ action :reset do
 
     Mixlib::ShellOut.new('systemctl daemon-reload').run_command
 
-    service 'iptables' do
-      action :restart
-    end
-
     execute '/usr/sbin/rebuild-iptables' do
       retry_delay 10
       retries 3
@@ -130,7 +122,10 @@ action :reset do
 
       execute 'Resetting docker storage' do
         command '/usr/bin/docker-storage-setup --reset'
-        notifies :remove, 'package[container-selinux]', :immediately
+      end
+
+      package %w[container-selinux docker docker-client docker-common docker-rhel-push-plugin] do
+        action :remove
       end
 
       ruby_block 'Reload SystemD Daemon services' do

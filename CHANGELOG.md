@@ -1,7 +1,7 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.0.96
+## v2.0.96-98
 ### Improvement
 - Reinstall docker whilst resetting nodes
 
