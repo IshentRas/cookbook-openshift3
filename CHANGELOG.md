@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.0.99
+### Bug
+- Make sure the enc file for node servers are 644
+- Make sure we unmount image and container layers on-disk before resetting docker storage
+
 ## v2.0.96-98
 ### Improvement
 - Reinstall docker whilst resetting nodes

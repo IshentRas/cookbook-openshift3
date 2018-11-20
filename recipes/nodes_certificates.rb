@@ -99,4 +99,15 @@ else
       creates "#{node['is_apaas_openshift_cookbook']['openshift_node_generated_configs_dir']}/#{node_server['fqdn']}.tgz.enc"
     end
   end
+
+  ruby_block 'Adjust permissions for node enc certificates' do
+    block do
+      run_context = Chef::RunContext.new(Chef::Node.new, {}, Chef::EventDispatch::Dispatcher.new)
+      Dir.glob("#{node['is_apaas_openshift_cookbook']['openshift_node_generated_configs_dir']}/*").grep(/\.(?:enc)$/).uniq.each do |enc|
+        file = Chef::Resource::File.new(enc, run_context)
+        file.mode '0644'
+        file.run_action(:create)
+      end
+    end
+  end
 end

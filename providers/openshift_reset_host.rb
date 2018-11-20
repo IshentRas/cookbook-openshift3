@@ -33,6 +33,22 @@ action :reset do
       action :nothing
     end
 
+    ruby_block 'Umount Image and container layers on-disk' do
+      block do
+        until ::Dir['/var/lib/docker/devicemapper/mnt/*'].count.zero?
+          ::Dir.glob('/var/lib/docker/devicemapper/mnt/*').select { |fn| ::File.directory?(fn) }.each do |dir|
+            executecmd = Chef::Resource::Execute.new("$ACTION #{dir} || true", run_context)
+            executecmd.environment 'ACTION' => 'umount'
+            executecmd.ignore_failure true
+            executecmd.run_action(:run)
+          end
+          executecmd = Chef::Resource::Execute.new('sleep 5', run_context)
+          executecmd.run_action(:run)
+        end
+      end
+      action :nothing
+    end
+
     ruby_block 'Refresh SystemD services' do
       block do
         Mixlib::ShellOut.new('systemctl reset-failed').run_command
@@ -122,6 +138,8 @@ action :reset do
 
       execute 'Resetting docker storage' do
         command '/usr/bin/docker-storage-setup --reset'
+        notifies :run, 'ruby_block[Umount Image and container layers on-disk]', :before
+        only_if '[ -f /usr/bin/docker-storage-setup ]'
       end
 
       package %w[container-selinux docker docker-client docker-common docker-rhel-push-plugin] do
