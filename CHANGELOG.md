@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.0
+### Improvement
+- Add possibility to opt-in opt-out when using sharding routers for customised template via "custom_router": true
+  This key is optional and can be omitted
+
 ## v2.0.99
 ### Bug
 - Make sure the enc file for node servers are 644

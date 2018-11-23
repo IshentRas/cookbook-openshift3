@@ -322,6 +322,8 @@ Any ENV options can be set for the sharding router, as long as they are supporte
 
 ** The dedicated service account must have access to the hostnetwork SCC **
 
+** custom_router (Deploying custom template) is optional and should be omitted if not wanted
+
 Example of options for deploying router sharding:
 ```json
 {
@@ -340,6 +342,7 @@ Example of options for deploying router sharding:
       "namespace": "custom-shard2",
       "service_account": "shard2",
       "selector": "region=shard2",
+      "custom_router": true,
       "custom_router_file": "/folder/custom_template_forshard2",
       "env": [
         "NAMESPACE_LABELS='dept != finance'"

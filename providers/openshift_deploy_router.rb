@@ -160,6 +160,7 @@ action :create do
 
       if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
         node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
+          next unless shard.key?('custom_router')
           execute "Create ConfigMap of the customised Hosted Router sharding[#{shard['service_account']}]" do
             command "#{oc_client} create configmap customrouter --from-file=haproxy-config.template=${custom_router_file} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
             environment(
