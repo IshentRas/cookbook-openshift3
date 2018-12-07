@@ -35,3 +35,10 @@ VG="<%= node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']['VG
 DATA_SIZE="<%= node['is_apaas_openshift_cookbook']['openshift_node_docker-storage']['DATA_SIZE'] %>"
 <% end -%>
 WIPE_SIGNATURES="true"
+<%
+  node['is_apaas_openshift_cookbook']['openshift_node_docker-storage'].reject do |key|
+    %w[DEVS VG DATA_SIZE WIPE_SIGNATURES].include?(key)
+  end.sort.each do |key, value|
+-%>
+<%= key %>="<%= Shellwords.escape(value) %>"
+<% end -%>

@@ -45,8 +45,8 @@ if is_master_server
   end
 
   openshift_master_pkg 'Upgrade Master to 3.8' do
+    version node['is_apaas_openshift_cookbook']['version_38_pkg']
     options '-x *atomic-openshift*3.9*'
-    version '3.8.0-1.el7.git.0.dd1558c'
   end
 
   include_recipe 'is_apaas_openshift_cookbook::excluder' unless is_node_server

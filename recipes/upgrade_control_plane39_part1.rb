@@ -44,7 +44,9 @@ if is_master_server
     level :info
   end
 
-  openshift_master_pkg 'Upgrade Master to 3.9'
+  openshift_master_pkg 'Upgrade Master to 3.9' do
+    version node['is_apaas_openshift_cookbook']['upgrade_ose_version']
+  end
 
   include_recipe 'is_apaas_openshift_cookbook::master'
   include_recipe 'is_apaas_openshift_cookbook::excluder' unless is_node_server

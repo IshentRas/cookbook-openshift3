@@ -8,9 +8,12 @@ default_action :install
 action :install do
   server_info = OpenShiftHelper::NodeHelper.new(node)
   is_certificate_server = server_info.on_certificate_server?
+  is_node_server = server_info.on_node_server?
   first_master = server_info.first_master
   docker_version = new_resource.docker_version.nil? ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : new_resource.docker_version
   ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
+  pkg_master_to_install = is_node_server ? node['is_apaas_openshift_cookbook']['pkg_master'] | node['is_apaas_openshift_cookbook']['pkg_node'] : node['is_apaas_openshift_cookbook']['pkg_master']
+  version = new_resource.version.nil? ? node['is_apaas_openshift_cookbook']['ose_version'] : new_resource.version
 
   if node['is_apaas_openshift_cookbook']['deploy_containerized']
     docker_image node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] do
@@ -55,9 +58,9 @@ action :install do
   end
 
   if node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i < 10
-    yum_package "#{node['is_apaas_openshift_cookbook']['openshift_service_type']}-master" do
+    yum_package pkg_master_to_install.reject { |x| x == "tuned-profiles-#{node['is_apaas_openshift_cookbook']['openshift_service_type']}-node" && node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39 } do
       action :install
-      version new_resource.version.nil? ? node['is_apaas_openshift_cookbook']['ose_version'] : new_resource.version unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
+      version Array.new(pkg_master_to_install.size, version) unless version.nil?
       options new_resource.options.nil? ? node['is_apaas_openshift_cookbook']['openshift_yum_options'] : new_resource.options
       notifies :run, 'execute[daemon-reload]', :immediately
       not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] || (is_certificate_server && node['fqdn'] != first_master['fqdn']) }
@@ -66,9 +69,9 @@ action :install do
 
     yum_package "#{node['is_apaas_openshift_cookbook']['openshift_service_type']}-clients" do
       action :install
-      version new_resource.version.nil? ? node['is_apaas_openshift_cookbook']['ose_version'] : new_resource.version unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
+      version version unless version.nil?
       options new_resource.options.nil? ? node['is_apaas_openshift_cookbook']['openshift_yum_options'] : new_resource.options
-      not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
+      not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] || (is_certificate_server && node['fqdn'] == first_master['fqdn']) }
       retries 3
     end
   else

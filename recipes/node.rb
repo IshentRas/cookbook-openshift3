@@ -9,8 +9,10 @@ node_servers = server_info.node_servers
 certificate_server = server_info.certificate_server
 is_node_server = server_info.on_node_server?
 docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
+pkg_node_to_install = node['is_apaas_openshift_cookbook']['pkg_node']
 
 ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
+version = node['is_apaas_openshift_cookbook']['control_upgrade'] ? node['is_apaas_openshift_cookbook']['control_upgrade_version'] : ose_major_version
 path_certificate = node['is_apaas_openshift_cookbook']['use_wildcard_nodes'] ? 'wildcard_nodes.tgz.enc' : "#{node['fqdn']}.tgz.enc"
 
 if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']
@@ -103,24 +105,15 @@ if is_node_server
     notifies :restart, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] || Mixlib::ShellOut.new('systemctl is-enabled atomic-openshift-node').run_command.error?
   end
 
-  package 'atomic-openshift-node' do
+  yum_package pkg_node_to_install.reject { |x| x == 'tuned-profiles-atomic-openshift-node' && version.to_i >= 39 } do
     action :install
-    version node['is_apaas_openshift_cookbook']['ose_version'] unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
+    version Array.new(pkg_node_to_install.size, node['is_apaas_openshift_cookbook']['ose_version']) unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
     options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?
     not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
     retries 3
   end
 
-  package 'atomic-openshift-sdn-ovs' do
-    action :install
-    version node['is_apaas_openshift_cookbook']['ose_version'] unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
-    options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?
-    only_if { node['is_apaas_openshift_cookbook']['openshift_common_use_openshift_sdn'] == true }
-    not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
-    retries 3
-  end
-
-  package 'conntrack-tools' do
+  yum_package 'conntrack-tools' do
     action :install
     not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
     retries 3

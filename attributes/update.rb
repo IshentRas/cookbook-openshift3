@@ -1,5 +1,6 @@
 default['is_apaas_openshift_cookbook']['control_rollback_flag'] = '/to_be_rollback'
 default['is_apaas_openshift_cookbook']['asynchronous_upgrade'] = false
+default['is_apaas_openshift_cookbook']['version_38_pkg'] = '3.8.0-1.el7.git.0.dd1558c'
 
 if node['is_apaas_openshift_cookbook']['control_upgrade']
   default['is_apaas_openshift_cookbook']['control_upgrade_version'] = ''

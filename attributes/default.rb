@@ -83,6 +83,9 @@ default['is_apaas_openshift_cookbook']['enabled_firewall_rules_etcd'] = %w[firew
 default['is_apaas_openshift_cookbook']['enabled_firewall_rules_lb'] = %w[firewall_lb]
 default['is_apaas_openshift_cookbook']['openshift_service_type'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'atomic-openshift' : 'origin'
 default['is_apaas_openshift_cookbook']['registry_persistent_volume'] = ''
+default['is_apaas_openshift_cookbook']['pkg_master'] = %w[atomic-openshift-master atomic-openshift-clients atomic-openshift]
+default['is_apaas_openshift_cookbook']['pkg_node'] = %w[atomic-openshift-node tuned-profiles-atomic-openshift-node atomic-openshift-sdn-ovs atomic-openshift-clients atomic-openshift]
+
 default['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? %w[] : originrepos.find_all { |x| x['name'] =~ /origin#{node['is_apaas_openshift_cookbook']['ose_major_version'].tr('.', '')}/ }
 default['is_apaas_openshift_cookbook']['openshift_http_proxy'] = ''
 default['is_apaas_openshift_cookbook']['openshift_https_proxy'] = ''
