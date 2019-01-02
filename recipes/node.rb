@@ -12,7 +12,6 @@ docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_ver
 pkg_node_to_install = node['is_apaas_openshift_cookbook']['pkg_node']
 
 ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
-version = node['is_apaas_openshift_cookbook']['control_upgrade'] ? node['is_apaas_openshift_cookbook']['control_upgrade_version'] : ose_major_version
 path_certificate = node['is_apaas_openshift_cookbook']['use_wildcard_nodes'] ? 'wildcard_nodes.tgz.enc' : "#{node['fqdn']}.tgz.enc"
 
 if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']
@@ -105,7 +104,7 @@ if is_node_server
     notifies :restart, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] || Mixlib::ShellOut.new('systemctl is-enabled atomic-openshift-node').run_command.error?
   end
 
-  yum_package pkg_node_to_install.reject { |x| x == 'tuned-profiles-atomic-openshift-node' && version.to_i >= 39 } do
+  yum_package pkg_node_to_install.reject { |x| x == 'tuned-profiles-atomic-openshift-node' && (node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 9 || node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39) } do
     action :install
     version Array.new(pkg_node_to_install.size, node['is_apaas_openshift_cookbook']['ose_version']) unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
     options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?

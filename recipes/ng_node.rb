@@ -10,7 +10,7 @@ docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_ver
 
 ruby_block 'Turn off SWAP for nodes' do
   block do
-    server_info.turn_off_swap
+    helper.turn_off_swap
   end
   not_if { ::File.readlines('/etc/fstab').grep(/(^[^#].*swap.*)\n/).none? }
   only_if { node['is_apaas_openshift_cookbook']['openshift_node_disable_swap_on_host'] }

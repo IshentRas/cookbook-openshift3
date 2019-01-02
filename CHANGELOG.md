@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.3
+### Bug
+- Filter out tuned-profiles-origin-node for OSE v3.9
+- Misc fixes to ng v310 recipes
+
 ## v2.1.1-2
 ### Improvement
 - Add possibility to configure any option supported by docker-storage-setup 

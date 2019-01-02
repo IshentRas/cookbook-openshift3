@@ -324,6 +324,7 @@ action :create_template_service_broker do
 
     execute 'Wait for TSB API to become available' do
       command '[[ $(curl --silent https://apiserver.openshift-template-service-broker.svc/healthz --cacert /etc/origin/master/service-signer.crt) =~ "ok" ]]'
+      environment 'no_proxy' => 'apiserver.openshift-template-service-broker.svc'
       retries 60
       retry_delay 2
     end

@@ -58,7 +58,7 @@ action :install do
   end
 
   if node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i < 10
-    yum_package pkg_master_to_install.reject { |x| x == "tuned-profiles-#{node['is_apaas_openshift_cookbook']['openshift_service_type']}-node" && node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39 } do
+    yum_package pkg_master_to_install.reject { |x| x == "tuned-profiles-#{node['is_apaas_openshift_cookbook']['openshift_service_type']}-node" && (node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 9 || node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39) } do
       action :install
       version Array.new(pkg_master_to_install.size, version) unless version.nil?
       options new_resource.options.nil? ? node['is_apaas_openshift_cookbook']['openshift_yum_options'] : new_resource.options
