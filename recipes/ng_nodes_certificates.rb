@@ -25,6 +25,7 @@ end
 
 execute 'Wait for API to become available' do
   command is_master_server ? "[[ $(curl --silent --tlsv1.2 --max-time 2 #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca-bundle.crt) =~ \"ok\" ]]" : "[[ $(curl --silent --tlsv1.2 --max-time 2 -k #{node['is_apaas_openshift_cookbook']['openshift_master_api_url']}/healthz/ready) =~ \"ok\" ]]"
+  environment 'no_proxy' => 'localhost'
   retries 150
   retry_delay 5
 end

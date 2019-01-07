@@ -26,16 +26,14 @@ unless new_etcd_servers.empty?
 
     new_etcd_servers.each do |etcd|
       execute "Add #{etcd['fqdn']} to the cluster" do
-        command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C #{etcds} member add #{etcd['fqdn']} https://#{etcd['ipaddress']}:2380 | grep ^ETCD | tr --delete '\"' | tee #{node['is_apaas_openshift_cookbook']['etcd_generated_scaleup_dir']}/etcd-#{etcd['fqdn']}"
+        command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C #{etcds} member add #{etcd['fqdn']} https://#{etcd['ipaddress']}:2380 | grep ^ETCD | tr --delete '\"' | tee #{node['is_apaas_openshift_cookbook']['etcd_generated_scaleup_dir']}/etcd-#{etcd['fqdn']} && chmod 644 #{node['is_apaas_openshift_cookbook']['etcd_generated_scaleup_dir']}/etcd-#{etcd['fqdn']}"
         creates "#{node['is_apaas_openshift_cookbook']['etcd_generated_scaleup_dir']}/etcd-#{etcd['fqdn']}"
-        notifies :run, "execute[Check #{etcd['fqdn']} has successfully registered]", :immediately
       end
 
       execute "Check #{etcd['fqdn']} has successfully registered" do
         command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt -C #{etcds} cluster-health | grep -w 'got healthy result from https://#{etcd['ipaddress']}:2379'"
         retries 60
         retry_delay 5
-        action :nothing
         notifies :run, "execute[Wait for 10 seconds for cluster to sync with #{etcd['fqdn']}]", :immediately
       end
 

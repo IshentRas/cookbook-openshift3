@@ -74,6 +74,7 @@ if is_master_server && is_first_master
 
   execute 'Wait for API to be ready (3.8)' do
     command "[[ $(curl --silent --tlsv1.2 --max-time 2 #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+    environment 'no_proxy' => 'localhost'
     retries 120
     retry_delay 1
   end

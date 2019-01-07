@@ -33,9 +33,10 @@ echo "Installing prerequisite packages, please wait..."
 yum -y install -q https://packages.chef.io/files/stable/chef/14.5.27/el/7/chef-14.5.27-1.el7.x86_64.rpm git
 [ -d ~/chef-solo-example/cookbooks/iptables ] || git clone -q https://github.com/chef-cookbooks/iptables.git
 [ -d ~/chef-solo-example/cookbooks/yum ] || git clone -q https://github.com/chef-cookbooks/yum.git
-[ -d ~/chef-solo-example/cookbooks/selinux_policy ] || git clone -b 'v2.0.0' -q https://github.com/BackSlasher/chef-selinuxpolicy.git selinux_policy
+[ -d ~/chef-solo-example/cookbooks/selinux_policy ] || git clone -q https://github.com/BackSlasher/chef-selinuxpolicy.git selinux_policy
 [ -d ~/chef-solo-example/cookbooks/compat_resource ] || git clone -q https://github.com/chef-cookbooks/compat_resource.git
 [ -d ~/chef-solo-example/cookbooks/docker ] || git clone -q https://github.com/chef-cookbooks/docker.git
+[ -d ~/chef-solo-example/cookbooks/is_apaas_openshift_cookbook ] || git clone -q https://github.com/IshentRas/is_apaas_openshift_cookbook.git
 cd ~/chef-solo-example
 ### Create the dedicated environment for Origin deployment
 cat << BASH > environments/origin.json

@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.4
+### Bug
+- Make sure adding ETCD server(s) does not skip non-registered ETCD
+- Make sure ETCD file is 644 (Needed when umask is not 022)
+
 ## v2.1.3
 ### Bug
 - Filter out tuned-profiles-origin-node for OSE v3.9

@@ -13,6 +13,7 @@ service_accounts = node['is_apaas_openshift_cookbook']['openshift_common_service
 
 execute 'Check Master API' do
   command "[[ $(curl --silent #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}/healthz/ready --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca.crt --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/ca-bundle.crt) =~ \"ok\" ]]"
+  environment 'no_proxy' => 'localhost'
   retries 120
   retry_delay 1
 end
