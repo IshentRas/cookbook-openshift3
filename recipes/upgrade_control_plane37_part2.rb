@@ -13,6 +13,7 @@ first_etcd = server_info.first_etcd
 is_master_server = server_info.on_master_server?
 is_node_server = server_info.on_node_server?
 is_first_master = server_info.on_first_master?
+is_certificate_server = server_info.on_certificate_server?
 master_servers = server_info.master_servers
 
 if is_first_master
@@ -62,6 +63,7 @@ if is_master_server
     not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} version | grep -w v3.7"
   end
 
+  include_recipe 'is_apaas_openshift_cookbook::wire_aggregator_certificates' if is_certificate_server
   include_recipe 'is_apaas_openshift_cookbook::master'
   include_recipe 'is_apaas_openshift_cookbook::excluder' unless is_node_server
 

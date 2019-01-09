@@ -37,6 +37,8 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
   include_recipe 'is_apaas_openshift_cookbook::etcd_packages'
   include_recipe 'is_apaas_openshift_cookbook::excluder'
 
+  include_recipe 'is_apaas_openshift_cookbook::wire_aggregator_certificates' if ose_major_version.split('.')[1].to_i == 7 && node['is_apaas_openshift_cookbook']['upgrade']
+
   log 'Upgrade for CERTIFICATE SERVER [COMPLETED]' do
     level :info
   end

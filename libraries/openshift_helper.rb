@@ -97,7 +97,7 @@ module OpenShiftHelper
     end
 
     def should_be_configured?
-      on_control_plane_server? || on_node_server?
+      on_control_plane_server? || on_node_server? || on_new_etcd_server?
     end
 
     def remove_dir(path)

@@ -64,6 +64,7 @@ unless new_etcd_servers.empty?
         action :create_if_missing
         notifies :run, 'execute[daemon-reload]', :immediately
         notifies :start, 'service[etcd-service]', :immediately
+        notifies :enable, 'service[etcd-service]', :immediately
         retries 60
         retry_delay 5
       end

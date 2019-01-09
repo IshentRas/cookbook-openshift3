@@ -46,6 +46,7 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
     log 'Node services' do
       level :info
       notifies :restart, 'service[openvswitch]', :immediately
+      notifies :restart, 'service[Restart Node]', :immediately
       not_if { ::File.file?("/usr/local/share/info/.upgrade-#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}") }
     end
 

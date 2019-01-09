@@ -1,10 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.1.4
+## v2.1.4-5
 ### Bug
 - Make sure adding ETCD server(s) does not skip non-registered ETCD
 - Make sure ETCD file is 644 (Needed when umask is not 022)
+- Fix issue when upgrading from 3.6 to 3.7 (https://github.com/IshentRas/is_apaas_openshift_cookbook/issues/292)
 
 ## v2.1.3
 ### Bug
