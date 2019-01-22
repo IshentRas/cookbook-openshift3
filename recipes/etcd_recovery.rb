@@ -82,19 +82,27 @@ if is_etcd_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_rec
     source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/recovery/etcd-#{node['fqdn']}"
     action :create_if_missing
     notifies :run, 'execute[daemon-reload]', :immediately
+    notifies :delete, "directory[#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member]", :immediately
     retries 120
     retry_delay 5
   end
 
   directory "#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member" do
     recursive true
-    action :delete
+    action :nothing
     notifies :start, 'service[etcd-service]', :immediately
+  end
+
+  execute 'Check cluster health' do
+    command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
+    retries 60
+    notifies :delete, "directory[/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d]", :immediately
+    retry_delay 5
   end
 
   directory "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d" do
     recursive true
-    action :delete
+    action :nothing
     notifies :run, 'execute[daemon-reload]', :immediately
   end
 end

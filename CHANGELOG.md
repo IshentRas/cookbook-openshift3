@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.6
+### Improvement
+- Add safeguards for ETCD recovery process
+- Enforce docker restart process when changing OCP CA certificate
+
 ## v2.1.4-5
 ### Bug
 - Make sure adding ETCD server(s) does not skip non-registered ETCD

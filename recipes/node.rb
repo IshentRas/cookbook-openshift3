@@ -104,9 +104,10 @@ if is_node_server
     notifies :restart, 'service[Restart Node]', :immediately unless node['is_apaas_openshift_cookbook']['upgrade'] || Mixlib::ShellOut.new('systemctl is-enabled atomic-openshift-node').run_command.error?
   end
 
-  yum_package pkg_node_to_install.reject { |x| x == 'tuned-profiles-atomic-openshift-node' && (node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 9 || node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39) } do
+  pkg_node_array = pkg_node_to_install.reject { |x| x == 'tuned-profiles-atomic-openshift-node' && (node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 9 || node['is_apaas_openshift_cookbook']['control_upgrade_version'].to_i >= 39) }
+  yum_package pkg_node_array do
     action :install
-    version Array.new(pkg_node_to_install.size, node['is_apaas_openshift_cookbook']['ose_version']) unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
+    version Array.new(pkg_node_array.size, node['is_apaas_openshift_cookbook']['ose_version']) unless node['is_apaas_openshift_cookbook']['ose_version'].nil?
     options node['is_apaas_openshift_cookbook']['openshift_yum_options'] unless node['is_apaas_openshift_cookbook']['openshift_yum_options'].nil?
     not_if { node['is_apaas_openshift_cookbook']['deploy_containerized'] }
     retries 3
@@ -181,7 +182,7 @@ if is_node_server
     block do
       Mixlib::ShellOut.new('update-ca-trust').run_command
     end
-    notifies :restart, 'service[docker]', :immediately if node['is_apaas_openshift_cookbook']['deploy_containerized']
+    notifies :restart, 'service[docker]', :immediately
     notifies :run, 'execute[Wait for 30 seconds for docker services to come up]', :immediately
     action :nothing
   end

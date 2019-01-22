@@ -76,6 +76,8 @@ else
   service 'etcd-service' do
     service_name 'etcd'
     action :nothing
+    retries 12
+    retry_delay 10
   end
 end
 
