@@ -39,6 +39,7 @@ if is_node_server
   node['cookbook-openshift3']['enabled_firewall_rules_node'].each do |rule|
     iptables_rule rule do
       action :enable
+      notifies :restart, 'service[iptables]', :immediately
     end
   end
 

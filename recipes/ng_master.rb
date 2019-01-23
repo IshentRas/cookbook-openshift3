@@ -16,6 +16,7 @@ if is_master_server
   node['cookbook-openshift3']['enabled_firewall_rules_master_cluster'].each do |rule|
     iptables_rule rule do
       action :enable
+      notifies :restart, 'service[iptables]', :immediately
     end
   end
 

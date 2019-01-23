@@ -7,6 +7,7 @@
 node['cookbook-openshift3']['enabled_firewall_rules_certificate'].each do |rule|
   iptables_rule rule do
     action :enable
+    notifies :restart, 'service[iptables]', :immediately
   end
 end
 

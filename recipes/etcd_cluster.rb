@@ -39,6 +39,7 @@ if is_etcd_server || is_new_etcd_server
   node['cookbook-openshift3']['enabled_firewall_rules_etcd'].each do |rule|
     iptables_rule rule do
       action :enable
+      notifies :restart, 'service[iptables]', :immediately
     end
   end
 
