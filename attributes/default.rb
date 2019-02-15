@@ -288,6 +288,8 @@ default['is_apaas_openshift_cookbook']['etcd_default_days'] = '1825'
 
 default['is_apaas_openshift_cookbook']['etcd_client_port'] = '2379'
 default['is_apaas_openshift_cookbook']['etcd_peer_port'] = '2380'
+default['is_apaas_openshift_cookbook']['etcd_heartbeat_interval'] = '500'
+default['is_apaas_openshift_cookbook']['etcd_election_timeout'] = '2500'
 
 default['is_apaas_openshift_cookbook']['docker_dns_search_option'] = %w[]
 

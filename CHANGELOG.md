@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.7
+### Improvement
+- Add Time parameters for ETCD around heartbeat interval (etcd_heartbeat_interval) and election timeout (etcd_election_timeout)
+
 ## v2.1.6
 ### Improvement
 - Add safeguards for ETCD recovery process

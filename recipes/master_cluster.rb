@@ -16,6 +16,7 @@ ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] 
 node['is_apaas_openshift_cookbook']['enabled_firewall_rules_master_cluster'].each do |rule|
   iptables_rule rule do
     action :enable
+    notifies :restart, 'service[iptables]', :immediately
   end
 end
 

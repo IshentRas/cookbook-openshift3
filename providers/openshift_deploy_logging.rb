@@ -567,13 +567,40 @@ action :create do
       end
     end
 
-    execute 'Set Fluentd Labels for all nodes' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node --all ${key}=${value} --overwrite --config=#{FOLDER}/admin.kubeconfig"
+    # Retrieve the list of Fluentd nodes
+    whitelisted_fluentd_hosts = Array(node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_hosts']).dup
+    if whitelisted_fluentd_hosts == %w[--all]
+      whitelisted_fluentd_hosts = OpenShiftHelper::NodeHelper.new(node).node_servers.map do |server_node|
+        server_node['fqdn']
+      end
+    else
+      # due to how chef merges Array attributes, the `--all` value may still be present in #{whitelisted_fluentd_hosts};
+      # this may happen especially on the first run after setting openshift_logging_fluentd_hosts to non-default value.
+      whitelisted_fluentd_hosts.delete('--all')
+    end
+
+    # Set Fluentd labels on whitelisted nodes
+    whitelisted_fluentd_hosts.each do |fqdn|
+      execute "Set Fluentd Labels on whitelisted node #{fqdn}" do
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node ${node} ${key}=${value} --overwrite --config=#{FOLDER}/admin.kubeconfig"
+        environment(
+          'node' => fqdn,
+          'key' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].keys.first.to_s,
+          'value' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].values.first.to_s
+        )
+        not_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node},${key}=${value} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
+        only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
+      end
+    end
+
+    # Remove existing Fluentd labels on non-whitelisted nodes
+    execute 'Remove Fluentd labels from non-whitelisted nodes' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node -l ${key}${selector} ${key}- --overwrite --config=#{FOLDER}/admin.kubeconfig"
       environment(
-        'key' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].keys.first.to_s,
-        'value' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].values.first.to_s
+        'selector' => whitelisted_fluentd_hosts.map { |fqdn| ",kubernetes.io/hostname!=#{fqdn}" }.join(''),
+        'key' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].keys.first.to_s
       )
-      only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l ${key}!=${value} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
+      only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l ${key}${selector} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
     end
   end
 end
