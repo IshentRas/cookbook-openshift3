@@ -1,6 +1,11 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.9
+### Improvement
+- Create backup directory against /var/lib/etcd for ETCD v2-v3 migration
+- General improvement for the controlled planed upgrade mechanism
+ 
 ## v2.1.8
 ### Improvement
 - Add more time for ETCD migration process

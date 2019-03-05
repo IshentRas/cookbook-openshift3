@@ -19,7 +19,6 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
   node.force_override['yum']['main']['exclude'] = node['is_apaas_openshift_cookbook']['custom_pkgs_excluder'] unless node['is_apaas_openshift_cookbook']['custom_pkgs_excluder'].nil?
 
   server_info = OpenShiftHelper::NodeHelper.new(node)
-  first_etcd = server_info.first_etcd
   is_etcd_server = server_info.on_etcd_server?
   is_master_server = server_info.on_master_server?
   is_node_server = server_info.on_node_server?
@@ -85,10 +84,6 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
       notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
     end
 
-    execute "Set upgrade markup for master : #{node['fqdn']}" do
-      command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt -C https://#{first_etcd['ipaddress']}:2379 set /migration/#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}/#{node['fqdn']} ok"
-    end
-
     log 'Upgrade for MASTERS [COMPLETED]' do
       level :info
     end
@@ -124,6 +119,15 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
     end
 
     include_recipe 'is_apaas_openshift_cookbook::upgrade_managed_hosted'
+
+    openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
+      action :set_mark_upgrade
+      target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
+    end
+
+    log 'Post Upgrade for MASTERS [COMPLETED]' do
+      level :info
+    end
   end
   include_recipe 'is_apaas_openshift_cookbook::upgrade_node36' if is_node_server
 end

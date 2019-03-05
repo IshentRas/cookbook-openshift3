@@ -5,14 +5,16 @@ property :docker_version, String
 provides :openshift_upgrade
 
 action :create_backup do
+  directory "#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup"
+
   execute "Generate etcd backup #{new_resource.etcd_action.upcase} upgrade" do
-    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-#{new_resource.etcd_action}-upgrade#{new_resource.target_version}"
-    not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-#{new_resource.etcd_action}-upgrade#{new_resource.target_version}") }
+    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup/#{new_resource.etcd_action}-upgrade#{new_resource.target_version}"
+    not_if { ::File.directory?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-#{new_resource.etcd_action}/backup/upgrade#{new_resource.target_version}") }
     notifies :run, 'execute[Copy etcd v3 data store]', :immediately
   end
 
   execute 'Copy etcd v3 data store' do
-    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-#{new_resource.etcd_action}-upgrade#{new_resource.target_version}/member/snap/"
+    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup/#{new_resource.etcd_action}-upgrade#{new_resource.target_version}/member/snap/"
     only_if { ::File.file?("#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db") }
     action :nothing
   end

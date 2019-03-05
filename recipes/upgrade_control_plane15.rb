@@ -82,11 +82,6 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
       notifies :restart, 'service[openvswitch]', :immediately if is_node_server
     end
 
-    openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
-      action :set_mark_upgrade
-      target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
-    end
-
     log 'Upgrade for MASTERS [COMPLETED]' do
       level :info
     end
@@ -107,6 +102,15 @@ if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
     end
 
     include_recipe 'is_apaas_openshift_cookbook::upgrade_managed_hosted'
+
+    openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
+      action :set_mark_upgrade
+      target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
+    end
+
+    log 'Post Upgrade for MASTERS [COMPLETED]' do
+      level :info
+    end
   end
   include_recipe 'is_apaas_openshift_cookbook::upgrade_node15' if is_node_server
 end

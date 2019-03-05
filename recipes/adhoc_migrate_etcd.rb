@@ -61,14 +61,16 @@ if is_etcd_server
     notifies :run, 'execute[Generate etcd backup before migration]', :immediately
   end
 
+  directory "#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup"
+
   execute 'Generate etcd backup before migration' do
-    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-migration-v3"
+    command "etcdctl backup --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} --backup-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup/pre-migration-v3"
     action :nothing
     notifies :run, 'execute[Copy etcd v3 data store]', :immediately
   end
 
   execute 'Copy etcd v3 data store' do
-    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}-pre-migration-v3/member/snap/"
+    command "cp -a #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member/snap/db #{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/backup/pre-migration-v3/member/snap/"
     action :nothing
     notifies :write, 'log[Stop services on ETCD]', :immediately
   end

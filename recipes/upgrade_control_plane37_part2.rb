@@ -75,10 +75,6 @@ if is_master_server
     notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
   end
 
-  execute "Set upgrade markup for master : #{node['fqdn']}" do
-    command "ETCDCTL_API=3 /usr/bin/etcdctl --cert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --cacert #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 put /migration/#{node['is_apaas_openshift_cookbook']['control_upgrade_version']}/#{node['fqdn']} ok"
-  end
-
   log 'Upgrade for MASTERS [COMPLETED]' do
     level :info
   end
@@ -114,5 +110,17 @@ if is_master_server
   end
 end
 
-include_recipe 'is_apaas_openshift_cookbook::upgrade_managed_hosted' if is_first_master
+if is_first_master
+  include_recipe 'is_apaas_openshift_cookbook::upgrade_managed_hosted' if is_first_master
+
+  openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
+    action :set_mark_upgrade
+    target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
+  end
+
+  log 'Post Upgrade for MASTERS [COMPLETED]' do
+    level :info
+  end
+end
+
 include_recipe 'is_apaas_openshift_cookbook::upgrade_node37' if is_node_server
