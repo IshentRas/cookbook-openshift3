@@ -12,6 +12,9 @@ is_control_plane_server = server_info.on_control_plane_server?
 is_node_server = server_info.on_node_server?
 is_certificate_server = server_info.on_certificate_server?
 
+include_recipe 'iptables::default'
+include_recipe 'selinux_policy::default'
+
 if should_be_configured
   if node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10
     include_recipe 'is_apaas_openshift_cookbook::ng_commons' if Chef::VERSION.to_f >= 14.0

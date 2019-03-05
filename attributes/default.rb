@@ -31,6 +31,9 @@ default['is_apaas_openshift_cookbook']['lb_servers'] = []
 default['is_apaas_openshift_cookbook']['certificate_server'] = {}
 default['is_apaas_openshift_cookbook']['openshift_hosted_registry_insecure'] = false
 default['is_apaas_openshift_cookbook']['openshift_yum_options'] = ''
+default['is_apaas_openshift_cookbook']['skip_migration_storage'] = false
+default['is_apaas_openshift_cookbook']['customised_storage'] = false
+default['is_apaas_openshift_cookbook']['customised_resources'] = '*'
 
 if node['is_apaas_openshift_cookbook']['openshift_HA'] || node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10
   default['is_apaas_openshift_cookbook']['openshift_common_api_hostname'] = node['is_apaas_openshift_cookbook']['openshift_cluster_name']

@@ -56,8 +56,8 @@ end
 if is_etcd_server
   execute 'Checking flag for migration (ETCD)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 get /migration/etcd | grep -w pre"
-    retries 60
-    retry_delay 2
+    retries 120
+    retry_delay 5
     notifies :run, 'execute[Generate etcd backup before migration]', :immediately
   end
 
@@ -167,7 +167,7 @@ unless etcd_servers.size == 1
 
       execute "Check #{etcd['fqdn']} has successfully registered" do
         command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.crt --key-file #{node['is_apaas_openshift_cookbook']['etcd_generated_certs_dir']}/etcd-#{first_etcd['fqdn']}/peer.key --ca-file #{node['is_apaas_openshift_cookbook']['etcd_generated_ca_dir']}/ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 cluster-health | grep -w 'got healthy result from https://#{etcd['ipaddress']}:2379'"
-        retries 60
+        retries 120
         retry_delay 5
         notifies :run, 'execute[Wait for 10 seconds for cluster to sync]', :immediately unless etcd == etcd_servers.last
       end
@@ -219,7 +219,7 @@ unless etcd_servers.size == 1
 
     execute 'Check cluster health' do
       command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
-      retries 60
+      retries 120
       retry_delay 5
     end
 
@@ -273,8 +273,8 @@ end
 if is_master_server
   execute 'Checking flag for clearing migration (Master)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/etcd | grep -w final"
-    retries 120
-    retry_delay 5
+    retries 240
+    retry_delay 10
   end
 
   config_options = YAML.load_file("#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master/master-config.yaml")

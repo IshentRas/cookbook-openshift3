@@ -129,6 +129,12 @@ action :reconcile_cluster_roles do
               policy reconcile-cluster-role-bindings system:build-strategy-jenkinspipeline --confirm"
     end
 
+    execute 'Upgrade clusterpolicies storage Post upgrade' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=clusterpolicies --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    end
+
     execute 'Reconcile Security Context Constraints' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
@@ -144,13 +150,21 @@ action :reconcile_cluster_roles do
     execute 'Migrate storage post policy reconciliation' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-              migrate storage --include=* --confirm"
+              migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+      environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
+      not_if { node['is_apaas_openshift_cookbook']['skip_migration_storage'] }
     end
   when 37
     execute 'Remove shared-resource-viewer protection before upgrade' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
               annotate role shared-resource-viewer openshift.io/reconcile-protect- -n openshift"
+    end
+
+    execute 'Upgrade clusterpolicies storage Post upgrade' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=clusterpolicies --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     end
 
     execute 'Reconcile Security Context Constraints' do
@@ -162,9 +176,17 @@ action :reconcile_cluster_roles do
     execute 'Migrate storage post policy reconciliation Post upgrade' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-              migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+              migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+      environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
+      not_if { node['is_apaas_openshift_cookbook']['skip_migration_storage'] }
     end
   when 38
+    execute 'Upgrade clusterpolicies storage Post upgrade' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=clusterpolicies --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    end
+
     execute 'Reconcile Security Context Constraints (3.8)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
@@ -174,9 +196,17 @@ action :reconcile_cluster_roles do
     execute 'Migrate storage post policy reconciliation Post upgrade (3.8)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-              migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+              migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+      environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
+      not_if { node['is_apaas_openshift_cookbook']['skip_migration_storage'] }
     end
   when 39
+    execute 'Upgrade clusterpolicies storage Post upgrade' do
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
+              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
+              migrate storage --include=clusterpolicies --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    end
+
     execute 'Reconcile Security Context Constraints (3.9)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
@@ -186,7 +216,9 @@ action :reconcile_cluster_roles do
     execute 'Migrate storage post policy reconciliation Post upgrade (3.9)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
               --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-              migrate storage --include=* --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+              migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+      environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
+      not_if { node['is_apaas_openshift_cookbook']['skip_migration_storage'] }
     end
   end
 end

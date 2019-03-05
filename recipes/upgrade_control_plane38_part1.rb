@@ -22,7 +22,9 @@ if is_first_master
   execute 'Migrate storage post policy reconciliation Pre upgrade (3.8)' do
     command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
              --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-             migrate storage --include=* --confirm"
+             migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
+    not_if { node['is_apaas_openshift_cookbook']['skip_migration_storage'] }
   end
 
   execute 'Create key for upgrade all storage (3.8)' do

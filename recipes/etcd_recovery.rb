@@ -18,6 +18,14 @@ if is_certificate_server && etcd_healthy && ::File.file?(node['is_apaas_openshif
   end
 end
 
+if is_certificate_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_clean_etcd_flag'])
+  ruby_block 'Force wiping recovery directory' do
+    block do
+      helper.remove_dir("#{node['is_apaas_openshift_cookbook']['etcd_generated_recovery_dir']}/*")
+    end
+  end
+end
+
 if is_certificate_server && !etcd_healthy
   directory node['is_apaas_openshift_cookbook']['etcd_generated_recovery_dir'] do
     mode '0755'
@@ -80,7 +88,6 @@ if is_etcd_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_rec
   remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
     path "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d/etcd-dropin"
     source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/recovery/etcd-#{node['fqdn']}"
-    action :create_if_missing
     notifies :run, 'execute[daemon-reload]', :immediately
     notifies :delete, "directory[#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member]", :immediately
     retries 120
@@ -94,7 +101,7 @@ if is_etcd_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_rec
   end
 
   execute 'Check cluster health' do
-    command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
+    command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname -i`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
     retries 60
     notifies :delete, "directory[/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d]", :immediately
     retry_delay 5
@@ -118,7 +125,7 @@ if is_etcd_server && ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_rec
   end
 
   execute 'Check ETCD cluster health before removing node in Emergency mode' do
-    command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 cluster-health | grep -w 'cluster is healthy'"
+    command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname -i`:2379 cluster-health | grep -w 'cluster is healthy'"
     retries 30
     retry_delay 1
     notifies :run, 'ruby_block[Unset ETCD_FORCE_NEW_CLUSTER=true (Emergency)]', :immediately

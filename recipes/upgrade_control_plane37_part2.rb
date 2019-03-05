@@ -24,14 +24,15 @@ if is_first_master
   execute 'Confirm OpenShift authorization objects are in sync' do
     command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
             --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-            migrate authorization"
+            migrate authorization --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} version | grep -w v3.7"
   end
 
   execute 'Migrate storage post policy reconciliation Pre upgrade' do
     command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} \
             --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig \
-            migrate storage --include=* --confirm"
+            migrate storage --include=${resources} --confirm --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+    environment 'resources' => node['is_apaas_openshift_cookbook']['customised_storage'] ? node['is_apaas_openshift_cookbook']['customised_resources'] : '*'
     not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} version | grep -w v3.7"
   end
 

@@ -1,6 +1,16 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.8
+### Improvement
+- Add more time for ETCD migration process
+- Give the possibility of deleting the ETCD recovery directory on certificate server (adhoc_clean_etcd_flag)
+- Give the possibility to skip the oc adm migration storage phase pre/post upgrade (skip_migration_storage)
+- Give the possibility to customise the name of the resources for oc adm migration storage (customised_storage & customised_resources)
+
+### Bug
+- Use IP addresses for checking ETCD health whilst recovering the cluster
+
 ## v2.1.7
 ### Improvement
 - Add Time parameters for ETCD around heartbeat interval (etcd_heartbeat_interval) and election timeout (etcd_election_timeout)

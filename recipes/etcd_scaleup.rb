@@ -70,7 +70,7 @@ unless new_etcd_servers.empty?
       end
 
       execute 'Check cluster health' do
-        command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname`:2379 cluster-health | grep -c 'got healthy') -eq #{new_etcd_size} ]]"
+        command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} -C https://`hostname -i`:2379 cluster-health | grep -c 'got healthy') -eq #{new_etcd_size} ]]"
         retries 60
         retry_delay 5
       end
