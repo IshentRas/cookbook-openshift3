@@ -26,6 +26,15 @@ if is_etcd_server
   end
 end
 
+if is_master_server
+  log 'Stop services on MASTERS' do
+    level :info
+    notifies :stop, 'service[atomic-openshift-master]', :immediately unless node['is_apaas_openshift_cookbook']['openshift_HA']
+    notifies :stop, 'service[atomic-openshift-master-api]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
+    notifies :stop, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
+  end
+end
+
 if is_first_etcd
   execute 'Check cluster health' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 cluster-health | grep -w 'cluster is healthy'"
@@ -42,18 +51,7 @@ if is_first_etcd
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 set /migration/etcd pre"
     action :nothing
   end
-end
 
-if is_master_server
-  log 'Stop services on MASTERS' do
-    level :info
-    notifies :stop, 'service[atomic-openshift-master]', :immediately unless node['is_apaas_openshift_cookbook']['openshift_HA']
-    notifies :stop, 'service[atomic-openshift-master-api]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
-    notifies :stop, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
-  end
-end
-
-if is_etcd_server
   execute 'Checking flag for migration (ETCD)' do
     command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 get /migration/etcd | grep -w pre"
     retries 120
@@ -80,9 +78,7 @@ if is_etcd_server
     notifies :stop, 'service[etcd-service]', :immediately
     action :nothing
   end
-end
 
-if is_first_etcd
   execute 'Migrate etcd data' do
     command "ETCDCTL_API=3 /usr/bin/etcdctl migrate --data-dir=#{node['is_apaas_openshift_cookbook']['etcd_data_dir']} &> #{Chef::Config[:file_cache_path]}/etcd_migration1"
   end
@@ -194,7 +190,6 @@ unless etcd_servers.size == 1
     remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
       path "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service.d/etcd-dropin"
       source "http://#{certificate_server['ipaddress']}:#{node['is_apaas_openshift_cookbook']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"
-      action :create_if_missing
       notifies :run, 'execute[daemon-reload]', :immediately
       retries 120
       retry_delay 5
@@ -203,6 +198,7 @@ unless etcd_servers.size == 1
     directory "#{node['is_apaas_openshift_cookbook']['etcd_data_dir']}/member" do
       recursive true
       action :delete
+      notifies :stop, 'service[etcd-service]', :before
       notifies :start, 'service[etcd-service]', :immediately
     end
 
