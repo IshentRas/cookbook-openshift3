@@ -101,6 +101,12 @@ if is_master_server
     notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately
   end
 
+  openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
+    action :set_mark_upgrade
+    target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
+    not_if { is_first_master }
+  end
+
   log 'Reconcile Cluster Roles & Cluster Role Bindings [COMPLETED] (3.9)' do
     level :info
   end

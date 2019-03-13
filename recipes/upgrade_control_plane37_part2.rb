@@ -75,6 +75,12 @@ if is_master_server
     notifies :restart, 'service[atomic-openshift-master-controllers]', :immediately if node['is_apaas_openshift_cookbook']['openshift_HA']
   end
 
+  openshift_upgrade "Mark upgrade complete for #{node['fqdn']}" do
+    action :set_mark_upgrade
+    target_version node['is_apaas_openshift_cookbook']['control_upgrade_version']
+    not_if { is_first_master }
+  end
+
   log 'Upgrade for MASTERS [COMPLETED]' do
     level :info
   end

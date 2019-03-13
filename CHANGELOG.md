@@ -1,7 +1,7 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.1.10-11
+## v2.1.10-13
 ### Bug
 - Fix issue when upgrading cluster to 3.6
 - Improve logic for migrating ETCD v2 to v3 schema
