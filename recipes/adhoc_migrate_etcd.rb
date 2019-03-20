@@ -209,15 +209,15 @@ unless etcd_servers.size == 1
   end
 
   if is_first_etcd
-    execute 'Check cluster health. All memberare back online' do
+    execute 'Check cluster health. All members are back online' do
       command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
       notifies :run, 'execute[Set Migration ok]', :immediately
       retries 120
       retry_delay 5
     end
 
-    execute 'Set Migration ok' do
-      command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 set /migration/${etcd_path} ok"
+    execute 'Set Migration ready for Masters' do
+      command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 set /migration/${etcd_path} ready"
       environment('etcd_path' => etcd_servers.size > 1 ? 'etcd-cluster' : 'etcd')
       action :nothing
     end
@@ -230,7 +230,7 @@ end
 
 if is_first_master
   execute 'Checking flag for migration (Master)' do
-    command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/${etcd_path} | grep -w ok"
+    command "/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.crt --key-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-client.key --ca-file #{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/master.etcd-ca.crt --endpoints https://#{first_etcd['ipaddress']}:2379 get /migration/${etcd_path} | grep -w ready"
     environment('etcd_path' => etcd_servers.size > 1 ? 'etcd-cluster' : 'etcd')
     retries 120
     retry_delay 5
