@@ -306,7 +306,6 @@ default['is_apaas_openshift_cookbook']['encrypted_file_password'] = { 'data_bag_
 #
 #   role:<ID>_openshift_use_role_based_duty_discovery   - This must be assigned to the node to use role-based duty discovery
 #   role:<ID>_openshift_etcd_duty                       - If assigned, this is an etcd node
-#   role:<ID>_openshift_first_master_duty               - If assigned, this is the first master node
 #   role:<ID>_openshift_certificate_server_duty         - If assigned, this is the certificate server node
 #   role:<ID>_openshift_master_duty                     - If assigned, this is a master node
 #   role:<ID>_openshift_node_duty                       - If assigned, this is a node

@@ -94,8 +94,8 @@ if is_certificate_server
     execute "Generate master client configuration for #{master_server['fqdn']}" do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} create-api-client-config \
               --certificate-authority=#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca.crt \
-              --master=https://#{master_server['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']} \
-              --public-master=https://#{master_server['fqdn']}:#{node['is_apaas_openshift_cookbook']['openshift_master_api_port']} \
+              --master=#{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
+              --public-master=#{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --client-dir=#{node['is_apaas_openshift_cookbook']['master_generated_certs_dir']}/openshift-#{master_server['fqdn']} \
               --groups=system:masters,system:openshift-master \
               --signer-cert=#{node['is_apaas_openshift_cookbook']['master_certs_generated_certs_dir']}/ca.crt \

@@ -1,7 +1,18 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.1.10-14
+## v2.1.17
+### Bug
+- Make sure running actions from 1st master are done using loopback address (Avoiding dropping connectivity from LB)
+- Make sure master servers use loopback address for their Api Config
+- Add missing CheckVolumeBinding predicate (fix Local Persistent Volumes for OSE 3.9)
+
+### Improvement
+- Simplify logic around discovering first master and first etcd when using role discovery
+- Add yum options for core packages
+- Give the possibility to override global variables at the node level for upgrade_docker_version and docker_version
+
+## v2.1.10-16
 ### Bug
 - Fix issue when upgrading cluster to 3.6
 - Improve logic for migrating ETCD v2 to v3 schema

@@ -66,6 +66,7 @@ package 'deltarpm' do
 end
 
 yum_package node['is_apaas_openshift_cookbook']['core_packages'] do
+  options node['is_apaas_openshift_cookbook']['docker_yum_options'] unless node['is_apaas_openshift_cookbook']['docker_yum_options'].nil?
   only_if { is_master_server || is_node_server }
 end
 

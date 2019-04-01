@@ -4,13 +4,13 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
-server_info = OpenShiftHelper::NodeHelper.new(node)
+server_info = helper = OpenShiftHelper::NodeHelper.new(node)
 is_node_server = server_info.on_node_server?
 
 if is_node_server || node['is_apaas_openshift_cookbook']['deploy_containerized']
   yum_package 'docker' do
     action :install
-    version node['is_apaas_openshift_cookbook']['upgrade'] ? (node['is_apaas_openshift_cookbook']['upgrade_docker_version'] unless node['is_apaas_openshift_cookbook']['upgrade_docker_version'].nil?) : (node['is_apaas_openshift_cookbook']['docker_version'] unless node['is_apaas_openshift_cookbook']['docker_version'].nil?)
+    version node['is_apaas_openshift_cookbook']['upgrade'] ? (helper.get_nodevar('upgrade_docker_version') unless helper.get_nodevar('upgrade_docker_version').nil?) : (helper.get_nodevar('docker_version') unless helper.get_nodevar('docker_version').nil?)
     retries 3
     options node['is_apaas_openshift_cookbook']['docker_yum_options'] unless node['is_apaas_openshift_cookbook']['docker_yum_options'].nil?
     notifies :restart, 'service[docker]', :immediately if node['is_apaas_openshift_cookbook']['upgrade']
