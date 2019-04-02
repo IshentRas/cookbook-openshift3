@@ -19,7 +19,7 @@ template "#{Chef::Config[:file_cache_path]}/router-patch" do
   variables(
     lazy do
       {
-        router_image: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc/router -n #{node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']} -o jsonpath='{.spec.template.spec.containers[0].image}'").run_command.stdout.strip.gsub(/:v.+/, ":#{hosted_upgrade_version}")
+        router_image: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc/router -n #{node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']} -o jsonpath='{.spec.template.spec.containers[0].image}' --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}").run_command.stdout.strip.gsub(/:v.+/, ":#{hosted_upgrade_version}")
       }
     end
   )
@@ -32,7 +32,7 @@ if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
       variables(
         lazy do
           {
-            router_image: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc/router -n #{node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']} -o jsonpath='{.spec.template.spec.containers[0].image}'").run_command.stdout.strip.gsub(/:v.+/, ":#{hosted_upgrade_version}")
+            router_image: Mixlib::ShellOut.new("#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc/router -n #{node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']} -o jsonpath='{.spec.template.spec.containers[0].image}' --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}").run_command.stdout.strip.gsub(/:v.+/, ":#{hosted_upgrade_version}")
           }
         end
       )
@@ -42,7 +42,7 @@ end
 
 if node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router'] && ::File.exist?(node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file'])
   execute 'Update ConfigMap of the customised Hosted Router' do
-    command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=#{node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --dry-run -o yaml | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} replace -f - -n ${namespace_router}"
+    command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=#{node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file']} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --dry-run -o yaml | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} replace -f - -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     environment(
       'namespace_router' => node['is_apaas_openshift_cookbook']['openshift_hosted_router_namespace']
     )
@@ -52,7 +52,7 @@ if node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router'] 
   if node['is_apaas_openshift_cookbook']['openshift_hosted_router_deploy_shards']
     node['is_apaas_openshift_cookbook']['openshift_hosted_router_shard'].each do |shard|
       execute "Update ConfigMap of the customised Hosted Router sharding[#{shard['service_account']}]" do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=${custom_router_file} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --dry-run -o yaml | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} replace -f - -n ${namespace_router}"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap customrouter --from-file=haproxy-config.template=${custom_router_file} -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --dry-run -o yaml | #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} replace -f - -n ${namespace_router} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
         environment(
           'namespace_router' => shard['namespace'],
           'custom_router_file' => shard.key?('custom_router_file') ? shard['custom_router_file'] : node['is_apaas_openshift_cookbook']['openshift_hosted_deploy_custom_router_file']

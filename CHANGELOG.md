@@ -1,7 +1,7 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.1.17
+## v2.1.17-18
 ### Bug
 - Make sure running actions from 1st master are done using loopback address (Avoiding dropping connectivity from LB)
 - Make sure master servers use loopback address for their Api Config
