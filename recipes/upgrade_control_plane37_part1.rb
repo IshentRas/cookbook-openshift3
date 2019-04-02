@@ -13,7 +13,7 @@ is_etcd_server = server_info.on_etcd_server?
 is_master_server = server_info.on_master_server?
 
 if defined? node['is_apaas_openshift_cookbook']['upgrade_repos']
-  node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos']
+  node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos'] # ~FC019
 end
 
 include_recipe 'yum::default'

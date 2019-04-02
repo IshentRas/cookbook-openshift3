@@ -27,10 +27,7 @@ execute 'daemon-reload' do
   action :nothing
 end
 
-service 'httpd' do
-  retries 5
-  retry_delay 5
-end
+service 'httpd'
 
 service 'docker'
 

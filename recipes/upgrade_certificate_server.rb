@@ -12,13 +12,13 @@ Chef::Log.error("Upgrade will be skipped. Could not find the flag: #{node['is_ap
 
 if ::File.file?(node['is_apaas_openshift_cookbook']['control_upgrade_flag'])
 
-  node.force_override['is_apaas_openshift_cookbook']['upgrade'] = true
-  node.force_override['is_apaas_openshift_cookbook']['ose_major_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_major_version']
-  node.force_override['is_apaas_openshift_cookbook']['ose_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_version']
-  node.force_override['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version']
+  node.force_override['is_apaas_openshift_cookbook']['upgrade'] = true # ~FC019
+  node.force_override['is_apaas_openshift_cookbook']['ose_major_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_major_version'] # ~FC019
+  node.force_override['is_apaas_openshift_cookbook']['ose_version'] = node['is_apaas_openshift_cookbook']['upgrade_ose_version'] # ~FC019
+  node.force_override['is_apaas_openshift_cookbook']['openshift_docker_image_version'] = node['is_apaas_openshift_cookbook']['upgrade_openshift_docker_image_version'] # ~FC019
 
   if defined? node['is_apaas_openshift_cookbook']['upgrade_repos']
-    node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos']
+    node.force_override['is_apaas_openshift_cookbook']['yum_repositories'] = node['is_apaas_openshift_cookbook']['upgrade_repos'] # ~FC019
   end
 
   log 'Upgrade for CERTIFICATE SERVER [STARTED]' do
