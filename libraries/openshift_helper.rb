@@ -2,6 +2,7 @@ module OpenShiftHelper
   # Helper for Openshift
   class NodeHelper
     require 'fileutils'
+    require 'json'
 
     def initialize(node)
       @node = node
@@ -98,6 +99,14 @@ module OpenShiftHelper
 
     def should_be_configured?
       on_control_plane_server? || on_node_server? || on_new_etcd_server?
+    end
+
+    def part_of_master?(fqdn)
+      master_servers.any? { |server_node| server_node['fqdn'] == fqdn }
+    end
+
+    def part_of_node?(fqdn)
+      node_servers.any? { |server_node| server_node['fqdn'] == fqdn }
     end
 
     def remove_dir(path)
@@ -199,6 +208,14 @@ module OpenShiftHelper
 
     def check_pod_not_ready?(namespace, label, number)
       ::Mixlib::ShellOut.new("[[ $(#{node['is_apaas_openshift_cookbook']['openshift_client_binary']} get pod -l #{label} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig -n #{namespace} -o jsonpath='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' | grep -o -w Ready | wc -w) -eq #{number.to_i} ]]").run_command.error?
+    end
+
+    def nodelabels
+      if node['is_apaas_openshift_cookbook']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('ocp_labels')
+        JSON.parse(node['ec2']['userdata'])['ocp_labels']
+      else
+        node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }['labels'].to_s.split(' ')
+      end
     end
 
     protected

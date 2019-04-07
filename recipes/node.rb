@@ -5,7 +5,6 @@
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
 server_info = helper = OpenShiftHelper::NodeHelper.new(node)
-node_servers = server_info.node_servers
 certificate_server = server_info.certificate_server
 is_node_server = server_info.on_node_server?
 docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
@@ -269,7 +268,7 @@ if is_node_server
     source 'node.yaml.erb'
     variables(
       osn_cluster_dns_ip: helper.get_nodevar('osn_cluster_dns_ip'),
-      node_labels: node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }['labels'].to_s.split(' '),
+      node_labels: helper.nodelabels,
       ose_major_version: ose_major_version,
       kubelet_args: node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_default'].merge(node['is_apaas_openshift_cookbook']['openshift_node_kubelet_args_custom'])
     )

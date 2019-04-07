@@ -34,6 +34,8 @@ default['is_apaas_openshift_cookbook']['openshift_yum_options'] = ''
 default['is_apaas_openshift_cookbook']['skip_migration_storage'] = false
 default['is_apaas_openshift_cookbook']['customised_storage'] = false
 default['is_apaas_openshift_cookbook']['customised_resources'] = '*'
+default['is_apaas_openshift_cookbook']['set_openshift-infra_selector'] = false
+default['is_apaas_openshift_cookbook']['openshift-infra-selector'] = 'region=infra'
 
 if node['is_apaas_openshift_cookbook']['openshift_HA'] || node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10
   default['is_apaas_openshift_cookbook']['openshift_common_api_hostname'] = node['is_apaas_openshift_cookbook']['openshift_cluster_name']
@@ -211,6 +213,7 @@ default['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] = '1450'
 default['is_apaas_openshift_cookbook']['openshift_node_disable_swap_on_host'] = true
 # Deprecated options (Use openshift_node_kubelet_args_custom instead)
 default['is_apaas_openshift_cookbook']['openshift_node_max_pod'] = ''
+default['is_apaas_openshift_cookbook']['openshift_node_user_data'] = false
 default['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] = false
 default['is_apaas_openshift_cookbook']['openshift_node_minimum_container_ttl_duration'] = ''
 default['is_apaas_openshift_cookbook']['openshift_node_maximum_dead_containers_per_container'] = ''

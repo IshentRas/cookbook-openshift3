@@ -1,6 +1,15 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.20
+### Bug
+- Make sure docker staorage is reset before first startup (Left over previous installations)
+
+### Improvement
+- Capacity to define labels against EC2 instances via user-data (openshift_node_user_data and ocp_labels)
+- Add openshift_buildoverrides_tolerations capability 3.9+
+- Add openshift-infra-selector variable to enforce default node selector for openshift-infra project (Default to region=infra. Only if set_openshift-infra_selector is set to true)
+
 ## v2.1.17-19
 ### Bug
 - Make sure running actions from 1st master are done using loopback address (Avoiding dropping connectivity from LB)

@@ -16,8 +16,14 @@ kind: NodeConfig
 kubeletArguments:
 <% unless @node_labels.empty? -%>
   node-labels:
+<% if @node_labels.is_a?(Array) -%>
 <% @node_labels.each do |label| %>
     - <%= label %>
+<%- end -%>
+<%- else -%>
+<% @node_labels.each_pair do |k, v| %>
+    - <%= k %>=<%= v %>
+<%- end -%>
 <%- end -%>
 <%- end -%>
 <% @kubelet_args.each_pair do |k, v| %>

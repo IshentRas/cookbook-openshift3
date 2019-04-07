@@ -26,3 +26,12 @@ BuildOverrides:
       <%= k %>: <%= v %>
 <%- end -%>
 <%- end -%>
+<% unless node['is_apaas_openshift_cookbook']['openshift_buildoverrides_tolerations'].empty? && node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i < 9 -%>
+    tolerations:
+<% node['is_apaas_openshift_cookbook']['openshift_buildoverrides_tolerations'].each do |annotation| %>
+    - key: <%= annotation['key'] %>
+      value: <%= annotation['value'] %>
+      effect: <%= annotation['effect'] %>
+      operator: <%= annotation['operator'] %>
+<%- end -%>
+<%- end -%>

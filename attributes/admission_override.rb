@@ -14,6 +14,7 @@ default['is_apaas_openshift_cookbook']['openshift_buildoverrides_force_pull'] = 
 default['is_apaas_openshift_cookbook']['openshift_buildoverrides_image_labels'] = %w[]
 default['is_apaas_openshift_cookbook']['openshift_buildoverrides_nodeselectors'] = {}
 default['is_apaas_openshift_cookbook']['openshift_buildoverrides_annotations'] = {}
+default['is_apaas_openshift_cookbook']['openshift_buildoverrides_tolerations'] = %w[]
 default['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_memorylimit_percent'] = ''
 default['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_cpulimit_percent'] = ''
 default['is_apaas_openshift_cookbook']['openshift_clusterresourceoverrides_limitcputomem_percent'] = ''

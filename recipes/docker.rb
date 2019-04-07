@@ -38,8 +38,14 @@ if is_node_server || node['is_apaas_openshift_cookbook']['deploy_containerized']
     notifies :restart, 'service[docker]', :immediately unless ::Mixlib::ShellOut.new('systemctl is-enabled docker').run_command.error?
   end
 
+  execute 'Trigger Docker from previous deployment' do
+    command 'docker-storage-setup --reset'
+    action :nothing
+  end
+
   template '/etc/sysconfig/docker' do
     source 'service_docker.sysconfig.erb'
+    notifies :run, 'execute[Trigger Docker from previous deployment]', :immediately if ::Mixlib::ShellOut.new('systemctl is-enabled docker').run_command.error?
     notifies :restart, 'service[docker]', :immediately
     notifies :enable, 'service[docker]', :immediately
   end

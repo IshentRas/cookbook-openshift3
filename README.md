@@ -65,8 +65,6 @@ In the following example, DNSMASQ will only be deployed on mynodeoverride.domain
 ```
 
 ### Supported version
-[x] 1.4 to 1.5
-
 [x] 1.5 to 3.6
 
 [x] 3.6 to 3.7
@@ -84,7 +82,7 @@ Variables:
 | NAME | PURPOSE | Default value | Mandatory |
 | ---------------- | ------------------------------- | ------------------ | ---------- |
 | control_upgrade | Execute an upgrade     | `false`    | `YES` |
-| control_upgrade_version | Target version (14,15,36,37,39)        |`""` |`YES`|
+| control_upgrade_version | Target version (15,36,37,39)        |`""` |`YES`|
 | control_upgrade_flag | Location of the control upgrade flag | `"/to_be_replaced"`  | `YES` |
 | upgrade_repos | Target YUM repo | `""` | `NO` |
 
@@ -115,10 +113,10 @@ Variables:
 Test Matrix
 ===========
 
-| Platform   | OSE 3.10 | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 | OSE <= 1.4.x |
-| --------   | -------- | --------- | --------- | --------- | --------- | ------------ |
-| centos 7.4 "cluster native" | ONGOING | PASS   | PASS      | PASS      | PASS      | Not supported |
-| centos 7.4 "standalone" | Not supported | Not supported   | Not supported      | PASS      | PASS      | Not supported |
+| Platform   | OSE 3.10 | OSE 3.9.0 | OSE 3.7.0 | OSE 3.6.1 | OSE 1.5.1 |
+| --------   | -------- | --------- | --------- | --------- | --------- |
+| centos 7.4 "cluster native" | ONGOING | PASS   | PASS      | PASS      | PASS      |
+| centos 7.4 "standalone" | Not supported | Not supported   | Not supported      | PASS      | PASS      |
 
 Override Attributes
 ===================
@@ -562,6 +560,18 @@ and the following IAM policy attached to your *node* servers:
       "Resource": "*"
     }
   ]
+}
+```
+
+Labelling on the AWS EC2 nodes can be done via user-data using ocp_labels key and setting openshift_node_user_data to *true*
+
+```json
+{
+  ocp_labels: 
+    {
+      "region": "user",
+      "purpose": "builder"
+    }
 }
 ```
 

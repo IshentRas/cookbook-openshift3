@@ -35,12 +35,16 @@ template 'Generate the web console config to temp directory' do
   source 'web_console/console-config.yaml.erb'
   mode '0644'
   sensitive true
+  notifies :run, 'execute[Generate web console ConfigMap]', :immediately
 end
 
 execute 'Generate web console ConfigMap' do
   command "#{oc_client} create configmap webconsole-config --from-file=webconsole-config.yaml=#{FOLDER}/console-config.yaml --dry-run -o yaml --config=#{FOLDER}/admin.kubeconfig | #{oc_client} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
+  action :nothing
+  notifies :run, 'execute[Generate the Deployment]', :immediately
 end
 
 execute 'Generate the Deployment' do
   command "#{oc_client} process -f #{FOLDER}/console-template.yaml --param IMAGE=#{node['is_apaas_openshift_cookbook']['openshift_web_console_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']} --param REPLICA_COUNT=#{master_servers.size} --config=#{FOLDER}/admin.kubeconfig | #{oc_client} apply --config=#{FOLDER}/admin.kubeconfig -f - -n openshift-web-console"
+  action :nothing
 end
