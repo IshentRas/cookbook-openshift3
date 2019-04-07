@@ -87,14 +87,17 @@ action :delete do
               --config=#{FOLDER}/admin.kubeconfig \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
               xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
-              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+              --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     end
 
     execute 'Uninstalling metrics components' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION --ignore-not-found \
               --selector=metrics-infra all,sa,secrets,templates,routes,pvc,rolebindings,clusterrolebindings \
               --config=#{FOLDER}/admin.kubeconfig \
-              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       environment 'ACTION' => 'delete'
     end
 
@@ -102,7 +105,8 @@ action :delete do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION \
               --ignore-not-found rolebinding/hawkular-view clusterrolebinding/heapster-cluster-reader \
               --config=#{FOLDER}/admin.kubeconfig \
-              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       environment 'ACTION' => 'delete'
     end
 
@@ -161,7 +165,8 @@ action :create do
               --key=#{CERT_FOLDER}/ca.key \
               --cert=#{CERT_FOLDER}/ca.crt \
               --serial=#{CERT_FOLDER}/ca.serial.txt \
-              --name=metrics-signer@$(date +%s)"
+              --name=metrics-signer@$(date +%s) \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       not_if { ::File.exist?("#{CERT_FOLDER}/ca.crt") }
     end
 
@@ -174,7 +179,8 @@ action :create do
                 --hostnames=#{component} \
                 --signer-key=#{CERT_FOLDER}/ca.key \
                 --signer-cert=#{CERT_FOLDER}/ca.crt \
-                --signer-serial=#{CERT_FOLDER}/ca.serial.txt"
+                --signer-serial=#{CERT_FOLDER}/ca.serial.txt \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
         not_if { ::File.exist?("#{CERT_FOLDER}/#{component}.crt") }
       end
 
@@ -338,23 +344,30 @@ action :create do
         command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} apply -f \
                 #{FOLDER}/templates \
                 --config=#{FOLDER}/admin.kubeconfig \
-                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
 
       execute 'Scaling down cluster to recognize changes' do
         command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
                 --config=#{FOLDER}/admin.kubeconfig \
-                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
+                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | \
                 xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
-                --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+                --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+                --config=#{FOLDER}/admin.kubeconfig \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
 
       execute 'Scaling up cluster' do
         command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get rc -l metrics-infra -o name \
                 --config=#{FOLDER}/admin.kubeconfig \
-                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} | \
+                --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | \
                 xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
-                --replicas=1 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']}"
+                --replicas=1 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_metrics_project']} \
+                --config=#{FOLDER}/admin.kubeconfig \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
     end
 

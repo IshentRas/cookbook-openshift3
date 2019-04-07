@@ -25,3 +25,4 @@ default['is_apaas_openshift_cookbook']['openshift_master_identity_provider']['Re
 default['is_apaas_openshift_cookbook']['openshift_master_htpasswd'] = "#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/openshift-passwd"
 
 default['is_apaas_openshift_cookbook']['openshift_master_htpasswd_users'] = []
+default['is_apaas_openshift_cookbook']['openshift_master_identity_ldap_filter'] = '(objectClass=*)'

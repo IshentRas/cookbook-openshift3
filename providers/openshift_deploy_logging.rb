@@ -94,14 +94,19 @@ action :delete do
     execute 'Scaling down cluster before deletion (Curator, ES and Kibana)' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=logging-infra -o name \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} | \
               xargs --no-run-if-empty #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale \
-              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}"
+              --replicas=0 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} \
+              --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
+              --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}"
     end
 
     execute 'Delete logging api objects' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION dc,rc,svc,routes,templates,daemonset,is --selector=logging-infra \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -109,6 +114,7 @@ action :delete do
     execute 'Delete oauthclient kibana-proxy' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION oauthclient kibana-proxy \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -116,6 +122,7 @@ action :delete do
     execute 'Delete logging secrets' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION secret logging-fluentd logging-elasticsearch logging-kibana logging-kibana-proxy logging-curator \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -123,6 +130,7 @@ action :delete do
     execute 'Delete logging service accounts' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION secret,serviceaccount aggregated-logging-elasticsearch aggregated-logging-kibana aggregated-logging-curator aggregated-logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -130,6 +138,7 @@ action :delete do
     execute 'Delete logging rolebindings' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION rolebinding logging-elasticsearch-view-role \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -137,6 +146,7 @@ action :delete do
     execute 'Delete logging cluster role bindings' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION rolebinding logging-elasticsearch-view-role \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
@@ -144,16 +154,17 @@ action :delete do
     execute 'Delete logging configmaps' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} $ACTION configmap logging-elasticsearch logging-curator logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} --ignore-not-found=true"
       environment 'ACTION' => 'delete'
     end
 
     execute 'Remove privileged permissions for fluentd' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy remove-scc-from-user privileged system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy remove-scc-from-user privileged system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     end
 
     execute 'Remove cluster-reader permissions for fluentd' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy remove-cluster-role-from-user cluster-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy remove-cluster-role-from-user cluster-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     end
 
     directory FOLDER do
@@ -214,7 +225,7 @@ action :create do
       environment(
         'namespace' => node['is_apaas_openshift_cookbook']['openshift_logging_namespace']
       )
-      not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get project ${namespace} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig"
+      not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get project ${namespace} --config=#{node['is_apaas_openshift_cookbook']['openshift_master_config_dir']}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
     end
 
     template "#{CERT_FOLDER}/signing.conf" do
@@ -236,6 +247,7 @@ action :create do
     execute 'Generate certificates' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-signer-cert \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --key=#{CERT_FOLDER}/ca.key \
               --cert=#{CERT_FOLDER}/ca.crt \
               --serial=#{CERT_FOLDER}/ca.serial.txt \
@@ -246,6 +258,7 @@ action :create do
     execute 'Generate kibana-internal keys' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} ca create-server-cert \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --key=#{CERT_FOLDER}/kibana-internal.key \
               --cert=#{CERT_FOLDER}/kibana-internal.crt \
               --hostnames='kibana, kibana-ops, #{node['is_apaas_openshift_cookbook']['openshift_logging_kibana_hostname']}, #{node['is_apaas_openshift_cookbook']['openshift_logging_kibana_ops_hostname']}' \
@@ -323,6 +336,7 @@ action :create do
     execute 'Generating secrets for elasticsearch' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} secrets new logging-elasticsearch \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               key=#{CERT_FOLDER}/logging-es.jks truststore=#{CERT_FOLDER}/truststore.jks \
               searchguard.key=#{CERT_FOLDER}/elasticsearch.jks searchguard.truststore=#{CERT_FOLDER}/truststore.jks \
               admin-key=#{CERT_FOLDER}/system.admin.key admin-cert=#{CERT_FOLDER}/system.admin.crt \
@@ -351,6 +365,7 @@ action :create do
     execute 'Generating configmap logging-elasticsearch' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap logging-elasticsearch \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --from-file=logging.yml=#{FOLDER}/elasticsearch-logging.yml \
               --from-file=elasticsearch.yml=#{FOLDER}/elasticsearch.yml -o yaml --dry-run > #{FOLDER}/templates/logging-elasticsearch-configmap.yaml"
     end
@@ -362,6 +377,7 @@ action :create do
     execute 'Generating configmap curator' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap logging-curator \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --from-file=config.yaml=#{FOLDER}/curator.yml -o yaml --dry-run > #{FOLDER}/templates/logging-curator-configmap.yaml"
     end
 
@@ -386,6 +402,7 @@ action :create do
     execute 'Generating configmap fluentd' do
       command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} create configmap logging-fluentd \
               --config=#{FOLDER}/admin.kubeconfig \
+              --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} \
               --from-file=fluent.conf=#{FOLDER}/fluent.conf \
  			        --from-file=throttle-config.yaml=#{FOLDER}/fluentd-throttle-config.yaml \
  			        --from-file=secure-forward.conf=#{FOLDER}/secure-forward.conf -o yaml --dry-run > #{FOLDER}/templates/logging-fluentd-configmap.yaml"
@@ -517,49 +534,52 @@ action :create do
       end
 
       execute 'Set rolebinding-reader permissions for ES' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user rolebinding-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch --config=#{FOLDER}/admin.kubeconfig"
-        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrole/rolebinding-reader -o yaml --config=#{FOLDER}/admin.kubeconfig | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user rolebinding-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrole/rolebinding-reader -o yaml --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch"
       end
 
       execute 'Set auth-delegator permissions for ES' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user system:auth-delegator system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch --config=#{FOLDER}/admin.kubeconfig"
-        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrole/system:auth-delegator -o yaml --config=#{FOLDER}/admin.kubeconfig | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user system:auth-delegator system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrole/system:auth-delegator -o yaml --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-elasticsearch"
         only_if { ose_major_version.split('.')[1].to_i >= 7 }
       end
 
       execute 'Set privileged permissions for fluentd' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-scc-to-user privileged system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig"
-        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get scc/privileged -o yaml --config=#{FOLDER}/admin.kubeconfig | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-scc-to-user privileged system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get scc/privileged -o yaml --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd"
       end
 
       execute 'Set cluster-reader permissions for fluentd' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user cluster-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig"
-        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrolebinding/cluster-readers -o yaml --config=#{FOLDER}/admin.kubeconfig | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_admin_binary']} policy add-cluster-role-to-user cluster-reader system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
+        not_if "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get clusterrolebinding/cluster-readers -o yaml --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | grep system:serviceaccount:#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']}:aggregated-logging-fluentd"
       end
 
       execute 'Scaling up ES' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=es --config=#{FOLDER}/admin.kubeconfig --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=1 \
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=es --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=1 \
                 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} \
-                --config=#{FOLDER}/admin.kubeconfig"
+                --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
 
       execute 'Rollout DCS ES (>=3.7)' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=es --config=#{FOLDER}/admin.kubeconfig --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} rollout latest \
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=es --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} rollout latest \
                 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} \
-                --config=#{FOLDER}/admin.kubeconfig"
+                --config=#{FOLDER}/admin.kubeconfig \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
         only_if { ose_major_version.split('.')[1].to_i >= 7 }
       end
 
       execute 'Scaling up Kibana' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=kibana --config=#{FOLDER}/admin.kubeconfig --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=#{node['is_apaas_openshift_cookbook']['openshift_logging_kibana_replica_count']} \
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=kibana --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=#{node['is_apaas_openshift_cookbook']['openshift_logging_kibana_replica_count']} \
                 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} \
-                --config=#{FOLDER}/admin.kubeconfig"
+                --config=#{FOLDER}/admin.kubeconfig \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
 
       execute 'Scaling up Curator' do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=curator --config=#{FOLDER}/admin.kubeconfig --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=1 \
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get dc --selector=component=curator --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} -o name | xargs #{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} scale --replicas=1 \
                 --namespace=#{node['is_apaas_openshift_cookbook']['openshift_logging_namespace']} \
-                --config=#{FOLDER}/admin.kubeconfig"
+                --config=#{FOLDER}/admin.kubeconfig \
+                --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       end
 
       file node['is_apaas_openshift_cookbook']['openshift_hosted_logging_flag'] do
@@ -582,25 +602,25 @@ action :create do
     # Set Fluentd labels on whitelisted nodes
     whitelisted_fluentd_hosts.each do |fqdn|
       execute "Set Fluentd Labels on whitelisted node #{fqdn}" do
-        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node ${node} ${key}=${value} --overwrite --config=#{FOLDER}/admin.kubeconfig"
+        command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node ${node} ${key}=${value} --overwrite --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
         environment(
           'node' => fqdn,
           'key' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].keys.first.to_s,
           'value' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].values.first.to_s
         )
-        not_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node},${key}=${value} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
-        only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
+        not_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node},${key}=${value} --no-headers --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | wc -l) > 0 ]]"
+        only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l kubernetes.io/hostname=${node} --no-headers --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | wc -l) > 0 ]]"
       end
     end
 
     # Remove existing Fluentd labels on non-whitelisted nodes
     execute 'Remove Fluentd labels from non-whitelisted nodes' do
-      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node -l ${key}${selector} ${key}- --overwrite --config=#{FOLDER}/admin.kubeconfig"
+      command "#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} label node -l ${key}${selector} ${key}- --overwrite --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']}"
       environment(
         'selector' => whitelisted_fluentd_hosts.map { |fqdn| ",kubernetes.io/hostname!=#{fqdn}" }.join(''),
         'key' => node['is_apaas_openshift_cookbook']['openshift_logging_fluentd_nodeselector'].keys.first.to_s
       )
-      only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l ${key}${selector} --no-headers --config=#{FOLDER}/admin.kubeconfig | wc -l) > 0 ]]"
+      only_if "[[ $(#{node['is_apaas_openshift_cookbook']['openshift_common_client_binary']} get node -l ${key}${selector} --no-headers --config=#{FOLDER}/admin.kubeconfig --server #{node['is_apaas_openshift_cookbook']['openshift_master_loopback_api_url']} | wc -l) > 0 ]]"
     end
   end
 end

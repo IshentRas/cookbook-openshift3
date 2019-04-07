@@ -91,7 +91,7 @@ oauthConfig:
       bindDN: <%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_bind_dn'] %>
       bindPassword: <%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_bind_password'] %>
       insecure: <%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_insecure'] %>
-      url: "<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_insecure'] ? 'ldap' : 'ldaps' %>://<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_server'] %>/<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_base_ou'] %>?<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_preferred_username'] %>?sub?(objectClass=*)"
+      url: "<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_insecure'] ? 'ldap' : 'ldaps' %>://<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_server'] %>/<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_base_ou'] %>?<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_provider'][identityProvider]['ldap_preferred_username'] %>?sub?<%= node['is_apaas_openshift_cookbook']['openshift_master_identity_ldap_filter'] %>"
   <% end -%>
 <% end -%>
   masterCA: ca-bundle.crt
