@@ -211,7 +211,7 @@ unless etcd_servers.size == 1
   if is_first_etcd
     execute 'Check cluster health. All members are back online' do
       command "[[ $(/usr/bin/etcdctl --cert-file #{node['is_apaas_openshift_cookbook']['etcd_peer_file']} --key-file #{node['is_apaas_openshift_cookbook']['etcd_peer_key']} --ca-file #{node['is_apaas_openshift_cookbook']['etcd_ca_cert']} --endpoints https://`hostname -i`:2379 cluster-health | grep -c 'got healthy') -eq #{etcd_servers.size} ]]"
-      notifies :run, 'execute[Set Migration ok]', :immediately
+      notifies :run, 'execute[Set Migration ready for Masters]', :immediately
       retries 120
       retry_delay 5
     end

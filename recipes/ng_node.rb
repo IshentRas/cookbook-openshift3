@@ -109,8 +109,9 @@ selinux_policy_boolean 'container_manage_cgroup' do
   value true
 end
 
-execute 'Pull Node Image' do
-  command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{docker_version}"
+docker_image node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] do
+  tag docker_version
+  action :pull_if_missing
 end
 
 cookbook_file '/usr/local/bin/openshift-node' do

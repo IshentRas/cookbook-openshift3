@@ -42,8 +42,9 @@ if is_etcd_server || is_new_etcd_server
   end
 
   if is_master_server
-    execute 'Pull ETCD Image' do
-      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}:#{docker_version}"
+    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] do
+      tag docker_version
+      action :pull_if_missing
       only_if { node['is_apaas_openshift_cookbook']['openshift_etcd_static_pod'] }
     end
 
