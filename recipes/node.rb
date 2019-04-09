@@ -47,14 +47,12 @@ if is_node_server
   end
 
   if node['is_apaas_openshift_cookbook']['deploy_containerized']
-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] do
-      tag docker_version
-      action :pull_if_missing
+    execute 'Pull Node Image' do
+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{docker_version}"
     end
 
-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] do
-      tag docker_version
-      action :pull_if_missing
+    execute 'Pull OVS Image' do
+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image']}:#{docker_version}"
     end
 
     template '/etc/systemd/system/atomic-openshift-node-dep.service' do

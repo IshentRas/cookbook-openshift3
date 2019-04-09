@@ -14,6 +14,7 @@ is_etcd_server = server_info.on_etcd_server?
 is_new_etcd_server = server_info.on_new_etcd_server?
 is_master_server = server_info.on_master_server?
 etcd_healthy = helper.checketcd_healthy?
+docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_etcd_version']
 
 if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']
   secret_file = node['is_apaas_openshift_cookbook']['encrypted_file_password']['secret_file'] || nil
@@ -44,8 +45,8 @@ if is_etcd_server || is_new_etcd_server
   end
 
   if node['is_apaas_openshift_cookbook']['deploy_containerized']
-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] do
-      action :pull_if_missing
+    execute 'Pull ETCD Image' do
+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}:#{docker_version}"
     end
 
     template "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service" do
