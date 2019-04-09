@@ -10,9 +10,8 @@ first_master = server_info.first_master
 docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
 
 if node['is_apaas_openshift_cookbook']['deploy_containerized']
-  docker_image node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] do
-    tag docker_version
-    action :pull_if_missing
+  execute 'Pull Master Image' do
+    command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_master_image']}:#{docker_version}"
   end
 
   bash 'Add CLI to master(s)' do

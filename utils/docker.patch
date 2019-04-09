@@ -1,0 +1,208 @@
+diff --git a/recipes/etcd_cluster.rb b/recipes/etcd_cluster.rb
+index 34d6156..8583f3c 100644
+--- a/recipes/etcd_cluster.rb
++++ b/recipes/etcd_cluster.rb
+@@ -14,6 +14,7 @@ is_etcd_server = server_info.on_etcd_server?
+ is_new_etcd_server = server_info.on_new_etcd_server?
+ is_master_server = server_info.on_master_server?
+ etcd_healthy = helper.checketcd_healthy?
++docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_etcd_version']
+ 
+ if node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_name'] && node['is_apaas_openshift_cookbook']['encrypted_file_password']['data_bag_item_name']
+   secret_file = node['is_apaas_openshift_cookbook']['encrypted_file_password']['secret_file'] || nil
+@@ -44,8 +45,8 @@ if is_etcd_server || is_new_etcd_server
+   end
+ 
+   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] do
+-      action :pull_if_missing
++    execute 'Pull ETCD Image' do
++      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}:#{docker_version}"
+     end
+ 
+     template "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service" do
+diff --git a/recipes/master_packages.rb b/recipes/master_packages.rb
+index f7be08c..ecac7c7 100644
+--- a/recipes/master_packages.rb
++++ b/recipes/master_packages.rb
+@@ -10,9 +10,8 @@ first_master = server_info.first_master
+ docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
+ 
+ if node['is_apaas_openshift_cookbook']['deploy_containerized']
+-  docker_image node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] do
+-    tag docker_version
+-    action :pull_if_missing
++  execute 'Pull Master Image' do
++    command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_master_image']}:#{docker_version}"
+   end
+ 
+   bash 'Add CLI to master(s)' do
+diff --git a/recipes/ng_etcd_cluster.rb b/recipes/ng_etcd_cluster.rb
+index ad6de15..96842a9 100644
+--- a/recipes/ng_etcd_cluster.rb
++++ b/recipes/ng_etcd_cluster.rb
+@@ -42,9 +42,8 @@ if is_etcd_server || is_new_etcd_server
+   end
+ 
+   if is_master_server
+-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] do
+-      tag docker_version
+-      action :pull_if_missing
++    execute 'Pull ETCD Image' do
++      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}:#{docker_version}"
+       only_if { node['is_apaas_openshift_cookbook']['openshift_etcd_static_pod'] }
+     end
+ 
+diff --git a/recipes/ng_master.rb b/recipes/ng_master.rb
+index 4e004bd..1da830c 100644
+--- a/recipes/ng_master.rb
++++ b/recipes/ng_master.rb
+@@ -142,9 +142,8 @@ if is_master_server
+     action :create_if_missing
+   end
+ 
+-  docker_image node['is_apaas_openshift_cookbook']['openshift_docker_control-plane_image'] do
+-    tag docker_version
+-    action :pull_if_missing
++  execute 'Pull Master Image' do
++    command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_control-plane_image']}:#{docker_version}"
+   end
+ 
+   remote_directory '/usr/local/bin' do
+diff --git a/recipes/ng_node.rb b/recipes/ng_node.rb
+index 3d71477..2241705 100644
+--- a/recipes/ng_node.rb
++++ b/recipes/ng_node.rb
+@@ -109,9 +109,8 @@ selinux_policy_boolean 'container_manage_cgroup' do
+   value true
+ end
+ 
+-docker_image node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] do
+-  tag docker_version
+-  action :pull_if_missing
++execute 'Pull Node Image' do
++  command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{docker_version}"
+ end
+ 
+ cookbook_file '/usr/local/bin/openshift-node' do
+diff --git a/recipes/node.rb b/recipes/node.rb
+index 1fa5ab0..fb8098b 100644
+--- a/recipes/node.rb
++++ b/recipes/node.rb
+@@ -47,14 +47,12 @@ if is_node_server
+   end
+ 
+   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] do
+-      tag docker_version
+-      action :pull_if_missing
++    execute 'Pull Node Image' do
++      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{docker_version}"
+     end
+ 
+-    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] do
+-      tag docker_version
+-      action :pull_if_missing
++    execute 'Pull OVS Image' do
++      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image']}:#{docker_version}"
+     end
+ 
+     template '/etc/systemd/system/atomic-openshift-node-dep.service' do
+diff --git a/utils/docker-atomic.patch b/utils/docker-atomic.patch
+deleted file mode 100644
+index f8608e0..0000000
+--- a/utils/docker-atomic.patch
++++ /dev/null
+@@ -1,72 +0,0 @@
+-diff --git a/recipes/certificate_server.rb b/recipes/certificate_server.rb
+-index 53a32a5..671a926 100644
+---- a/recipes/certificate_server.rb
+-+++ b/recipes/certificate_server.rb
+-@@ -7,14 +7,13 @@
+- server_info = OpenShiftHelper::NodeHelper.new(node)
+- is_certificate_server = server_info.on_certificate_server?
+- is_master_server = server_info.on_master_server?
+--docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
+- 
+- if is_certificate_server || is_master_server
+-   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+- 
+--    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_master_image'] do
+--      tag docker_version
+--      action :pull_if_missing
+-+    execute 'Pull CLI docker image' do
+-+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_master_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-+      not_if "docker images  | grep #{node['is_apaas_openshift_cookbook']['openshift_docker_master_image']}.*#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-     end
+- 
+-     bash 'Add CLI to master(s)' do
+-diff --git a/recipes/etcd_cluster.rb b/recipes/etcd_cluster.rb
+-index 502be5e..f6ecb6b 100644
+---- a/recipes/etcd_cluster.rb
+-+++ b/recipes/etcd_cluster.rb
+-@@ -147,8 +147,9 @@ if is_etcd_server
+-   end
+- 
+-   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+--    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] do
+--      action :pull_if_missing
+-+    execute 'Pull ETCD docker image' do
+-+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}"
+-+      not_if "docker images  | grep #{node['is_apaas_openshift_cookbook']['openshift_docker_etcd_image']}"
+-     end
+- 
+-     template "/etc/systemd/system/#{node['is_apaas_openshift_cookbook']['etcd_service_name']}.service" do
+-diff --git a/recipes/node.rb b/recipes/node.rb
+-index 72faa9b..260f024 100644
+---- a/recipes/node.rb
+-+++ b/recipes/node.rb
+-@@ -8,7 +8,6 @@ server_info = OpenShiftHelper::NodeHelper.new(node)
+- node_servers = server_info.node_servers
+- certificate_server = server_info.certificate_server
+- is_node_server = server_info.on_node_server?
+--docker_version = node['is_apaas_openshift_cookbook']['openshift_docker_image_version']
+- 
+- ose_major_version = node['is_apaas_openshift_cookbook']['deploy_containerized'] == true ? node['is_apaas_openshift_cookbook']['openshift_docker_image_version'] : node['is_apaas_openshift_cookbook']['ose_major_version']
+- path_certificate = node['is_apaas_openshift_cookbook']['use_wildcard_nodes'] ? 'wildcard_nodes.tgz.enc' : "#{node['fqdn']}.tgz.enc"
+-@@ -45,14 +44,15 @@ if is_node_server
+-   end
+- 
+-   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+--    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_node_image'] do
+--      tag docker_version
+--      action :pull_if_missing
+-+    execute 'Pull NODE docker image' do
+-+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_v
+-+ersion']}"
+-+      not_if "docker images  | grep #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}.*#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-     end
+- 
+--    docker_image node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] do
+--      tag docker_version
+--      action :pull_if_missing
+-+    execute 'Pull OVS docker image' do
+-+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-+      not_if "docker images  | grep #{node['is_apaas_openshift_cookbook']['openshift_docker_ovs_image']}.*#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-     end
+- 
+-     template '/etc/systemd/system/atomic-openshift-node-dep.service' do
+diff --git a/utils/docker-atomic2.patch b/utils/docker-atomic2.patch
+deleted file mode 100644
+index 628977c..0000000
+--- a/utils/docker-atomic2.patch
++++ /dev/null
+@@ -1,14 +0,0 @@
+-diff --git a/recipes/node.rb b/recipes/node.rb
+-index fe8b646..dd3f865 100644
+---- a/recipes/node.rb
+-+++ b/recipes/node.rb
+-@@ -45,8 +45,7 @@ if is_node_server
+- 
+-   if node['is_apaas_openshift_cookbook']['deploy_containerized']
+-     execute 'Pull NODE docker image' do
+--      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_v
+--ersion']}"
+-+      command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}:#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-       not_if "docker images  | grep #{node['is_apaas_openshift_cookbook']['openshift_docker_node_image']}.*#{node['is_apaas_openshift_cookbook']['openshift_docker_image_version']}"
+-     end
+- 

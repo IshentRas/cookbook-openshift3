@@ -142,9 +142,8 @@ if is_master_server
     action :create_if_missing
   end
 
-  docker_image node['is_apaas_openshift_cookbook']['openshift_docker_control-plane_image'] do
-    tag docker_version
-    action :pull_if_missing
+  execute 'Pull Master Image' do
+    command "docker pull #{node['is_apaas_openshift_cookbook']['openshift_docker_control-plane_image']}:#{docker_version}"
   end
 
   remote_directory '/usr/local/bin' do
