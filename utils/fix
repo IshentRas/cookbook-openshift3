@@ -1,6 +1,5 @@
 git checkout stash -- .
-git apply utils/docker-atomic.patch
-git apply utils/docker-atomic2.patch
+git apply utils/docker.patch
 git rm -rf files/default/openshift_examples
 git rm -rf providers/openshift_delete_host.rb
 git add .
