@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.23
+### Bug
+- Ensure ETCD tag is added when using containerised deployment
+
 ## v2.1.22
 ### Bug
 - Fix issue when performing ETCD migration v2 to v3

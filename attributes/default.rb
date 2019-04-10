@@ -135,7 +135,7 @@ default['is_apaas_openshift_cookbook']['openshift_docker_hosted_router_image'] =
 default['is_apaas_openshift_cookbook']['openshift_docker_node_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/node' : 'openshift/node'
 default['is_apaas_openshift_cookbook']['openshift_docker_ovs_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'openshift3/openvswitch' : 'openshift/openvswitch'
 default['is_apaas_openshift_cookbook']['openshift_docker_etcd_image'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? 'registry.access.redhat.com/rhel7/etcd' : 'quay.io/coreos/etcd'
-default['is_apaas_openshift_cookbook']['openshift_docker_etcd_version'] = 'v3.2.22'
+default['is_apaas_openshift_cookbook']['openshift_docker_etcd_version'] = node['is_apaas_openshift_cookbook']['openshift_deployment_type'] =~ /enterprise/ ? '3.2.22' : 'v3.2.22'
 default['is_apaas_openshift_cookbook']['openshift_master_config_dir'] = "#{node['is_apaas_openshift_cookbook']['openshift_common_master_dir']}/master"
 default['is_apaas_openshift_cookbook']['openshift_master_bind_addr'] = '0.0.0.0'
 default['is_apaas_openshift_cookbook']['openshift_master_admission_plugin_config'] = {}
