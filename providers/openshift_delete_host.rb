@@ -42,12 +42,6 @@ action :delete do
       command 'ovs-vsctl del-br br0 || true'
     end
 
-    %w[lbr0 vlinuxbr vovsbr].each do |interface|
-      execute "Remove linux interfaces #{interface}" do
-        command "ip link del #{interface} || true"
-      end
-    end
-
     execute 'Remove virtual device' do
       command 'nmcli device delete tun0 || true'
     end
