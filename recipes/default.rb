@@ -16,6 +16,14 @@ include_recipe 'iptables::default'
 include_recipe 'selinux_policy::default'
 
 if should_be_configured
+  if ::File.file?(node['is_apaas_openshift_cookbook']['adhoc_uninstall_openshift3_cookbook'])
+    Chef::Log.warn('adhoc_uninstall_openshift3_cookbook file found against Control Plane Server (Ignoring uninstall)') if is_control_plane_server
+    Chef::Log.warn('adhoc_uninstall_openshift3_cookbook file found (Triggerring uninstall)') unless is_control_plane_server
+    include_recipe 'is_apaas_openshift_cookbook::services'
+    include_recipe 'is_apaas_openshift_cookbook::adhoc_uninstall' unless is_control_plane_server
+    return
+  end
+
   if node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10
     include_recipe 'is_apaas_openshift_cookbook::ng_commons' if Chef::VERSION.to_f >= 14.0
     Chef::Log.error('For 3.10, CHEF client must be 14.0+') if Chef::VERSION.to_f < 14.0

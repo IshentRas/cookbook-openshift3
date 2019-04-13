@@ -1,6 +1,10 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.24
+### Improvement
+- Give capability to trigger uninstall of nodes via flag file. (Action is ignored if node part of Control Plane)
+
 ## v2.1.23
 ### Bug
 - Ensure ETCD tag is added when using containerised deployment
