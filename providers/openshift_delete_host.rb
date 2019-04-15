@@ -96,6 +96,7 @@ action :delete do
     log 'Finish uninstall' do
       level :info
       notifies :restart, 'service[iptables]', :immediately
+      notifies :restart, 'service[NetworkManager]', :immediately
     end
 
     execute '/usr/sbin/rebuild-iptables' do
