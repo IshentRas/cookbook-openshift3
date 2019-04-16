@@ -53,7 +53,7 @@ action :delete do
       end
     end
 
-    %w[atomic-openshift atomic-openshift-master atomic-openshift-node atomic-openshift-sdn-ovs atomic-openshift-clients cockpit-bridge cockpit-docker cockpit-shell cockpit-ws openvswitch tuned-profiles-atomic-openshift-node atomic-openshift-excluder atomic-openshift-docker-excluder etcd httpd haproxy docker docker-client docker-common atomic-openshift-hyperkube].each do |remove_package|
+    %w[atomic-openshift atomic-openshift-master atomic-openshift-node atomic-openshift-sdn-ovs atomic-openshift-clients cockpit-bridge cockpit-docker cockpit-shell cockpit-ws openvswitch tuned-profiles-atomic-openshift-node atomic-openshift-excluder atomic-openshift-docker-excluder etcd httpd haproxy docker docker-client docker-common docker-rhel-push-plugin atomic-openshift-hyperkube].each do |remove_package|
       package remove_package do
         action :remove
         ignore_failure true
