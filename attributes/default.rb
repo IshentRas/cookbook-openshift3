@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
+require 'json'
+
 originrepos = [
   { 'name' => 'centos-openshift-origin14', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin14/', 'gpgcheck' => false },
   { 'name' => 'centos-openshift-origin15', 'baseurl' => 'http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin15/', 'gpgcheck' => false },
@@ -14,13 +16,14 @@ originrepos = [
 ].freeze
 server_info = OpenShiftHelper::NodeHelper.new(node)
 
+default['is_apaas_openshift_cookbook']['openshift_node_user_data'] = false
 default['is_apaas_openshift_cookbook']['docker_signature_verification'] = 'false'
 default['is_apaas_openshift_cookbook']['docker_signature_args'] = server_info.getdockerversion ? " --signature-verification=#{node['is_apaas_openshift_cookbook']['docker_signature_verification']}" : ''
 default['is_apaas_openshift_cookbook']['use_wildcard_nodes'] = false
 default['is_apaas_openshift_cookbook']['custom_origin-dns'] = false
 default['is_apaas_openshift_cookbook']['custom_origin_location'] = ''
 default['is_apaas_openshift_cookbook']['wildcard_domain'] = ''
-default['is_apaas_openshift_cookbook']['openshift_cluster_name'] = ''
+default['is_apaas_openshift_cookbook']['openshift_cluster_name'] = node['is_apaas_openshift_cookbook']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_cluster_name') ? JSON.parse(node['ec2']['userdata'])['openshift_cluster_name'] : ''
 default['is_apaas_openshift_cookbook']['openshift_HA'] = false
 default['is_apaas_openshift_cookbook']['master_servers'] = []
 default['is_apaas_openshift_cookbook']['etcd_servers'] = []
@@ -36,10 +39,11 @@ default['is_apaas_openshift_cookbook']['customised_storage'] = false
 default['is_apaas_openshift_cookbook']['customised_resources'] = '*'
 default['is_apaas_openshift_cookbook']['set_openshift-infra_selector'] = false
 default['is_apaas_openshift_cookbook']['openshift-infra-selector'] = 'region=infra'
+default['is_apaas_openshift_cookbook']['user_plugin_config'] = {}
 
 if node['is_apaas_openshift_cookbook']['openshift_HA'] || node['is_apaas_openshift_cookbook']['ose_major_version'].split('.')[1].to_i >= 10
-  default['is_apaas_openshift_cookbook']['openshift_common_api_hostname'] = node['is_apaas_openshift_cookbook']['openshift_cluster_name']
-  default['is_apaas_openshift_cookbook']['openshift_common_public_hostname'] = node['is_apaas_openshift_cookbook']['openshift_common_api_hostname']
+  default['is_apaas_openshift_cookbook']['openshift_common_api_hostname'] = node['is_apaas_openshift_cookbook']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_common_api_hostname') ? JSON.parse(node['ec2']['userdata'])['openshift_common_api_hostname'] : node['is_apaas_openshift_cookbook']['openshift_cluster_name']
+  default['is_apaas_openshift_cookbook']['openshift_common_public_hostname'] = node['is_apaas_openshift_cookbook']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_common_public_hostname') ? JSON.parse(node['ec2']['userdata'])['openshift_common_public_hostname'] : node['is_apaas_openshift_cookbook']['openshift_common_api_hostname']
   default['is_apaas_openshift_cookbook']['openshift_master_embedded_etcd'] = false
   default['is_apaas_openshift_cookbook']['openshift_master_etcd_port'] = '2379'
   default['is_apaas_openshift_cookbook']['master_etcd_cert_prefix'] = 'master.etcd-'
@@ -165,7 +169,7 @@ default['is_apaas_openshift_cookbook']['openshift_master_pod_eviction_timeout'] 
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_message'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_project_request_template'] = ''
 default['is_apaas_openshift_cookbook']['openshift_master_logout_url'] = nil
-default['is_apaas_openshift_cookbook']['openshift_master_router_subdomain'] = 'cloudapps.domain.local'
+default['is_apaas_openshift_cookbook']['openshift_master_router_subdomain'] = node['is_apaas_openshift_cookbook']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_master_router_subdomain') ? JSON.parse(node['ec2']['userdata'])['openshift_master_router_subdomain'] : 'cloudapps.domain.local'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_cluster_network_cidr'] = '10.128.0.0/14'
 default['is_apaas_openshift_cookbook']['openshift_master_sdn_host_subnet_length'] = '9'
 default['is_apaas_openshift_cookbook']['openshift_master_saconfig_limitsecretreferences'] = false
@@ -213,7 +217,6 @@ default['is_apaas_openshift_cookbook']['openshift_node_sdn_mtu_sdn'] = '1450'
 default['is_apaas_openshift_cookbook']['openshift_node_disable_swap_on_host'] = true
 # Deprecated options (Use openshift_node_kubelet_args_custom instead)
 default['is_apaas_openshift_cookbook']['openshift_node_max_pod'] = ''
-default['is_apaas_openshift_cookbook']['openshift_node_user_data'] = false
 default['is_apaas_openshift_cookbook']['openshift_node_image_config_latest'] = false
 default['is_apaas_openshift_cookbook']['openshift_node_minimum_container_ttl_duration'] = ''
 default['is_apaas_openshift_cookbook']['openshift_node_maximum_dead_containers_per_container'] = ''

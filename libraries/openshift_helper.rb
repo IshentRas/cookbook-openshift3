@@ -13,15 +13,36 @@ module OpenShiftHelper
     end
 
     def master_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_master_duty")[0].sort : node['is_apaas_openshift_cookbook']['master_servers']
+      if server_method? && node['is_apaas_openshift_cookbook']['openshift_node_user_data']
+        current_cluster_id = JSON.parse(node['ec2']['userdata'])['cluster_id']
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_master_duty")[0].sort.find_all { |master_srv| master_srv['ec2']['account_id'] == node['ec2']['account_id'] && JSON.parse(master_srv['ec2']['userdata'])['cluster_id'] == current_cluster_id }
+      elsif server_method?
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_master_duty")[0].sort
+      else
+        node['is_apaas_openshift_cookbook']['master_servers']
+      end
     end
 
     def node_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_node_duty")[0].sort : node['is_apaas_openshift_cookbook']['node_servers']
+      if server_method? && node['is_apaas_openshift_cookbook']['openshift_node_user_data']
+        current_cluster_id = JSON.parse(node['ec2']['userdata'])['cluster_id']
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_node_duty")[0].sort.find_all { |node_srv| node_srv['ec2']['account_id'] == node['ec2']['account_id'] && JSON.parse(node_srv['ec2']['userdata'])['cluster_id'] == current_cluster_id }
+      elsif server_method?
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_node_duty")[0].sort
+      else
+        node['is_apaas_openshift_cookbook']['node_servers']
+      end
     end
 
     def etcd_servers
-      server_method? ? Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0].sort : node['is_apaas_openshift_cookbook']['etcd_servers']
+      if server_method? && node['is_apaas_openshift_cookbook']['openshift_node_user_data']
+        current_cluster_id = JSON.parse(node['ec2']['userdata'])['cluster_id']
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0].sort.find_all { |etcd_srv| etcd_srv['ec2']['account_id'] == node['ec2']['account_id'] && JSON.parse(etcd_srv['ec2']['userdata'])['cluster_id'] == current_cluster_id }
+      elsif server_method?
+        Chef::Search::Query.new.search(:node, "role:#{node['is_apaas_openshift_cookbook']['openshift_cluster_duty_discovery_id']}_openshift_etcd_duty")[0].sort
+      else
+        node['is_apaas_openshift_cookbook']['etcd_servers']
+      end
     end
 
     def new_etcd_servers

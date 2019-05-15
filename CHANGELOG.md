@@ -1,6 +1,16 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.27
+### Bug
+- Enable service discovery when uninstalling node
+
+### Improvement
+- Add capability for defining its additional plugin configutations within admissionConfig (https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/admission_controllers.html#admission-controllers-customizable-admission-plug-ins)
+
+### TechPreview (WIP)
+- Add capability to read variables from userdata at EC2 level
+
 ## v2.1.24-26
 ### Improvement
 - Give capability to trigger uninstall of nodes via flag file. (Action is ignored if node part of Control Plane)
