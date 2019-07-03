@@ -17,6 +17,7 @@ node['is_apaas_openshift_cookbook']['enabled_firewall_rules_master_cluster'].eac
   iptables_rule rule do
     action :enable
     notifies :restart, 'service[iptables]', :immediately
+    notifies :run, 'execute[rebuild-iptables]', :immediately
   end
 end
 
