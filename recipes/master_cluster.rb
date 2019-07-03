@@ -17,6 +17,7 @@ node['cookbook-openshift3']['enabled_firewall_rules_master_cluster'].each do |ru
   iptables_rule rule do
     action :enable
     notifies :restart, 'service[iptables]', :immediately
+    notifies :run, 'execute[rebuild-iptables]', :immediately
   end
 end
 

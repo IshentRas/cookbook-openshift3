@@ -1,7 +1,7 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
-## v2.1.27
+## v2.1.27-29
 ### Bug
 - Enable service discovery when uninstalling node
 
