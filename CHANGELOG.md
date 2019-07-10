@@ -1,6 +1,13 @@
 # Openshift 3 Cookbook CHANGELOG
 This file is used to list changes made in each version of the Openshift 3 cookbook.
 
+## v2.1.31
+### Bug
+- Make sure the services (api, controller and node) restart when performing an asynchronous update
+
+### Improvement
+- Add more ec2 userdata defined attributes (openshift_hosted_router_certfile openshift_hosted_router_keyfile openshift_master_named_certificates)
+
 ## v2.1.27-29
 ### Bug
 - Enable service discovery when uninstalling node
