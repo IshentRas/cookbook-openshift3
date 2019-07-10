@@ -65,7 +65,20 @@ action :install do
       options new_resource.options.nil? ? node['cookbook-openshift3']['openshift_yum_options'] : new_resource.options
       notifies :run, 'execute[daemon-reload]', :immediately
       not_if { node['cookbook-openshift3']['deploy_containerized'] || (is_certificate_server && node['fqdn'] != first_master['fqdn']) }
+      flush_cache [:before]
       retries 3
+    end
+
+    if node['cookbook-openshift3']['asynchronous_upgrade']
+      log 'Master services (Asynchronous Upgrade)' do
+        level :info
+        notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-api]", :immediately if node['cookbook-openshift3']['openshift_HA']
+        notifies :restart, "service[#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers]", :immediately if node['cookbook-openshift3']['openshift_HA']
+        not_if { ::File.file?("/usr/local/share/info/.upgrade-#{node['cookbook-openshift3']['ose_version']}") }
+      end
+      file "/usr/local/share/info/.upgrade-#{node['cookbook-openshift3']['ose_version']}" do
+        action :create_if_missing
+      end
     end
 
     yum_package "#{node['cookbook-openshift3']['openshift_service_type']}-clients" do

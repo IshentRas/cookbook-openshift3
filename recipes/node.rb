@@ -110,7 +110,19 @@ if is_node_server
     version Array.new(pkg_node_array.size, node['cookbook-openshift3']['ose_version']) unless node['cookbook-openshift3']['ose_version'].nil?
     options node['cookbook-openshift3']['openshift_yum_options'] unless node['cookbook-openshift3']['openshift_yum_options'].nil?
     not_if { node['cookbook-openshift3']['deploy_containerized'] }
+    flush_cache [:before]
     retries 3
+  end
+
+  if node['cookbook-openshift3']['asynchronous_upgrade']
+    log 'Node services (Asynchronous Upgrade)' do
+      level :info
+      notifies :restart, 'service[Restart Node]', :immediately
+      not_if { ::File.file?("/usr/local/share/info/.upgrade-#{node['cookbook-openshift3']['ose_version']}") }
+    end
+    file "/usr/local/share/info/.upgrade-#{node['cookbook-openshift3']['ose_version']}" do
+      action :create_if_missing
+    end
   end
 
   yum_package 'conntrack-tools' do

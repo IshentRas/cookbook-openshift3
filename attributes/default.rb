@@ -190,11 +190,11 @@ default['cookbook-openshift3']['openshift_master_console_url'] = "https://#{node
 default['cookbook-openshift3']['openshift_master_policy'] = "#{node['cookbook-openshift3']['openshift_master_config_dir']}/policy.json"
 default['cookbook-openshift3']['openshift_master_config_file'] = "#{node['cookbook-openshift3']['openshift_master_config_dir']}/master-config.yaml"
 default['cookbook-openshift3']['openshift_master_api_sysconfig'] = "/etc/sysconfig/#{node['cookbook-openshift3']['openshift_service_type']}-master-api"
-default['cookbook-openshift3']['openshift_master_api_systemd'] = "/usr/lib/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-master-api.service"
+default['cookbook-openshift3']['openshift_master_api_systemd'] = "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-master-api.service"
 default['cookbook-openshift3']['openshift_master_controllers_sysconfig'] = "/etc/sysconfig/#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers"
-default['cookbook-openshift3']['openshift_master_controllers_systemd'] = "/usr/lib/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers.service"
+default['cookbook-openshift3']['openshift_master_controllers_systemd'] = "/etc/systemd/system/#{node['cookbook-openshift3']['openshift_service_type']}-master-controllers.service"
 default['cookbook-openshift3']['openshift_master_ca_certificate'] = { 'data_bag_name' => nil, 'data_bag_item_name' => nil, 'secret_file' => nil }
-default['cookbook-openshift3']['openshift_master_named_certificates'] = %w[]
+default['cookbook-openshift3']['openshift_master_named_certificates'] = node['cookbook-openshift3']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_master_named_certificates') ? JSON.parse(node['ec2']['userdata'])['openshift_master_named_certificatesopenshift_master_named_certificates'] : %w[]
 default['cookbook-openshift3']['openshift_master_scheduler_conf'] = "#{node['cookbook-openshift3']['openshift_master_config_dir']}/scheduler.json"
 default['cookbook-openshift3']['openshift_master_managed_names_additional'] = %w[]
 default['cookbook-openshift3']['openshift_master_retain_events'] = nil
@@ -245,8 +245,8 @@ default['cookbook-openshift3']['openshift_hosted_router_deploy_shards'] = false
 default['cookbook-openshift3']['openshift_hosted_router_shard'] = []
 default['cookbook-openshift3']['openshift_hosted_router_namespace'] = 'default'
 default['cookbook-openshift3']['openshift_hosted_router_options'] = []
-default['cookbook-openshift3']['openshift_hosted_router_certfile'] = "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-router.crt"
-default['cookbook-openshift3']['openshift_hosted_router_keyfile'] = "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-router.key"
+default['cookbook-openshift3']['openshift_hosted_router_certfile'] = node['cookbook-openshift3']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_hosted_router_certfile') ? JSON.parse(node['ec2']['userdata'])['openshift_hosted_router_certfile'] : "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-router.crt"
+default['cookbook-openshift3']['openshift_hosted_router_keyfile'] = node['cookbook-openshift3']['openshift_node_user_data'] && JSON.parse(node['ec2']['userdata']).key?('openshift_hosted_router_keyfile') ? JSON.parse(node['ec2']['userdata'])['openshift_hosted_router_keyfile'] : "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-router.key"
 
 default['cookbook-openshift3']['openshift_hosted_manage_registry'] = true
 default['cookbook-openshift3']['openshift_hosted_registry_namespace'] = 'default'
