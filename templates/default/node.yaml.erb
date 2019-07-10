@@ -56,7 +56,7 @@ masterClientConnectionOverrides:
 <% if node['cookbook-openshift3']['use_wildcard_nodes'] %>
 masterKubeConfig: system:node:wildcard_nodes.kubeconfig
 <%- else -%>
-masterKubeConfig: system:node:<%= node['fqdn'] %>.kubeconfig
+masterKubeConfig: system:node:<%= node['fqdn'].downcase %>.kubeconfig
 <%- end -%>
 networkPluginName: <%= node['cookbook-openshift3']['openshift_common_sdn_network_plugin_name'] %>
 # networkConfig struct introduced in origin 1.0.6 and OSE 3.0.2 which
