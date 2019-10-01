@@ -14,6 +14,7 @@ certificate_server = server_info.certificate_server
 is_certificate_server = server_info.on_certificate_server?
 is_control_plane_server = server_info.on_control_plane_server?
 etcd_servers = server_info.etcd_servers
+certificate_server_protocol = server_info.certificate_server_protocol
 
 include_recipe 'cookbook-openshift3::services'
 
@@ -178,7 +179,7 @@ unless etcd_servers.size == 1
 
     remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
       path "/etc/systemd/system/#{node['cookbook-openshift3']['etcd_service_name']}.service.d/etcd-dropin"
-      source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"
+      source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"
       notifies :run, 'execute[daemon-reload]', :immediately
       retries 120
       retry_delay 5

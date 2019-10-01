@@ -11,6 +11,7 @@ is_first_master = server_info.on_first_master?
 is_certificate_server = server_info.on_certificate_server?
 docker_version = node['cookbook-openshift3']['openshift_docker_image_version']
 service_accounts = node['cookbook-openshift3']['openshift_common_service_accounts_additional'].any? ? node['cookbook-openshift3']['openshift_common_service_accounts'] + node['cookbook-openshift3']['openshift_common_service_accounts_additional'] : node['cookbook-openshift3']['openshift_common_service_accounts']
+certificate_server_protocol = server_info.certificate_server_protocol
 
 if is_master_server
   node['cookbook-openshift3']['enabled_firewall_rules_master_cluster'].each do |rule|
@@ -49,7 +50,7 @@ if is_master_server
 
   remote_file "Retrieve ETCD client certificate from Certificate Server[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz.enc"
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
     action :create_if_missing
     notifies :run, 'execute[Un-encrypt etcd certificates tgz files]', :immediately
     notifies :run, 'execute[Extract etcd certificates to Master folder]', :immediately
@@ -72,7 +73,7 @@ if is_master_server
 
   remote_file "Retrieve ETCD CA cert from Certificate Server[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}ca.crt"
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
     owner 'root'
     group 'root'
     mode '0600'
@@ -84,7 +85,7 @@ if is_master_server
 
   remote_file "Retrieve master certificates from Certificate Server[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-#{node['fqdn']}.tgz.enc"
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz.enc"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz.enc"
     action :create_if_missing
     notifies :run, 'execute[Un-encrypt master certificates master tgz files]', :immediately
     notifies :run, 'execute[Extract master certificates to Master folder]', :immediately

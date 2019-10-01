@@ -6,6 +6,7 @@
 
 server_info = OpenShiftHelper::NodeHelper.new(node)
 certificate_server = server_info.certificate_server
+certificate_server_protocol = server_info.certificate_server_protocol
 
 if node['cookbook-openshift3']['encrypted_file_password']['data_bag_name'] && node['cookbook-openshift3']['encrypted_file_password']['data_bag_item_name']
   secret_file = node['cookbook-openshift3']['encrypted_file_password']['secret_file'] || nil
@@ -16,7 +17,7 @@ end
 
 remote_file 'Retrieve the aggregator certs' do
   path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/wire_aggregator-masters.tgz.enc"
-  source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/wire_aggregator-masters.tgz.enc"
+  source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/wire_aggregator-masters.tgz.enc"
   action :create_if_missing
   notifies :run, 'execute[Un-encrypt aggregator tgz files]', :immediately
   notifies :run, 'execute[Extract aggregator to Master folder]', :immediately

@@ -174,6 +174,10 @@ module OpenShiftHelper
       ca_exist && !dir_exist
     end
 
+    def certificate_server_protocol
+      node['cookbook-openshift3']['httpd_secure'] ? 'https' : 'http'
+    end
+
     def get_nodevar(var)
       if node_servers.any? { |server_node| server_node['fqdn'] == node['fqdn'] && server_node.key?(var) }
         node_servers.find { |server_node| server_node['fqdn'] == node['fqdn'] }[var.to_s]

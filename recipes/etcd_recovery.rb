@@ -11,6 +11,7 @@ certificate_server = server_info.certificate_server
 is_certificate_server = server_info.on_certificate_server?
 etcd_servers = server_info.etcd_servers
 etcd_healthy = helper.checketcd_healthy?
+certificate_server_protocol = server_info.certificate_server_protocol
 
 if is_certificate_server && etcd_healthy && ::File.file?(node['cookbook-openshift3']['adhoc_recovery_etcd_certificate_server'])
   file node['cookbook-openshift3']['adhoc_recovery_etcd_certificate_server'] do
@@ -87,7 +88,7 @@ if is_etcd_server && ::File.file?(node['cookbook-openshift3']['adhoc_recovery_et
 
   remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
     path "/etc/systemd/system/#{node['cookbook-openshift3']['etcd_service_name']}.service.d/etcd-dropin"
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/recovery/etcd-#{node['fqdn']}"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/recovery/etcd-#{node['fqdn']}"
     notifies :run, 'execute[daemon-reload]', :immediately
     notifies :delete, "directory[#{node['cookbook-openshift3']['etcd_data_dir']}/member]", :immediately
     retries 120

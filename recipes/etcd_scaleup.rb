@@ -13,6 +13,7 @@ is_new_etcd_server = server_info.on_new_etcd_server?
 is_certificate_server = server_info.on_certificate_server?
 etcds = etcd_servers.map { |srv| "https://#{srv['ipaddress']}:2379" }.join(',')
 path_bin = node['cookbook-openshift3']['openshift_docker_etcd_image'].include?('coreos') ? '/usr/local/bin/etcd' : '/usr/bin/etcd'
+certificate_server_protocol = server_info.certificate_server_protocol
 
 unless new_etcd_servers.empty?
   if is_certificate_server
@@ -60,7 +61,7 @@ unless new_etcd_servers.empty?
 
       remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
         path "/etc/systemd/system/#{node['cookbook-openshift3']['etcd_service_name']}.service.d/etcd-dropin"
-        source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/scaleup/etcd-#{node['fqdn']}"
+        source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/scaleup/etcd-#{node['fqdn']}"
         action :create_if_missing
         notifies :run, 'execute[daemon-reload]', :immediately
         notifies :start, 'service[etcd-service]', :immediately
