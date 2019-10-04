@@ -110,8 +110,14 @@ BASH
       if ! grep -q '99-origin-dns.sh' /etc/resolv.conf; then
           echo "# nameserver updated by /etc/NetworkManager/dispatcher.d/99-origin-dns.sh" >> ${NEW_RESOLV_CONF}
       fi
-      sed -e '/^nameserver.*$/d' /etc/resolv.conf >> ${NEW_RESOLV_CONF}
-      echo "nameserver "${def_route_ip}"" >> ${NEW_RESOLV_CONF}
+      sed -e "/^nameserver.*${def_route_ip}$/d" /etc/resolv.conf >> ${NEW_RESOLV_CONF}
+      # Add nameserver rather than replace if existing != def_route_ip. Fix for nip.io in kitchen environment
+      # Pods always uses first nameserver entry from /etc/resolv.conf therefore adding default route IP as first nameserver
+      if grep -q '^nameserver.*$' ${NEW_RESOLV_CONF}; then
+        sed -in "0,/^nameserver.*$/s/^nameserver.*$/nameserver ${def_route_ip}\n&/" ${NEW_RESOLV_CONF}
+      else
+        echo "nameserver "${def_route_ip}"" >> ${NEW_RESOLV_CONF}
+      fi
       if ! grep -q 'search.*cluster.local' ${NEW_RESOLV_CONF}; then
         sed -i '/^search/ s/$/ cluster.local/' ${NEW_RESOLV_CONF}
       fi

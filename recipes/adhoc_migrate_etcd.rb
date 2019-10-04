@@ -180,6 +180,7 @@ unless etcd_servers.size == 1
     remote_file "Retrieve ETCD SystemD Drop-in from Certificate Server[#{certificate_server['fqdn']}]" do
       path "/etc/systemd/system/#{node['cookbook-openshift3']['etcd_service_name']}.service.d/etcd-dropin"
       source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/migration/etcd-#{node['fqdn']}"
+      headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
       notifies :run, 'execute[daemon-reload]', :immediately
       retries 120
       retry_delay 5

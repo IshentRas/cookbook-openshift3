@@ -110,4 +110,13 @@ else
       end
     end
   end
+
+  # Add .htaccess for nodes if non-wildcard nodes are used
+  template "#{node['cookbook-openshift3']['openshift_node_generated_configs_dir']}/.htaccess" do
+    owner 'apache'
+    group 'apache'
+    source 'access-htaccess.erb'
+    notifies :run, 'ruby_block[Modify the AllowOverride options]', :immediately
+    variables(servers: node_servers)
+  end
 end

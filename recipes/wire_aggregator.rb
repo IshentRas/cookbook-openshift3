@@ -18,6 +18,7 @@ end
 remote_file 'Retrieve the aggregator certs' do
   path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/wire_aggregator-masters.tgz.enc"
   source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/wire_aggregator-masters.tgz.enc"
+  headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
   action :create_if_missing
   notifies :run, 'execute[Un-encrypt aggregator tgz files]', :immediately
   notifies :run, 'execute[Extract aggregator to Master folder]', :immediately

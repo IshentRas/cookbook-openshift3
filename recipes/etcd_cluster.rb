@@ -76,6 +76,7 @@ if is_etcd_server || is_new_etcd_server
   remote_file "#{node['cookbook-openshift3']['etcd_conf_dir']}/ca.crt" do
     source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
     retries ::Mixlib::ShellOut.new("systemctl is-enabled #{node['cookbook-openshift3']['etcd_service_name']}").run_command.error? ? 180 : 60
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retry_delay 5
     sensitive true
     action :create_if_missing
@@ -87,6 +88,7 @@ if is_etcd_server || is_new_etcd_server
     action :create_if_missing
     notifies :run, 'execute[Un-encrypt etcd certificate tgz files]', :immediately
     notifies :run, 'execute[Extract certificate to ETCD folder]', :immediately
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retries 60
     retry_delay 5
   end

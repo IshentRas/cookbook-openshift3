@@ -62,6 +62,7 @@ end
 remote_file "Retrieve ETCD client certificate from Certificate Server[#{certificate_server['fqdn']}]" do
   path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-master-#{node['fqdn']}.tgz.enc"
   source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-master-#{node['fqdn']}.tgz.enc"
+  headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
   action :create_if_missing
   notifies :run, 'execute[Un-encrypt etcd certificates tgz files]', :immediately
   notifies :run, 'execute[Extract etcd certificates to Master folder]', :immediately
@@ -85,6 +86,7 @@ end
 remote_file "Retrieve ETCD CA cert from Certificate Server[#{certificate_server['fqdn']}]" do
   path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/#{node['cookbook-openshift3']['master_etcd_cert_prefix']}ca.crt"
   source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
+  headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
   owner 'root'
   group 'root'
   mode '0600'
@@ -97,6 +99,7 @@ end
 remote_file "Retrieve master certificates from Certificate Server[#{certificate_server['fqdn']}]" do
   path "#{node['cookbook-openshift3']['openshift_master_config_dir']}/openshift-#{node['fqdn']}.tgz.enc"
   source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/master/generated_certs/openshift-#{node['fqdn']}.tgz.enc"
+  headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
   action :create_if_missing
   notifies :run, 'execute[Un-encrypt master certificates master tgz files]', :immediately
   notifies :run, 'execute[Extract master certificates to Master folder]', :immediately

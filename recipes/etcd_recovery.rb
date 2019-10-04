@@ -91,6 +91,7 @@ if is_etcd_server && ::File.file?(node['cookbook-openshift3']['adhoc_recovery_et
     source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/recovery/etcd-#{node['fqdn']}"
     notifies :run, 'execute[daemon-reload]', :immediately
     notifies :delete, "directory[#{node['cookbook-openshift3']['etcd_data_dir']}/member]", :immediately
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retries 120
     retry_delay 5
   end

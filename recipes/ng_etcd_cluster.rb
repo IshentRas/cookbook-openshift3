@@ -70,6 +70,7 @@ if is_etcd_server || is_new_etcd_server
 
   remote_file "#{node['cookbook-openshift3']['etcd_conf_dir']}/ca.crt" do
     source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retries 60
     retry_delay 5
     sensitive true
@@ -79,6 +80,7 @@ if is_etcd_server || is_new_etcd_server
   remote_file "Retrieve ETCD certificates from Certificate Server[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['etcd_conf_dir']}/etcd-#{node['fqdn']}.tgz.enc"
     source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/generated_certs/etcd-#{node['fqdn']}.tgz.enc"
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     action :create_if_missing
     notifies :run, 'execute[Un-encrypt etcd certificate tgz files]', :immediately
     notifies :run, 'execute[Extract certificate to ETCD folder]', :immediately
