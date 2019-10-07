@@ -6,6 +6,7 @@
 
 server_info = OpenShiftHelper::NodeHelper.new(node)
 certificate_server = server_info.certificate_server
+certificate_server_protocol = server_info.certificate_server_protocol
 
 if node['cookbook-openshift3']['encrypted_file_password']['data_bag_name'] && node['cookbook-openshift3']['encrypted_file_password']['data_bag_item_name']
   secret_file = node['cookbook-openshift3']['encrypted_file_password']['secret_file'] || nil
@@ -16,7 +17,8 @@ end
 
 remote_file "Retrieve certificate from Master[#{certificate_server['fqdn']}]" do
   path "#{node['cookbook-openshift3']['openshift_node_config_dir']}/#{node['fqdn']}.tgz.enc"
-  source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/node/generated-configs/#{node['fqdn']}.tgz.enc"
+  source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/node/generated-configs/#{node['fqdn']}.tgz.enc"
+  headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
   action :create_if_missing
   notifies :run, 'execute[Un-encrypt node certificate tgz files]', :immediately
   notifies :run, 'execute[Extract certificate to Node folder]', :immediately

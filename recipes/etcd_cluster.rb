@@ -14,6 +14,7 @@ is_etcd_server = server_info.on_etcd_server?
 is_new_etcd_server = server_info.on_new_etcd_server?
 is_master_server = server_info.on_master_server?
 etcd_healthy = helper.checketcd_healthy?
+certificate_server_protocol = server_info.certificate_server_protocol
 
 if node['cookbook-openshift3']['encrypted_file_password']['data_bag_name'] && node['cookbook-openshift3']['encrypted_file_password']['data_bag_item_name']
   secret_file = node['cookbook-openshift3']['encrypted_file_password']['secret_file'] || nil
@@ -73,8 +74,9 @@ if is_etcd_server || is_new_etcd_server
   end
 
   remote_file "#{node['cookbook-openshift3']['etcd_conf_dir']}/ca.crt" do
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/ca.crt"
     retries ::Mixlib::ShellOut.new("systemctl is-enabled #{node['cookbook-openshift3']['etcd_service_name']}").run_command.error? ? 180 : 60
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retry_delay 5
     sensitive true
     action :create_if_missing
@@ -82,10 +84,11 @@ if is_etcd_server || is_new_etcd_server
 
   remote_file "Retrieve ETCD certificates from Certificate Server[#{certificate_server['fqdn']}]" do
     path "#{node['cookbook-openshift3']['etcd_conf_dir']}/etcd-#{node['fqdn']}.tgz.enc"
-    source "http://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/generated_certs/etcd-#{node['fqdn']}.tgz.enc"
+    source "#{certificate_server_protocol}://#{certificate_server['ipaddress']}:#{node['cookbook-openshift3']['httpd_xfer_port']}/etcd/generated_certs/etcd-#{node['fqdn']}.tgz.enc"
     action :create_if_missing
     notifies :run, 'execute[Un-encrypt etcd certificate tgz files]', :immediately
     notifies :run, 'execute[Extract certificate to ETCD folder]', :immediately
+    headers(node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']) if node['cookbook-openshift3']['cert_server_headers'] || node.run_state['openshift3_cert_server_headers']
     retries 60
     retry_delay 5
   end
